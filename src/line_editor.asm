@@ -48,7 +48,6 @@ line_editor_get_key
 ;  - A: key char
 line_editor_treat_key
 
-    BREAKPOINT_WINAPE
 
     cp key_backspace : jr z, .backspace
     cp key_left : jr z, .key_left

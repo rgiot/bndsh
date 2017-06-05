@@ -9,7 +9,6 @@
 
     struct command
 .name dw 0
-.nbArgs db 0
 .routine dw 0
     endstruct
 
@@ -17,7 +16,6 @@
 ; Input
 ;  - HL: string to parse
 interpreter_manage_input
-    BREAKPOINT_WINAPE
     ; Ensure we really start at the right position
     call string_move_until_first_nonspace_char  
     
@@ -30,8 +28,66 @@ interpreter_manage_input
     call string_copy_word
 
     
-    call interpreter_command_not_found
+    ; Searhc and launch routine
+    call interpreter_search_and_launch_routine
+
     ret
+
+
+
+interpreter_search_and_launch_routine
+    BREAKPOINT_WINAPE
+    ld hl, interpreter_command_list
+.loop
+        push hl
+
+        ; HL : command list
+
+        ; Read the address name of the current command
+        ld c, (hl) : inc hl
+        ld b, (hl) 
+
+
+        ; Check if it is the end
+        ld a, b
+        cp c
+        jr z, .end
+
+        ; if no, check if we match the current routine
+
+        ; Need to do the comparison with HL and DE
+        ld h, b
+        ld l, c
+        ld de, interpreter.command_name_buffer 
+        call string_compare
+        jr z, .match
+
+
+        ; Jump to next command database
+        pop hl
+        ld de, command
+        add hl, de
+
+
+    jr .loop
+
+.end
+    ;; Routine never found
+     pop hl ; retreive save value
+    jp interpreter_command_not_found
+
+.match
+    pop hl ; retreive buffer address
+    ld de, 2 ;command.routine
+    add hl, de
+
+    ld e, (hl) : inc hl : ld d, (hl)
+    ex de, hl
+
+    jp (hl) ; execute the command
+
+
+    
 
 
 interpreter_command_not_found
@@ -41,7 +97,8 @@ interpreter_command_not_found
 
 
 interpreter_command_list
-    command interpreter_command_cat.name, interpreter_command_cat.nbArgs, interpreter_command_cat.routine
+    command interpreter_command_cat.name, interpreter_command_cat.routine
+    command interpreter_command_clear.name, interpreter_command_clear.routine
     dw 0
 
 
@@ -51,6 +108,13 @@ interpreter_command_cat
 .routine
     ld a, '?' : call 0xbb5d
     ret
+
+interpreter_command_clear
+.nbArgs equ 0
+.name string "clear"
+.routine
+    ;call FIRMWARE.SCR_CLEAR
+    jp line_editor_init ; XXX Optimize
     
 
 

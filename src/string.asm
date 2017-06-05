@@ -59,7 +59,6 @@ string_char_is_eof
 ;  - A, BC
 ; Limitation: no overflow test
 string_copy_word
-    BREAKPOINT_WINAPE
 .loop
     ld a, (hl)
     call string_char_is_space : jr z, .end
@@ -84,3 +83,38 @@ string_move_until_first_nonspace_char
     inc hl
     jr .loop
 
+
+
+;;
+; Input
+;  - HL:  string 1
+;  - DE: stirng 2
+; Output
+;  - Zero flag set when not equal
+string_compare
+.loop
+
+    ld a, (hl)
+    call string_char_is_eof 
+    jr z, .str1_empty
+
+.str1_not_empty
+    ld c, a
+    ld a, (de) : call string_char_is_eof : jr z, .not_equal
+.str1_not_empty_and_str2_not_empty
+    cp c : jr nz, .not_equal
+
+    inc de : inc hl
+    jr .loop
+
+.str1_empty
+    ld a, (de) : call string_char_is_eof : jr z, .equal
+    jr .not_equal
+
+.equal
+    cp a; Z=1
+    ret
+
+.not_equal
+    or 1; Z=0
+    ret

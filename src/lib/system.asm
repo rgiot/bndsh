@@ -8,6 +8,7 @@ FIRMWARE
 .SCR_SET_INK        equ 0xBC32
 .SCR_SET_BORDER     equ 0xbc38
 .SCR_SET_FLASHING   equ 0xbc3e
+.SCR_CLEAR          equ 0xbc14
 
 .SCR_GET_MODE       equ 0xBC11
 .SCR_GET_INK        equ 0xBC35
