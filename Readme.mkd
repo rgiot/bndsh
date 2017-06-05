@@ -1,0 +1,3 @@
+ Benediction Shell by benediction 
+
+ Minimalist shell for Amstrad CPC with m4 (in fact, it is not really a shell, just a command line editor...)
