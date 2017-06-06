@@ -147,7 +147,6 @@ line_editor_treat_key
     jr z, .insert_char_no_scroll
 
 
-    BREAKPOINT_WINAPE
 .insert_char_scroll
     ;; Scroll text content
     sub e
