@@ -32,3 +32,9 @@ line_editor
 interpreter
 .max_command_name equ 256
 .command_name_buffer defs .max_command_name
+
+
+
+rsx_name
+.dir db "DI", "R"+0x80
+;.dir db "RE", "N"+0x80

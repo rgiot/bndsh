@@ -36,7 +36,6 @@ interpreter_manage_input
 
 
 interpreter_search_and_launch_routine
-    BREAKPOINT_WINAPE
     ld hl, interpreter_command_list
 .loop
         push hl
@@ -98,6 +97,7 @@ interpreter_command_not_found
 
 interpreter_command_list
     command interpreter_command_cat.name, interpreter_command_cat.routine
+    command interpreter_command_crtc.name, interpreter_command_crtc.routine
     command interpreter_command_clear.name, interpreter_command_clear.routine
     dw 0
 
@@ -106,8 +106,23 @@ interpreter_command_cat
 .nbArgs equ 0
 .name  string "cat"
 .routine
-    ld a, '?' : call 0xbb5d
+    
+    ; CAS test
+    ld de, 0x2000 : call 0xBC65
+
+    ld hl, rsx_name.dir
+    call FIRMWARE.KL_FIND_COMMAND
+    jr nc, .not_found ; Should never append
+    ;call FIRMWARE.KL_FAR_PCHL
+
     ret
+.not_found
+    ld hl, interpreter_messages.rsx_not_found
+    call display_print_string
+    ld hl, rsx_name.dir
+    call display_print_rsx_name; XXX Call a display_print_rsx_name
+    ret
+
 
 interpreter_command_clear
 .nbArgs equ 0
@@ -117,8 +132,19 @@ interpreter_command_clear
     jp line_editor_init ; XXX Optimize
     
 
+interpreter_command_crtc
+.nbArgs equ 0
+.name string "crtc"
+.routine
+    call TestCRTC
+    add '0'
+    call display_print_char
+    ret
 
 
 interpreter_messages
+.command_not_found
     string 'command not found: '
+.rsx_not_found
+    string 'rsx not found: '
 

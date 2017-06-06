@@ -33,6 +33,9 @@ FIRMWARE
 .kl_l_rom_enable equ 0xb906
 .kl_l_rom_disable equ 0xb909
 .kl_u_rom_disable equ 0xb903
+.KL_FIND_COMMAND equ 0xbcd4
+
+.KL_FAR_PCHL equ 0x001B 
 
     macro KILL_SYSTEM   
         ld hl, 0xc9fb

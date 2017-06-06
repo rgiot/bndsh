@@ -23,3 +23,23 @@ display_print_string
         inc hl
 
     jr .loop
+
+
+
+
+display_print_rsx_name
+.loop
+        ld a, (hl)
+        bit 7, a
+        jr nz, .latest
+
+        call display_print_char
+
+        inc hl
+
+    jr .loop
+
+.latest
+    res 7, a
+    call display_print_char
+    ret

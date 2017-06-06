@@ -1,6 +1,8 @@
-    org 0x4000
+    org 0x8000
+
 
     call line_editor_init
+
     jp line_editor_main_loop
     
 
@@ -11,3 +13,4 @@
     include "display.asm"
     include "string.asm"
     include "data.asm"
+    include "lib/CRTC_detection.asm" ; XXX Attention may not be ROM friendly
