@@ -26,7 +26,7 @@ line_editor
 .cursor_xpos db 0
 .cursor_ypos db 0 ; Change with screen scrolling
 .check_cursor db 1
-.text_buffer defs .visible_width + 2
+.text_buffer defs .max_width + 2
 .current_width db 0
 
 

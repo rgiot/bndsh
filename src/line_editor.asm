@@ -98,14 +98,14 @@ line_editor_treat_key
 .key_right
     ld a, (line_editor.current_width): ld c, a
     ld a, (line_editor.cursor_xpos)
-    cp c : ret z
+    cp c : jp z, .play_sound_and_leave
     inc a
     ld (line_editor.cursor_xpos), a
     ret
 
 .backspace
     ld a, (line_editor.cursor_xpos)
-    or a : ret z
+    or a : jp z, .play_sound_and_leave
     dec a
     ld (line_editor.cursor_xpos), a
     ld a, (line_editor.current_width) : dec a : ld (line_editor.current_width), a
@@ -131,23 +131,64 @@ line_editor_treat_key
     
 
 .insert_char
+
     ;; Compute the buffer address
     ld hl, line_editor.text_buffer
     ld de, (line_editor.cursor_xpos) : ld d, 0
     add hl, de
+    push hl : push de : push af
+
+    ; HL=address to squeeze
+    ; D=0
+    ; E=position of cursor
+
+    ld a, (line_editor.current_width)
+    cp e
+    jr z, .insert_char_no_scroll
+
+
+    BREAKPOINT_WINAPE
+.insert_char_scroll
+    ;; Scroll text content
+    sub e
+
+    ; TODO add secuirty ?
+
+    ; scroll the buffer
+    push hl
+        ld b, 0 : ld c, a
+        add hl, bc
+        ld d, h: ld e, l : inc de
+        inc bc: inc bc
+        lddr
+    pop hl
+    
+    pop af : pop de : pop hl
 
     ; Write the char in the buffer
     ld (hl), a
-    
-    ; The space for the next char
-    inc hl
-    ld a, ' '
-    ld (hl), a
 
-    ; End the end of string
-    inc hl
-    xor a
+    ; if we are here it is because there is buffer used after, so we can move safely
+    inc e : ld a, e
+    ld (line_editor.cursor_xpos), a
+
+
+    ; however the string still grows of one char
+    ld a, (line_editor.current_width) : inc a : ld (line_editor.current_width), a
+    ld e, a : ld d, 0
+    ld hl, line_editor.text_buffer
+    add hl, de
+    jp .insert_char_no_scroll_put_guard
+
+
+.insert_char_no_scroll
+
+    pop af : pop de : pop hl
+    ; Write the char in the buffer
     ld (hl), a
+    
+    inc hl
+    call .insert_char_no_scroll_put_guard
 
 
     ; Increment buffer position
@@ -161,6 +202,17 @@ line_editor_treat_key
 
     ld a, (line_editor.current_width) : inc a : ld (line_editor.current_width), a
     ret
+.insert_char_no_scroll_put_guard
+    ; The space for the next char
+    ld a, ' '
+    ld (hl), a
+
+    ; End the end of string
+    inc hl
+    xor a
+    ld (hl), a
+    ret
+
 
 .play_sound_and_leave
     if config_enable_sound
