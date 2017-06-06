@@ -26,14 +26,35 @@ line_editor
 .cursor_xpos db 0
 .cursor_ypos db 0 ; Change with screen scrolling
 .check_cursor db 1
-.text_buffer defs .max_width + 2
+; XXX current widht MUST be before text_buffer in order to STRICTLY have the same structure than the history
+.history_pointer
 .current_width db 0
+.text_buffer defs .max_width + 2
 
 
 interpreter
 .max_command_name equ 256
 .command_name_buffer defs .max_command_name
 
+
+history
+.size equ 5
+.current db 0
+.buffer1 
+    db 0 ; Size
+    defs line_editor.max_width + 2 ; data
+.buffer2 
+    db 0
+    defs line_editor.max_width + 2
+.buffer3 
+    db 0
+    defs line_editor.max_width + 2
+.buffer4 
+    db 0
+    defs line_editor.max_width + 2
+.buffer5 
+    db 0
+    defs line_editor.max_width + 2
 
 
 rsx_name

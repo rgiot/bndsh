@@ -30,5 +30,6 @@ config_enable_sound equ 1
     include "interpreter.asm"
     include "display.asm"
     include "string.asm"
-    include "data.asm"
+    include "history.asm"
     include "lib/CRTC_detection.asm" ; XXX Attention may not be ROM friendly
+    include "data.asm"

@@ -14,6 +14,8 @@ key_backspace equ 0x7f
 key_del equ 0x10
 key_left equ 0xf2
 key_right equ 0xf3
+key_up equ 0xf0
+key_down equ 0xf1
 key_return equ 0x0d
 key_eot equ  0x04
 
@@ -27,6 +29,11 @@ line_editor_init
     ret
 
 line_editor_clear_buffers
+    call history_save_current_context ; For performance reasons, I think it is better to save history here and not before launching a command that may never return
+
+    ld a, -1
+    ld (history.current), a
+
     xor a
     ld (line_editor.text_buffer + 1 ), a
 
@@ -53,14 +60,26 @@ line_editor_treat_key
     cp key_backspace : jr z, .backspace
     cp key_left : jr z, .key_left
     cp key_right : jr z, .key_right
-    cp key_del : jr z, .key_del
+    cp key_del : jp z, .key_del
     cp key_return : jr z, .key_return
+    cp key_up : jr z, .history_previous
+    cp key_down : jr z, .history_next
  ;   cp key_eot: jp interpreter_command_exit.routine ; XXX for an unknown reason, does not work
 
     jp .insert_char
 
 
 
+.history_previous
+    BREAKPOINT_WINAPE
+    call history_select_previous
+    call line_editor_display_line
+    ret
+
+.history_next
+    call history_select_next
+    call line_editor_display_line
+    ret
 
 .key_return
 
