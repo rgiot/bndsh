@@ -114,7 +114,7 @@ interpreter_command_cat
     ld hl, rsx_name.dir
     call FIRMWARE.KL_FIND_COMMAND
     jr nc, .not_found ; Should never append
-    ;call FIRMWARE.KL_FAR_PCHL
+    call FIRMWARE.KL_FAR_PCHL
 
     ret
 .not_found

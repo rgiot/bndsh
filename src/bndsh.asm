@@ -3,6 +3,21 @@
 
 config_enable_sound equ 1
 
+        ; sauvegarde lecteur/face courante
+        ld hl,(&BE7D)
+        ld a,(hl)
+        push hl
+        push af
+        ; initialise la ROM7
+        ld hl,&ABFF
+        ld de,&0040
+        ld c,&06
+        call &BCCE
+        ; on reprend sur le même lecteur/face
+        pop af
+        pop hl
+        ld (hl),a
+
 
     call line_editor_init
 
