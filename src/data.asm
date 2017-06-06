@@ -59,4 +59,4 @@ history
 
 rsx_name
 .dir db "DI", "R"+0x80
-;.dir db "RE", "N"+0x80
+.ls db "L", "S"+0x80

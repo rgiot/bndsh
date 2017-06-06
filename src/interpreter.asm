@@ -100,6 +100,7 @@ interpreter_command_list
     command interpreter_command_crtc.name, interpreter_command_crtc.routine
     command interpreter_command_clear.name, interpreter_command_clear.routine
     command interpreter_command_exit.name, interpreter_command_exit.routine
+    command interpreter_command_ls.name, interpreter_command_ls.routine
     dw 0
 
 
@@ -107,17 +108,27 @@ interpreter_command_cat
 .nbArgs equ 0
 .name  string "cat"
 .routine
-    
-    ; CAS test
-    ld de, 0x2000 : call 0xBC65
-
     ld hl, rsx_name.dir
     call FIRMWARE.KL_FIND_COMMAND
-    jr nc, .not_found ; Should never append
+    jr nc, interpreter_rsx_not_found ; Should never append
     call FIRMWARE.KL_FAR_PCHL
-
     ret
-.not_found
+
+interpreter_command_ls
+.nbArgs equ 0
+.name  string "ls"
+.routine
+    ld hl, rsx_name.ls
+    call FIRMWARE.KL_FIND_COMMAND
+    jr nc, interpreter_rsx_not_found ; Should never append
+    call FIRMWARE.KL_FAR_PCHL
+    ret
+
+
+
+
+
+interpreter_rsx_not_found
     ld hl, interpreter_messages.rsx_not_found
     call display_print_string
     ld hl, rsx_name.dir
