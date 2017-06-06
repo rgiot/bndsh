@@ -15,7 +15,7 @@ key_del equ 0x10
 key_left equ 0xf2
 key_right equ 0xf3
 key_return equ 0x0d
-
+key_eot equ  0x04
 
 
 line_editor_init
@@ -54,6 +54,7 @@ line_editor_treat_key
     cp key_right : jr z, .key_right
     cp key_del : jr z, .key_del
     cp key_return : jr z, .key_return
+    cp key_eot: jp interpreter_command_exit.routine
 
     jp .insert_char
 

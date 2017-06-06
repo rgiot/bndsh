@@ -99,6 +99,7 @@ interpreter_command_list
     command interpreter_command_cat.name, interpreter_command_cat.routine
     command interpreter_command_crtc.name, interpreter_command_crtc.routine
     command interpreter_command_clear.name, interpreter_command_clear.routine
+    command interpreter_command_exit.name, interpreter_command_exit.routine
     dw 0
 
 
@@ -141,6 +142,13 @@ interpreter_command_crtc
     call display_print_char
     ret
 
+
+
+interpreter_command_exit
+.nbArgs equ 0
+.name string "exit"
+.routine
+    call 0
 
 interpreter_messages
 .command_not_found
