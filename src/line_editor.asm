@@ -36,6 +36,7 @@ line_editor_clear_buffers
 
     xor a
     ld (line_editor.cursor_xpos), a
+    ld (line_editor.current_width), a
     ret
 
 
@@ -54,7 +55,7 @@ line_editor_treat_key
     cp key_right : jr z, .key_right
     cp key_del : jr z, .key_del
     cp key_return : jr z, .key_return
-    cp key_eot: jp interpreter_command_exit.routine
+ ;   cp key_eot: jp interpreter_command_exit.routine ; XXX for an unknown reason, does not work
 
     jp .insert_char
 
@@ -95,8 +96,9 @@ line_editor_treat_key
 
 
 .key_right
+    ld a, (line_editor.current_width): ld c, a
     ld a, (line_editor.cursor_xpos)
-    cp line_editor.max_width : ret z
+    cp c : ret z
     inc a
     ld (line_editor.cursor_xpos), a
     ret
@@ -106,6 +108,7 @@ line_editor_treat_key
     or a : ret z
     dec a
     ld (line_editor.cursor_xpos), a
+    ld a, (line_editor.current_width) : dec a : ld (line_editor.current_width), a
 
 .shift_left ; XXX Also called by key_del
     ; TODO optimize this memory move far less memory is supposed to be moved
@@ -154,6 +157,9 @@ line_editor_treat_key
     ret z  ; no increment when arrived at the very end
     ld a, e
     ld (line_editor.cursor_xpos), a
+
+
+    ld a, (line_editor.current_width) : inc a : ld (line_editor.current_width), a
     ret
 
 .play_sound_and_leave
