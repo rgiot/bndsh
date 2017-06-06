@@ -87,7 +87,7 @@ line_editor_treat_key
 
 .key_left
     ld a, (line_editor.cursor_xpos)
-    or a : ret z
+    or a : jp z, .play_sound_and_leave
     dec a
     ld (line_editor.cursor_xpos), a
     ret
@@ -156,6 +156,11 @@ line_editor_treat_key
     ld (line_editor.cursor_xpos), a
     ret
 
+.play_sound_and_leave
+    if config_enable_sound
+       ld a, 7 : call display_print_char
+    endif
+    ret
 
 line_editor_display_line_without_cursor
     xor a : ld (line_editor.check_cursor), a
