@@ -8,8 +8,8 @@
 
 
     struct command
-.name dw 0
-.routine dw 0
+name dw 0
+routine dw 0
     endstruct
 
 ;;
@@ -97,11 +97,50 @@ interpreter_command_not_found
 
 interpreter_command_list
     command interpreter_command_cat.name, interpreter_command_cat.routine
-    command interpreter_command_crtc.name, interpreter_command_crtc.routine
     command interpreter_command_clear.name, interpreter_command_clear.routine
+    command interpreter_command_crtc.name, interpreter_command_crtc.routine
     command interpreter_command_exit.name, interpreter_command_exit.routine
     command interpreter_command_ls.name, interpreter_command_ls.routine
-    dw 0
+    command interpreter_command_help.name, interpreter_command_help.routine
+    command 0, 0
+
+
+
+interpreter_command_help
+.nbArgs equ 0
+.name  string "help"
+.routine
+
+    ld hl, interpreter_command_list
+
+.loop
+
+    ld e, (hl)
+    inc hl
+    ld d, (hl)
+
+    ; Quit if this is the end
+    ld a, d
+    or e
+    ret z
+
+    push hl
+        ex de, hl
+        call display_print_string
+
+        ld a, ' '
+        call display_print_char
+    pop hl
+
+    ld de, command - 1
+    add hl, de
+
+    jr .loop
+
+
+
+    ret
+
 
 
 interpreter_command_cat
