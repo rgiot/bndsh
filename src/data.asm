@@ -35,7 +35,8 @@ line_editor
 interpreter
 .max_command_name equ 256
 .command_name_buffer defs .max_command_name
-
+.next_token_ptr dw .command_name_buffer ; Address to the next token in the parsing (typically 1st argument)
+.next_token_buffer defs .max_command_name
 
 history
 .size equ 5

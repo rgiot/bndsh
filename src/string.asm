@@ -84,6 +84,14 @@ string_move_until_first_nonspace_char
     jr .loop
 
 
+string_move_until_first_space_char
+.loop
+    ld a, (hl)
+    call string_char_is_space: ret z
+    inc hl
+    jr .loop
+
+
 
 ;;
 ; Input
