@@ -9,6 +9,20 @@
 
 
 
+;;;
+; Input;
+; A: a char
+; Output
+; A: the char in uppercase
+string_char_to_upper
+  ;cp 'A' : ret c ; not needed
+  cp 'a'-1 : ret c
+  cp 'z'+1 : ret nc
+
+  add -( 'a' - 'A')
+
+  ret
+
 
 
 ;;
@@ -91,6 +105,12 @@ string_move_until_first_space_char
     inc hl
     jr .loop
 
+string_move_until_null_char
+.loop
+    ld a, (hl)
+    call string_char_is_eof: ret z
+    inc hl
+    jr .loop
 
 
 ;;
@@ -103,7 +123,7 @@ string_compare
 .loop
 
     ld a, (hl)
-    call string_char_is_eof 
+    call string_char_is_eof
     jr z, .str1_empty
 
 .str1_not_empty

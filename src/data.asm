@@ -62,3 +62,4 @@ rsx_name
 .dir db "DI", "R"+0x80
 .ls db "L", "S"+0x80
 .getpath db "GETPAT", "H"+0x80
+.era db "ER", "A"+0x80

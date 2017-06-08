@@ -96,7 +96,48 @@ interpreter_search_and_launch_routine
 
 
 
+
+
 interpreter_command_not_found
+.check_if_rsx_exists
+  ; Copy word in upper case
+
+  BREAKPOINT_WINAPE
+
+  ld hl, interpreter.command_name_buffer
+  ld de, interpreter.next_token_buffer
+.upper_loop
+    ld a, (hl)
+    call string_char_is_eof : jr z, .end_upper_loop
+    call string_char_is_space : jr z, .end_upper_loop
+    call string_char_to_upper
+    ld (de), a
+    inc hl
+    inc de
+  jr .upper_loop
+.end_upper_loop
+
+  ; Set last RSX char value
+  ex de, hl
+  dec hl ; By definition there is at least one char
+  ld a, (hl) : add 0x80 : ld (hl), a
+
+
+
+
+  ; Check if RSX exists
+  ld hl, interpreter.next_token_buffer
+  call FIRMWARE.KL_FIND_COMMAND
+  jp nc, .really_display_message
+
+  ; Call the RSX
+  ; TODO manage the arguments
+  call FIRMWARE.KL_FAR_PCHL
+
+  ret
+
+.really_display_message
+
     ld hl, interpreter_messages : call display_print_string
     ld hl, interpreter.command_name_buffer : call display_print_string
     ret
