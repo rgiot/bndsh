@@ -38,6 +38,7 @@ interpreter_manage_input
     jr z, .no_more_things
       call string_move_until_first_nonspace_char
 .no_more_things
+
     ld (interpreter.next_token_ptr), hl
 
 
@@ -102,7 +103,7 @@ interpreter_command_not_found
 .check_if_rsx_exists
   ; Copy word in upper case
 
-  BREAKPOINT_WINAPE
+
 
   ld hl, interpreter.command_name_buffer
   ld de, interpreter.next_token_buffer
@@ -128,19 +129,55 @@ interpreter_command_not_found
   ; Check if RSX exists
   ld hl, interpreter.next_token_buffer
   call FIRMWARE.KL_FIND_COMMAND
-  jp nc, .really_display_message
+  jp nc, .really_display_message ; XXX commented to help debbug
 
   ; Call the RSX
-  ; TODO manage the arguments
+  push bc : push hl
+  ; Retreive the arguments
+
+
+  ld hl, (interpreter.next_token_ptr)
+  ld a, (hl) : call string_char_is_eof : jr z, .end_of_arguments
+
+; Attention, here we assume the variables are all strings
+
+;; the parameter buffer:
+;; - 2 bytes per parameter:
+;;   integer constant: the constant
+;;   integer variable: address of 2-byte integer variable
+;;   string: address of string descriptor block (size + pointer)
+;;   real: address of 5-byte real number
+
+;; - parameters are stored in reverse order (last parameter is first
+;; in the buffer, first parameter is last in the buffer)
+ ld ix, interpreter.parameter_buffer
+
+.arg1
+
+ ; Build the string parameter
+ ld hl, (interpreter.next_token_ptr) : call string_size : ld (interpreter.param_string1), a
+ ld hl, (interpreter.next_token_ptr) : ld (interpreter.param_string1+1), hl
+
+ ld hl, interpreter.param_string1
+
+ ; Store the string bloc address
+ ld (ix+0), l
+ ld (ix+1), h
+
+ ld a, 1
+
+.end_of_arguments
+  pop hl: pop bc
   call FIRMWARE.KL_FAR_PCHL
 
   ret
 
 .really_display_message
 
-    ld hl, interpreter_messages : call display_print_string
-    ld hl, interpreter.command_name_buffer : call display_print_string
-    ret
+     ld hl, interpreter_messages : call display_print_string
+     ld hl, interpreter.command_name_buffer : call display_print_string
+     ret
+
 
 
 interpreter_command_list

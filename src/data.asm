@@ -37,6 +37,8 @@ interpreter
 .command_name_buffer defs .max_command_name
 .next_token_ptr dw .command_name_buffer ; Address to the next token in the parsing (typically 1st argument)
 .next_token_buffer defs .max_command_name
+.param_string1 defs 3
+.parameter_buffer defs 2*1
 
 history
 .size equ 5

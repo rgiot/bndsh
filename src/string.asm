@@ -25,26 +25,6 @@ string_char_to_upper
 
 
 
-;;
-; Input:
-; - HL: string (null pterminated)
-; Ouptut :
-;  - A: String size
-; Modified:
-;  B
-; Limitation : 8 bits size...
-string_size
-    ld b, 0
-.loop
-    ld a, (hl)
-    or a
-    jr nz, .continue
-.finished
-    ld a, b
-    ret
-.continue
-    inc b
-    jr .loop
 
 
 
@@ -111,6 +91,29 @@ string_move_until_null_char
     call string_char_is_eof: ret z
     inc hl
     jr .loop
+
+
+string_move_until_null_or_space_char
+.loop
+        ld a, (hl)
+        call string_char_is_eof: ret z
+        call string_char_is_space: ret z
+        inc hl
+        jr .loop
+
+
+string_size
+  ld b, 0
+.loop
+  ld a, (hl)
+  call string_char_is_eof: jr z, .end
+  call string_char_is_space: jr z, .end
+  inc hl
+  inc b
+  jr .loop
+.end
+  ld a, b
+  ret
 
 
 ;;
