@@ -108,8 +108,9 @@ interpreter_command_list
 ;    command interpreter_command_cd.name, interpreter_command_cd.name
     command interpreter_command_crtc.name, interpreter_command_crtc.help, interpreter_command_crtc.routine
     command interpreter_command_exit.name, interpreter_command_exit.help, interpreter_command_exit.routine
-    command interpreter_command_ls.name, interpreter_command_ls.help, interpreter_command_ls.routine
     command interpreter_command_help.name, interpreter_command_help.help, interpreter_command_help.routine
+    command interpreter_command_ls.name, interpreter_command_ls.help, interpreter_command_ls.routine
+    command interpreter_command_pwd.name, interpreter_command_pwd.help, interpreter_command_pwd.routine
     command 0, 0
 
 
@@ -286,6 +287,23 @@ interpreter_command_exit
 .help string "Go back to basic."
 .routine
     call 0
+
+
+
+interpreter_command_pwd
+.nbArgs equ 0
+.name string "pwd"
+.help string "Display the current directory"
+.routine
+    ld hl, rsx_name.getpath
+    call FIRMWARE.KL_FIND_COMMAND
+    jp nc, interpreter_rsx_not_found
+    ld a, 255
+    ld de, interpreter.command_name_buffer ; place to write the result
+    call FIRMWARE.KL_FAR_PCHL
+    ld hl, interpreter.command_name_buffer
+    call display_print_string
+    ret
 
 interpreter_messages
 .command_not_found

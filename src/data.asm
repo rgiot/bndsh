@@ -21,7 +21,7 @@ screen
 
 line_editor
 .visible_width equ screen.width
-.max_width equ 40   
+.max_width equ 40
     assert line_editor.max_width <= screen.width, "[ERROR] Need to code the fact that a line is larger than the screen"
 .cursor_xpos db 0
 .cursor_ypos db 0 ; Change with screen scrolling
@@ -41,19 +41,19 @@ interpreter
 history
 .size equ 5
 .current db 0
-.buffer1 
+.buffer1
     db 0 ; Size
     defs line_editor.max_width + 2 ; data
-.buffer2 
+.buffer2
     db 0
     defs line_editor.max_width + 2
-.buffer3 
+.buffer3
     db 0
     defs line_editor.max_width + 2
-.buffer4 
+.buffer4
     db 0
     defs line_editor.max_width + 2
-.buffer5 
+.buffer5
     db 0
     defs line_editor.max_width + 2
 
@@ -61,3 +61,4 @@ history
 rsx_name
 .dir db "DI", "R"+0x80
 .ls db "L", "S"+0x80
+.getpath db "GETPAT", "H"+0x80
