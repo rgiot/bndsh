@@ -17,12 +17,14 @@ routine dw 0
 ; Input
 ;  - HL: string to parse
 interpreter_manage_input
+  xor a: ld (interpreter.did_nothing), a
 
     ; Ensure we really start at the right position
     call string_move_until_first_nonspace_char
 
     ; Leave if we have nothing more to do
     ld a, (hl) : call string_char_is_eof : ret z
+      ld a, 1: ld (interpreter.did_nothing), a
 
     ; Copy the first word in order to analyze it
     ; HL is already at the right position
@@ -92,8 +94,6 @@ interpreter_search_and_launch_routine
     ex de, hl
 
     jp (hl) ; execute the command
-
-
 
 
 

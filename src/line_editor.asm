@@ -57,13 +57,13 @@ line_editor_get_key
 line_editor_treat_key
 
 
-    cp key_backspace : jr z, .backspace
-    cp key_left : jr z, .key_left
-    cp key_right : jr z, .key_right
+    cp key_backspace : jp z, .backspace
+    cp key_left : jp z, .key_left
+    cp key_right : jp z, .key_right
     cp key_del : jp z, .key_del
-    cp key_return : jr z, .key_return
-    cp key_up : jr z, .history_previous
-    cp key_down : jr z, .history_next
+    cp key_return : jp z, .key_return
+    cp key_up : jp z, .history_previous
+    cp key_down : jp z, .history_next
  ;   cp key_eot: jp interpreter_command_exit.routine ; XXX for an unknown reason, does not work
 
     jp .insert_char
@@ -96,6 +96,13 @@ line_editor_treat_key
     ; clear the buffer
     call line_editor_clear_buffers
 
+    ld a, (interpreter.did_nothing)
+    or a : jr nz, .interpreter_acted
+
+.interpreter_did_nothing
+
+    ret
+.interpreter_acted
     ; Properly set cursor
     ld a, key_return : call FIRMWARE.TXT_OUTPUT
     ld a, key_return : call FIRMWARE.TXT_OUTPUT
