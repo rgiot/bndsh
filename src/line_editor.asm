@@ -147,7 +147,7 @@ line_editor_treat_key
 
 .key_del
     jr .shift_left
-    
+
 
 .insert_char
 
@@ -180,7 +180,7 @@ line_editor_treat_key
         inc bc: inc bc
         lddr
     pop hl
-    
+
     pop af : pop de : pop hl
 
     ; Write the char in the buffer
@@ -204,7 +204,7 @@ line_editor_treat_key
     pop af : pop de : pop hl
     ; Write the char in the buffer
     ld (hl), a
-    
+
     inc hl
     call .insert_char_no_scroll_put_guard
 
@@ -241,7 +241,7 @@ line_editor_treat_key
 line_editor_display_line_without_cursor
     xor a : ld (line_editor.check_cursor), a
     call line_editor_display_line
-    ld a, 1 :ld (line_editor.check_cursor), a 
+    ld a, 1 :ld (line_editor.check_cursor), a
     ret
 
 
@@ -249,14 +249,26 @@ line_editor_display_line_without_cursor
 ;; TODO Build a transformed string instead of doing the transformation realtime
 line_editor_display_line
 
-    ld a, 1 : call FIRMWARE.TXT_SET_COLUMN 
-    ld a, (line_editor.cursor_ypos) : inc a : call FIRMWARE.TXT_SET_ROW
+    ld a, 1 : call FIRMWARE.TXT_SET_COLUMN
+    ld a, (line_editor.cursor_ypos)
+    cp  25 : jr nc, .last_line
+    inc a
+    jr .set_row
+.last_line
+  ld a, 24 : ld  (line_editor.cursor_ypos), a
+    ld a, 26
+    call FIRMWARE.TXT_SET_ROW
+    ld a, 13
+    call display_print_char
+    ld a, 25
+.set_row
+    call FIRMWARE.TXT_SET_ROW
 
 
     ld a, '$' : call FIRMWARE.TXT_WR_CHAR
     ld a, ' ' : call FIRMWARE.TXT_WR_CHAR
 
-    
+
     ld hl, line_editor.text_buffer
     ld b, 0
     ld a, (line_editor.cursor_xpos) : ld c, a
