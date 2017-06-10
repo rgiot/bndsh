@@ -106,6 +106,12 @@ autocomplete_print_completions
     ret
 
 autocomplete_get_number_of_completions
-    ld a, (autocomplete.nb_commands)
     ; XXX add the count of the other types
+    ld a, (autocomplete.nb_commands)
+    ret
+
+
+autocomplete_get_unique_completion
+    ; XXX take into account the other types of completions
+    ld hl, (autocomplete.commands_ptr_buffer)
     ret

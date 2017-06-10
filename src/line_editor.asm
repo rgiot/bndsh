@@ -100,6 +100,7 @@ line_editor_treat_key
     or a
     sbc hl, de
     inc hl
+    ld (line_editor.autocomplete_word_size), hl
 
     ; Copy the word to the appropriate buffer
     ld b, h : ld c, l                       ; BC = Size of string
@@ -123,7 +124,21 @@ line_editor_treat_key
     ret
 
 .autocomplete_insert_completion
-    ret
+    ld de , (line_editor.autocomplete_word_size),
+    ld a, (line_editor.cursor_xpos) : sub e : ld (line_editor.cursor_xpos), a
+
+
+    call autocomplete_get_unique_completion
+    ld de, (line_editor.autocomplete_start)
+        
+    ; TODO manage the fact we can go over the buffer line
+.autocomplete_insert_completion_loop
+        ld a, (hl)
+        or a : ret z
+
+        ldi
+        ld a, (line_editor.cursor_xpos) : inc a : ld (line_editor.cursor_xpos), a
+        jr .autocomplete_insert_completion_loop
 
 .history_previous
     call history_select_previous

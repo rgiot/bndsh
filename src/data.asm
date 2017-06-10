@@ -40,6 +40,7 @@ line_editor
 .check_cursor db 1
 .autocomplete_start dw 0    ; Start address (in text buffer) of the word for the autocompletion
 .autocomplete_stop dw 0    ;  Stop address (in text buffer) of the word for the autocompletion
+.autocomplete_word_size dw 0 ; XXX byte is needed
 ; XXX current widht MUST be before text_buffer in order to STRICTLY have the same structure than the history
 .history_pointer
 .current_width db 0
