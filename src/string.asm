@@ -121,7 +121,7 @@ string_size
 ;  - HL:  string 1
 ;  - DE: stirng 2
 ; Output
-;  - Zero flag set when not equal
+;  - Zero flag set when equal
 string_compare
 .loop
 
@@ -147,5 +147,42 @@ string_compare
     ret
 
 .not_equal
+    or 1; Z=0
+    ret
+
+
+
+;;
+; Input:
+; - HL: complete string
+; - DE: smallest string
+; Check if DE is a previx of HL
+; Output
+;  - Zero flag set when DE is a prefix of hl
+string_is_prefix
+.loop
+
+    ld a, (hl)
+    call string_char_is_eof
+    jr z, .complete_empty
+
+.complete_not_empty
+    ld c, a
+    ld a, (de) : call string_char_is_eof : jr z, .is_prefix
+.complete_not_empty_and_prefix_not_empty
+    cp c : jr nz, .is_not_prefix
+
+    inc de : inc hl
+    jr .loop
+
+.complete_empty
+   ; ld a, (de) : call string_char_is_eof : jr z, .is_prefix
+    jr .is_not_prefix
+
+.is_prefix
+    cp a; Z=1
+    ret
+
+.is_not_prefix
     or 1; Z=0
     ret

@@ -91,4 +91,13 @@ autocomplete_print_completions
     jr .loop
 
 .end_of_table
+
+.clear_end_of_line
+    call FIRMWARE.TXT_GET_CURSOR
+    ld a, screen.width
+    sub l
+    ret c
+
+    call display_line_fill_blank
+
     ret

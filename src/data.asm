@@ -2,7 +2,19 @@
 ; Data content for bndsh
 ;
 
+; TODO properly manage these data buffers to reduce their impact in memory
+;
+;  - size reduction
+;  - buffer reuse
+;  - buffers inside extra memory
+;  - buffers inside the ROM (the CPC-wifi allows that) - Maybe conditional assembly would allow that for M4 compatibility and sisallow that for other usage
 
+; RSX names have to be in main memory
+rsx_name
+.dir db "DI", "R"+0x80
+.ls db "L", "S"+0x80
+.getpath db "GETPAT", "H"+0x80
+.era db "ER", "A"+0x80
 
 screen
 .cpc_mode equ 1
@@ -61,8 +73,7 @@ history
     defs line_editor.max_width + 2
 
 
-rsx_name
-.dir db "DI", "R"+0x80
-.ls db "L", "S"+0x80
-.getpath db "GETPAT", "H"+0x80
-.era db "ER", "A"+0x80
+autocomplete
+.commands_ptr_buffer defs 256 ; XXX cmpute its size based on the number of available commands
+
+

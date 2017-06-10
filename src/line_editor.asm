@@ -18,6 +18,7 @@ key_up equ 0xf0
 key_down equ 0xf1
 key_return equ 0x0d
 key_eot equ  0x04
+key_tab equ 0x09
 
 
 line_editor_init
@@ -68,14 +69,28 @@ line_editor_treat_key
     cp key_return : jp z, .key_return
     cp key_up : jp z, .history_previous
     cp key_down : jp z, .history_next
+    cp key_tab : jp z, .autocomplete
  ;   cp key_eot: jp interpreter_command_exit.routine ; XXX for an unknown reason, does not work
 
     jp .insert_char
 
 
+.autocomplete
+
+.autocomplete_copy_word_of_interest_in_buffer
+    ; XXX take into account the position of the cursor when doing the autocompletion instead of assuming it is at the end of the first and unique word
+    ld hl, line_editor.text_buffer
+    call string_move_until_first_nonspace_char
+    ld de, interpreter.command_name_buffer
+    call string_copy_word
+
+    call autocomplete_reset_buffers
+    call autocomplete_search_completions
+    call autocomplete_print_completions
+    ret
+    
 
 .history_previous
-    BREAKPOINT_WINAPE
     call history_select_previous
     call line_editor_display_line
     ret
@@ -316,19 +331,16 @@ line_editor_display_line
         inc b
         jr .display_loop
 
+
+    ; XXX For performance reasons it would be nice to activate that ONLY when using history
 .clear_end_of_line
     ; B = number of printed chars
     ld a, screen.width
     sub b
     ret c
 
-    ld b, a
-.clear_loop
-        ld a, ' '
-        push bc
-            call display_print_char
-        pop bc
-        djnz .clear_loop
+    call display_line_fill_blank
+
 
 
 

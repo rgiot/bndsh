@@ -31,10 +31,14 @@ startup_data
 
     include "lib/debug.asm"
     include "lib/system.asm"
+    include "lib/CRTC_detection.asm" ; XXX Attention may not be ROM friendly
+
     include "line_editor.asm"
     include "interpreter.asm"
     include "display.asm"
     include "string.asm"
     include "history.asm"
-    include "lib/CRTC_detection.asm" ; XXX Attention may not be ROM friendly
+    include "autocomplete.asm"
+
+
     include "data.asm"

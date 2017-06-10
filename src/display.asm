@@ -43,3 +43,15 @@ display_print_rsx_name
     res 7, a
     call display_print_char
     ret
+
+
+
+display_line_fill_blank
+    ld b, a
+.clear_loop
+        ld a, ' '
+        push bc
+            call display_print_char
+        pop bc
+        djnz .clear_loop
+    ret
