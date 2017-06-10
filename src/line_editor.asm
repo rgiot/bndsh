@@ -277,11 +277,11 @@ line_editor_display_line
 
 
     ld a, '$' : call FIRMWARE.TXT_WR_CHAR
-    ld a, ' ' : call FIRMWARE.TXT_WR_CHAR
+ ;   ld a, ' ' : call FIRMWARE.TXT_WR_CHAR
 
 
     ld hl, line_editor.text_buffer
-    ld b, 0
+    ld b, 0; position number
     ld a, (line_editor.cursor_xpos) : ld c, a
 .display_loop
 
@@ -300,7 +300,7 @@ line_editor_display_line
 
         ld a, (hl)
         or a
-        ret z
+        jr z, .clear_end_of_line
 
         push hl : push bc
         call display_print_char
@@ -315,6 +315,21 @@ line_editor_display_line
         inc hl
         inc b
         jr .display_loop
+
+.clear_end_of_line
+    ; B = number of printed chars
+    ld a, screen.width
+    sub b
+    ret c
+
+    ld b, a
+.clear_loop
+        ld a, ' '
+        push bc
+            call display_print_char
+        pop bc
+        djnz .clear_loop
+
 
 
 
