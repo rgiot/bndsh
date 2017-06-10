@@ -129,7 +129,7 @@ interpreter_command_not_found
   ; Check if RSX exists
   ld hl, interpreter.next_token_buffer
   call FIRMWARE.KL_FIND_COMMAND
-  jp nc, .really_display_message ; XXX commented to help debbug
+  jp nc, .try_to_run
 
   ; Call the RSX
   push bc : push hl
@@ -171,6 +171,42 @@ interpreter_command_not_found
   call FIRMWARE.KL_FAR_PCHL
 
   ret
+
+;;
+; Uses the system to load and run the program
+.try_to_run
+
+    ; Get string size
+    ld hl, interpreter.command_name_buffer 
+    call string_size
+    ld b, a
+
+    ; Load file
+    ld hl, interpreter.command_name_buffer 
+    ld de, 0
+    call FIRMWARE.CAS_IN_OPEN
+    jr nc, .really_display_message ; Jump if file note opened
+
+
+;; cas_in_open returns:
+;; if file was opened successfully:
+;; - carry is true 
+;; - HL contains address of the file's AMSDOS header
+;; - DE contains the load address of the file (from the header)
+;; - BC contains the length of the file (from the file header)
+;; - A contains the file type (2 for binary files)
+
+    push hl
+        ex de, hl
+        call FIRMWARE.CAS_IN_DIRECT
+        call FIRMWARE.CAS_IN_CLOSE
+    pop hl
+
+    ; Retreive execution address
+    ; XXX Note that it has not yet been tested with programs whose executio naddress differ to the load address....
+    ld de, 26 : add hl, de
+    ld c, 0
+    call FIRMWARE.MC_START_PROGRAM
 
 .really_display_message
 
