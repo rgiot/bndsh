@@ -84,11 +84,22 @@ line_editor_treat_key
     ld de, interpreter.command_name_buffer
     call string_copy_word
 
-    call autocomplete_reset_buffers
+    call autocomplete_reset_buffers 
     call autocomplete_search_completions
-    call autocomplete_print_completions
+
+    call autocomplete_get_number_of_completions
+    or a : jr z, .autocomplete_no_completion
+    cp 1 : call z, .autocomplete_insert_completion
+
+    jp autocomplete_print_completions ; TODO add something to clear the completions previously displayed
+
+.autocomplete_no_completion
+    ld a, 7
+    call display_print_char
     ret
-    
+
+.autocomplete_insert_completion
+    ret
 
 .history_previous
     call history_select_previous

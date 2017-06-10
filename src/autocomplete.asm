@@ -10,6 +10,8 @@ autocomplete_search_completions
 
 
 autocomplete_search_completions_on_commands
+    xor a : ld (autocomplete.nb_commands),a 
+
 
     ld hl, interpreter_command_list             ; Buffer of commands to search
     ld de, autocomplete.commands_ptr_buffer     ; Buffer to fill with the pointers to the corresponding strings
@@ -48,6 +50,7 @@ autocomplete_search_completions_on_commands
             inc hl
         ex de, hl
     
+        ld a, (autocomplete.nb_commands) : inc a : ld (autocomplete.nb_commands),a 
 .end_of_loop
 
         ; Move of one setp in the command list
@@ -100,4 +103,9 @@ autocomplete_print_completions
 
     call display_line_fill_blank
 
+    ret
+
+autocomplete_get_number_of_completions
+    ld a, (autocomplete.nb_commands)
+    ; XXX add the count of the other types
     ret
