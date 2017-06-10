@@ -78,11 +78,35 @@ line_editor_treat_key
 .autocomplete
 
 .autocomplete_copy_word_of_interest_in_buffer
-    ; XXX take into account the position of the cursor when doing the autocompletion instead of assuming it is at the end of the first and unique word
+    BREAKPOINT_WINAPE
+
+; XXX Take into account no input
+
+    ; Compute the address of the last char
     ld hl, line_editor.text_buffer
-    call string_move_until_first_nonspace_char
-    ld de, interpreter.command_name_buffer
-    call string_copy_word
+    ld de, (line_editor.cursor_xpos) : ld d, 0
+    ld b, e
+    dec e ; it seems it is the space here
+    add hl, de
+    ld (line_editor.autocomplete_stop), hl
+
+    ; Compute the address of the first char
+    call string_go_to_beginning_of_current_word
+    ld (line_editor.autocomplete_start), hl
+
+    ; Get the size of the string
+    ld hl, (line_editor.autocomplete_stop)
+    ld de, (line_editor.autocomplete_start)
+    or a
+    sbc hl, de
+    inc hl
+
+    ; Copy the word to the appropriate buffer
+    ld b, h : ld c, l                       ; BC = Size of string
+    ex de, hl                               ; HL = Start of the string
+    ld de, interpreter.command_name_buffer  ; DE = bufferto write
+    ldir
+    xor a : ld (de), a
 
     call autocomplete_reset_buffers 
     call autocomplete_search_completions

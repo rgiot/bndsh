@@ -35,9 +35,11 @@ line_editor
 .visible_width equ screen.width
 .max_width equ 40
     assert line_editor.max_width <= screen.width, "[ERROR] Need to code the fact that a line is larger than the screen"
-.cursor_xpos db 0
-.cursor_ypos db 0 ; Change with screen scrolling
+.cursor_xpos db 0 ; XXX is it necessary ?
+.cursor_ypos db 0 ; Change with screen scrolling ; XXX is it necessary ?
 .check_cursor db 1
+.autocomplete_start dw 0    ; Start address (in text buffer) of the word for the autocompletion
+.autocomplete_stop dw 0    ;  Stop address (in text buffer) of the word for the autocompletion
 ; XXX current widht MUST be before text_buffer in order to STRICTLY have the same structure than the history
 .history_pointer
 .current_width db 0

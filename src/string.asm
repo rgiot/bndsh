@@ -117,6 +117,35 @@ string_size
 
 
 ;;
+; Move HL ptr to the beginning of the current word
+; Input:
+; - HL: ptr to the current char of the string
+; - B: number of chars in the string
+; Output:
+; - HL: ptr to the beginning of the word
+string_go_to_beginning_of_current_word
+    ld a, (hl)
+    call string_char_is_space: ret z; We are not even in one word
+
+
+.loop
+    ld a, 1 : cp b
+    ret z   ; we cannot make more test, the string has a size of one
+
+    dec b : dec hl
+
+    ld a, (hl)
+    call string_char_is_space : jr z, .is_space
+
+.is_not_space
+    jr .loop
+
+.is_space
+    ; By construction, we know whe can increment the pointer
+    ; Move to the next char which IS a char
+    inc hl
+    ret
+;;
 ; Input
 ;  - HL:  string 1
 ;  - DE: stirng 2
