@@ -12,7 +12,7 @@ config_enable_sound equ 1
         ; initialise la ROM7
         ld hl,&ABFF
         ld de,&0040
-        ld c,&06 ; XXX found the rom position automatically
+        ld c,&07 ; XXX found the rom position automatically
         call &BCCE
         ; on reprend sur le même lecteur/face
         pop af
