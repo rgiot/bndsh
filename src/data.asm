@@ -76,6 +76,10 @@ history
     defs line_editor.max_width + 2
 
 
+roms_name
+.m4 db "M4 BOAR", "D"+0x80, 0
+.pdos db "PDO", "S"+0x80, 0
+
 autocomplete
 .nb_commands db 0
 .commands_ptr_buffer defs 256 ; XXX cmpute its size based on the number of available commands

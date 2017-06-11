@@ -4,6 +4,17 @@
 
 config_enable_sound equ 1
 
+
+        ld de, roms_name.m4 : call bndsh_get_rom_number
+        cp 0xff : jr nz, .init_stuff
+        ld de, roms_name.pdos : call bndsh_get_rom_number
+        cp 0xff : jr nz, .init_stuff
+        
+        ; fallback
+        ld a, 7
+
+.init_stuff
+        ld c, a
         ; sauvegarde lecteur/face courante
         ld hl,(&BE7D)
         ld a,(hl)
@@ -12,7 +23,6 @@ config_enable_sound equ 1
         ; initialise la ROM7
         ld hl,&ABFF
         ld de,&0040
-        ld c,&07 ; XXX found the rom position automatically
         call &BCCE
         ; on reprend sur le même lecteur/face
         pop af
@@ -119,6 +129,46 @@ bndsh_get_rsx_names
     inc de
     ret
 
+
+;;
+; Input: 
+; DE: ROm name
+bndsh_get_rom_number
+    ; Save current state of the ROM
+    xor a
+    push de : call FIRMWARE.KL_ROM_SELECT : pop de
+    push bc
+
+    xor a
+.loop_over_rom
+    push af
+
+        ; Select the ROM of interest
+        ld c, a
+        push de : call FIRMWARE.KL_ROM_SELECT : pop de
+
+        ; Get rom name
+        ld	hl,(0xC004)
+        push de : call string_is_prefix : pop de
+        jr z,.found 
+    pop af
+    inc a
+
+
+    cp 32
+   jr nz, .loop_over_rom
+
+.not_found
+    ld a, 0xff
+.continue
+    ; Restore the previous state of the ROM
+    pop bc
+    push af : call FIRMWARE.KL_ROM_SELECT : pop af
+    ret
+
+.found
+    pop af
+    jr .continue
 
 
 bndsh_rsx_exists
