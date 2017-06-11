@@ -136,7 +136,6 @@ line_editor_treat_key
     ; A = size of the thing to copy; Value is verified
 
     
-    BREAKPOINT_WINAPE
     
     ld hl, line_editor.text_buffer
     ld a, (line_editor.current_width) : inc a
@@ -272,6 +271,7 @@ line_editor_treat_key
 
 
 .insert_char
+    call string_char_to_upper
 
     ;; Compute the buffer address
     ld hl, line_editor.text_buffer

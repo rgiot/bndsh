@@ -5,6 +5,7 @@ autocomplete_reset_buffers
 
 autocomplete_search_completions
     call autocomplete_search_completions_on_commands
+    call autocomplete_search_completions_on_rsx
     ; XXX TODO Add other completions (RSX, filename)
     ret
 
@@ -67,7 +68,64 @@ autocomplete_search_completions_on_commands
     ld (hl), a
     inc hl
     ld (hl), a
+
     ret
+
+
+
+
+
+
+; XXX Attention, here I assume the routine is called JUST AFTER autocomplete_search_completions_on_commands and HL is around the end of the buffer
+; XXX Speed up procedure by using trees are something like that
+autocomplete_search_completions_on_rsx
+    dec hl ; 0 pointer
+    ex de, hl
+    ld hl, rsx_names
+.loop
+    ; HL = pointer on the rsx names
+    ; DE = pointer on the buffer to feel
+    
+    ; Stop search if we are reading the latest string
+    ld a, (hl) : or a : jr z, .buffer_filled
+
+    ; Check if we have a prefix
+    push de: push hl
+        ld de, interpreter.command_name_buffer
+        call string_is_prefix
+    pop hl: pop de
+
+    jr nz, .is_not_prefix
+
+
+.is_prefix
+    ; Add the string
+    ex de, hl
+        ld (hl), e
+        inc hl
+        ld (hl), d
+        inc hl
+    ex de, hl
+        
+    ld a, (autocomplete.nb_commands) : inc a : ld (autocomplete.nb_commands),a 
+
+.is_not_prefix
+        ; move to the end of string
+        ld  a, (hl) : inc hl
+        or a
+        jr z, .loop
+    jr .is_not_prefix
+
+.buffer_filled
+    xor a
+    ld (de), a
+    inc de
+    ld (de), a
+
+    ret
+
+
+
 
 
 
@@ -88,6 +146,7 @@ autocomplete_print_completions
         push hl
             ex de, hl
             call display_print_string
+            BREAKPOINT_WINAPE
 
             ld a, ' ' : call display_print_char
         pop hl

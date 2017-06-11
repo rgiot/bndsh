@@ -82,6 +82,10 @@ bndsh_get_rsx_names
     
     ; Restore the previous state of the ROM
     pop bc : push de : call FIRMWARE.KL_ROM_SELECT : pop de
+    xor a
+    ld (de), a
+    inc de
+    ld (de), a
 
     ret
 

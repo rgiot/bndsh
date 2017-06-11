@@ -274,7 +274,6 @@ interpreter_command_help
 
         jr nz, .end_display
 
-          BREAKPOINT_WINAPE
 
         ; Move in the right place
       pop hl
@@ -351,7 +350,7 @@ interpreter_rsx_not_found
 
 interpreter_command_cat
 .nbArgs equ 0
-.name  string "cat"
+.name  string "CAT"
 .help string "Display catalog (though |dir)."
 .routine
     ld hl, rsx_name.dir
@@ -362,7 +361,7 @@ interpreter_command_cat
 
 interpreter_command_ls
 .nbArgs equ 0
-.name  string "ls"
+.name  string "LS"
 .help string "Display catalog (though |ls)."
 .routine
     ld hl, rsx_name.ls
@@ -377,7 +376,7 @@ interpreter_command_ls
 
 interpreter_command_clear
 .nbArgs equ 0
-.name string "clear"
+.name string "CLEAR"
 .help string "Clear the screen."
 .routine
     ;call FIRMWARE.SCR_CLEAR
@@ -386,7 +385,7 @@ interpreter_command_clear
 
 interpreter_command_crtc
 .nbArgs equ 0
-.name string "crtc"
+.name string "CRTC"
 .help string "Print CRTC number."
 .routine
     call TestCRTC
@@ -398,7 +397,7 @@ interpreter_command_crtc
 
 interpreter_command_exit
 .nbArgs equ 0
-.name string "exit"
+.name string "EXIT"
 .help string "Go back to basic."
 .routine
     call 0
@@ -407,7 +406,7 @@ interpreter_command_exit
 
 interpreter_command_pwd
 .nbArgs equ 0
-.name string "pwd"
+.name string "PWD"
 .help string "Display the current directory"
 .routine
     ld hl, rsx_name.getpath
@@ -423,7 +422,7 @@ interpreter_command_pwd
 
 
 interpreter_command_rom
-.name string "rom"
+.name string "ROM"
 .help string "Display the list of available ROMS\r\n (later will do more)"
 ; XXX i doubt this can work when the application is in a ROM
 ; XXX Add numbering of the roms
