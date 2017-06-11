@@ -80,4 +80,4 @@ autocomplete
 .nb_commands db 0
 .commands_ptr_buffer defs 256 ; XXX cmpute its size based on the number of available commands
 
-
+rsx_names
