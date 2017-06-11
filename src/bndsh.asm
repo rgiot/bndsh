@@ -66,11 +66,10 @@ bndsh_get_rsx_names
                     push de
                         ld de, interpreter.command_name_buffer
                         call  .copy_name_in_buffer
-                        call bndsh_command_exists 
+                        call bndsh_rsx_exists
+                        call nz, bndsh_command_exists 
                     pop de
                 pop hl
-                
-                
                 jr z, .loop_over_rsx_forget
                 
                 push hl
@@ -119,6 +118,45 @@ bndsh_get_rsx_names
     ld (de), a
     inc de
     ret
+
+
+
+bndsh_rsx_exists
+
+    ld hl, rsx_names
+    ld de, interpreter.command_name_buffer
+.loop
+    ; HL = pointer on the rsx names
+    
+    ; Stop search if we are reading the latest string
+    ld a, (hl) : or a : jr z, .buffer_read
+
+    ; Check if we have a same
+    push de: push hl
+        ld de, interpreter.command_name_buffer
+        call string_compare
+    pop hl: pop de
+
+    jr nz, .is_not_same
+
+
+.is_same
+    ; Add the string
+    cp a
+    ret
+
+.is_not_same
+        ; move to the end of string
+        ld  a, (hl) : inc hl
+        or a
+        jr z, .loop
+    jr .is_not_same
+
+.buffer_read
+    or 1
+    ret
+
+
 
 
 ;;
