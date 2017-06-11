@@ -31,6 +31,8 @@ line_editor_init
     call line_editor_clear_buffers
     ld a, 2 : ld (line_editor.cursor_ypos), a
 
+    call FIRMWARE.TXT_CUR_ENABLE 
+    call FIRMWARE.TXT_CUR_ON
     ret
 
 line_editor_clear_buffers
@@ -447,10 +449,18 @@ line_editor_display_line
 line_editor_main_loop
 
 
-    call line_editor_display_line
+
+    call line_editor_display_line_without_cursor
+
+    ld a, (line_editor.cursor_xpos) : ld h, a : inc h : inc h
+    ld a, (line_editor.cursor_ypos) : ld l, a : inc l 
+    call FIRMWARE.TXT_SET_CURSOR
+    call FIRMWARE.TXT_CUR_ON
+
     call line_editor_get_key
     jp nc, line_editor_main_loop
 
+    call FIRMWARE.TXT_CUR_OFF
     call line_editor_treat_key
 
 

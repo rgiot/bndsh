@@ -26,6 +26,9 @@ FIRMWARE
 .TXT_PLACE_CURSOR   equ 0xbb8a
 .TXT_REMOVE_CURSOR  equ 0xbb8d
 .TXT_GET_CURSOR     equ 0xBB78 
+.TXT_CUR_ENABLE     equ 0xBB7B
+.TXT_CUR_ON         equ 0xBB81
+.TXT_CUR_OFF        equ 0xBB84
 
 .KM_WAIT_CHAR       equ 0xbb06
 .KM_READ_CHAR       equ 0xbb09
