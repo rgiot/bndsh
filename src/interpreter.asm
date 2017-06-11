@@ -225,6 +225,7 @@ interpreter_command_list
     command interpreter_command_help.name, interpreter_command_help.help, interpreter_command_help.routine
     command interpreter_command_ls.name, interpreter_command_ls.help, interpreter_command_ls.routine
     command interpreter_command_pwd.name, interpreter_command_pwd.help, interpreter_command_pwd.routine
+    command interpreter_command_rom.name, interpreter_command_rom.help, interpreter_command_rom.routine
     command 0, 0
 
 
@@ -417,6 +418,63 @@ interpreter_command_pwd
     call FIRMWARE.KL_FAR_PCHL
     ld hl, interpreter.command_name_buffer
     call display_print_string
+    ret
+
+
+
+interpreter_command_rom
+.name string "rom"
+.help string "Display the list of available ROMS\r\n (later will do more)"
+; XXX i doubt this can work when the application is in a ROM
+; XXX Add numbering of the roms
+; XXX Add arguments to do something else than lisintg roms (upload, remove, rsx list)
+.routine
+
+    ; Save current state of the ROM
+    xor a
+    call FIRMWARE.KL_ROM_SELECT
+    push bc
+
+    xor a
+.loop_over_rom
+    push af
+
+        ; Select the ROM of interest
+        ld c, a
+        call FIRMWARE.KL_ROM_SELECT
+        ld a, 1 : call FIRMWARE.TXT_SET_COLUMN
+
+        ; Get rom name
+        ld	hl,(0xC004)
+        call display_print_string2
+
+        ld a, 20 : call FIRMWARE.TXT_SET_COLUMN
+    pop af : inc a
+
+    push af
+
+        ; Select the ROM of interest
+        ld c, a
+        call FIRMWARE.KL_ROM_SELECT
+
+        ; Get rom name
+        ld	hl,(0xC004)
+        call display_print_string2
+
+        ld a, 10 : call 0xbb5a
+        ld a, 13 : call 0xbb5a
+
+        call FIRMWARE.KM_WAIT_CHAR
+    pop af : inc a
+
+
+    cp 32
+   jr nz, .loop_over_rom
+
+    
+    ; Restore the previous state of the ROM
+    pop bc : call FIRMWARE.KL_ROM_SELECT
+
     ret
 
 interpreter_messages

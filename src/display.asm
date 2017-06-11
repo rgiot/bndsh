@@ -9,6 +9,7 @@
 
 
 display_print_char
+        res 7, a
         push hl : call FIRMWARE.TXT_OUTPUT: pop hl
         ret
 
@@ -23,6 +24,23 @@ display_print_string
         inc hl
 
     jr .loop
+
+
+
+display_print_string2
+.loop
+        ld a, (hl)
+
+        call display_print_char
+
+        ld a, (hl)
+        bit 7, a : ret nz
+
+        inc hl
+
+    jr .loop
+
+
 
 
 

@@ -30,9 +30,10 @@ FIRMWARE
 .KM_WAIT_CHAR       equ 0xbb06
 .KM_READ_CHAR       equ 0xbb09
 
-.kl_l_rom_enable equ 0xb906
-.kl_l_rom_disable equ 0xb909
-.kl_u_rom_disable equ 0xb903
+.KL_ROM_SELECT  equ 0xB90F
+.KL_L_ROM_ENABLE EQU 0XB906
+.KL_L_ROM_DISABLE EQU 0XB909
+.KL_U_ROM_DISABLE EQU 0XB903
 .KL_FIND_COMMAND equ 0xbcd4
 .KL_FAR_PCHL equ 0x001B 
 
