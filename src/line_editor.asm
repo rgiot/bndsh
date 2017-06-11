@@ -78,7 +78,6 @@ line_editor_treat_key
 .autocomplete
 
 .autocomplete_copy_word_of_interest_in_buffer
-    BREAKPOINT_WINAPE
 
 ; XXX Take into account no input
 
@@ -124,12 +123,58 @@ line_editor_treat_key
     ret
 
 .autocomplete_insert_completion
+
+
+
+    ; scroll the buffer content
+    ld a, (line_editor.autocomplete_word_size) : push af
+    call autocomplete_get_unique_completion : call string_size : pop bc 
+    
+    ; A=size of the string to insert
+    ; B=size of the prefix
+    sub b : ld b, a
+    ; A = size of the thing to copy; Value is verified
+
+    
+    BREAKPOINT_WINAPE
+    
+    ld hl, line_editor.text_buffer
+    ld a, (line_editor.current_width) : inc a
+    ld d, 0
+    ld e, a
+    add hl, de 
+    ; HL = source of the thing to copy
+
+    ex de, hl
+    ; DE = source of the thing to copy
+    ld h, 0 : ld l, b ; width of the thing to copy
+    add hl, de
+    ex de, hl
+
+    ; HL = source of the thing to copy
+    ; DE = destination
+
+
+    ld a, (line_editor.cursor_xpos) : ld c, a
+    ld a, (line_editor.current_width)
+    sub c 
+    add b : ld c, a
+    ld b, 0
+    lddr
+
+
+
+    ; Fix the cursor positionning
     ld de , (line_editor.autocomplete_word_size),
     ld a, (line_editor.cursor_xpos) : sub e : ld (line_editor.cursor_xpos), a
+    ld a, (line_editor.current_width) : sub e : ld (line_editor.current_width), a
 
 
+    ; finally insert the content
     call autocomplete_get_unique_completion
     ld de, (line_editor.autocomplete_start)
+
+
         
     ; TODO manage the fact we can go over the buffer line
 .autocomplete_insert_completion_loop
@@ -138,6 +183,7 @@ line_editor_treat_key
 
         ldi
         ld a, (line_editor.cursor_xpos) : inc a : ld (line_editor.cursor_xpos), a
+        ld a, (line_editor.current_width) : inc a : ld (line_editor.current_width), a
         jr .autocomplete_insert_completion_loop
 
 .history_previous
