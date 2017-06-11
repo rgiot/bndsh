@@ -4,10 +4,78 @@ autocomplete_reset_buffers
     ret
 
 autocomplete_search_completions
+    call autocomplete_search_completion_on_filenames
     call autocomplete_search_completions_on_commands
     call autocomplete_search_completions_on_rsx
     ; XXX TODO Add other completions (RSX, filename)
     ret
+
+
+autocomplete_search_completion_on_filenames
+    ; Activate M4 ROM
+    ; TODO programmatically select rom number (already found at init of the prog)
+    ; TODO move this code in normal memory ? (I guess once really in ROM, the selection of another ROM will make crash everything)
+    ld	c, 6
+	call FIRMWARE.KL_ROM_SELECT
+    push bc ; Backup rom configuration 
+
+
+.configure_filtering_for_search
+    ld hl, m4_buffer
+    ld (hl), 3 : inc hl                  ; No args for the moment, uses null string ; XXX Really use argument with filtering !
+    ld (hl), C_DIRSETARGS%256 : inc hl
+    ld (hl), C_DIRSETARGS/256 : inc hl
+    ld (hl), 0
+    ld hl, m4_buffer : call m4_send_command
+
+.loop
+
+        ; Ask to read a next filename
+        ld hl, m4_buffer
+        ld (hl), 2 : inc hl
+        ld (hl), C_READDIR%256 : inc hl
+        ld (hl), C_READDIR/256 : inc hl
+        ld hl, m4_buffer : call m4_send_command
+
+        ; Get memory address of result
+        ld hl, (0xFF02)
+
+        ; HL = buffer to read
+        ld a, (hl) : inc hl ; Get response size 
+        cp 2 : jr z, .end_of_dir
+
+        ; Remove 2 first things ; no idea what it is ..
+        inc hl : dec a : inc hl : dec a
+
+        ; Copy string out of ROM to the main memory
+        ld a, (hl) : cp '>' : jr nz, .is_file
+.is_dir
+        inc hl: dec a ; Remove >
+.is_file
+        ld de, m4_buffer
+        ld b, 0 : ld c, a
+        ldir ; TODO copy only filename ; remove extra stuff
+
+        ; ensure the end is ok
+        xor a : ld (de), a
+
+        ; For debug purpose, print the string on screen
+        ; once it will work => add it to a specific completion buffer
+        ld hl, m4_buffer
+        call display_print_string
+
+    jr .loop
+    
+
+.end_of_dir
+
+    ; restore initial configuration
+    pop bc
+    call FIRMWARE.KL_ROM_SELECT ; is restore needed ?
+    ret
+
+    
+
 
 
 autocomplete_search_completions_on_commands

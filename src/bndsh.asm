@@ -256,6 +256,10 @@ bndsh_command_exists
     cp a
     ret
 
+
+
+
+
 startup_data
 .text    string  "Benediction Shell v0.1 (june 2017)"
 
@@ -269,6 +273,7 @@ startup_data
     include "string.asm"
     include "history.asm"
     include "autocomplete.asm"
+    include "m4.asm"
 
 
     include "data.asm"

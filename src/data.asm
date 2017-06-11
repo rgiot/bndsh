@@ -76,6 +76,9 @@ history
     defs line_editor.max_width + 2
 
 
+m4_buffer
+    defs 256
+
 roms_name
 .m4 db "M4 BOAR", "D"+0x80, 0
 .pdos db "PDO", "S"+0x80, 0
