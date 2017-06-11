@@ -63,9 +63,21 @@ bndsh_get_rsx_names
             bit 7, a : jr nz, .loop_over_rsx_forget
 
                 push hl
-                    BREAKPOINT_WINAPE
-                    call  .copy_name_in_buffer
+                    push de
+                        ld de, interpreter.command_name_buffer
+                        call  .copy_name_in_buffer
+                        call bndsh_command_exists 
+                    pop de
                 pop hl
+                
+                
+                jr z, .loop_over_rsx_forget
+                
+                push hl
+                    ld hl, interpreter.command_name_buffer
+                    call string_copy_word : inc de
+                pop hl
+            
 
 .loop_over_rsx_forget
 
@@ -106,6 +118,54 @@ bndsh_get_rsx_names
     xor a
     ld (de), a
     inc de
+    ret
+
+
+;;
+; Check if, for this RSX, there is already an internal command with the same name
+; INPUT:
+; - HL = string to compare to
+; OUTPUT:
+; - HL is inchanged
+; - Z if command present
+bndsh_command_exists
+
+
+    ld de, interpreter.command_name_buffer
+    ld hl, interpreter_command_list
+.loop_full
+        ; Read the ptr name
+        ld c, (hl) : inc hl : ld b, (hl)
+
+
+        ; Quit if this is the end
+        ld a, b
+        or c
+        jr z, .end_of_loop_no_match
+
+
+;        ; HL: list of commands
+;        ; DE: string to compare to
+;        ; BC: current string
+;
+        push hl : push de
+            ld h, b : ld l, c
+            call string_compare
+        pop de : pop hl
+        jr z, .end_of_loop_match
+
+        ld de, command - 1
+        add hl, de
+        ld de, interpreter.command_name_buffer
+
+    jr .loop_full
+
+.end_of_loop_no_match
+    or 1
+    ret
+
+.end_of_loop_match
+    cp a
     ret
 
 startup_data

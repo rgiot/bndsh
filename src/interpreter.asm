@@ -232,7 +232,7 @@ interpreter_command_list
 
 interpreter_command_help
 .nbArgs equ 0
-.name  string "help"
+.name  string "DISC"
 .help string "Display the help of each known command\r\nUsage\r\n help\r\n help COMMAND"
 .routine
 
