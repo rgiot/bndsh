@@ -22,11 +22,21 @@ autocomplete_search_completion_on_filenames
     xor a : ld (autocomplete.nb_commands),a 
 
 .configure_filtering_for_search
-    ld hl, m4_buffer
-    ld (hl), 3 : inc hl                  ; No args for the moment, uses null string ; XXX Really use argument with filtering !
-    ld (hl), C_DIRSETARGS%256 : inc hl
-    ld (hl), C_DIRSETARGS/256 : inc hl
-    ld (hl), 0
+
+    ; Compute the size of the command to send
+    ld hl, interpreter.command_name_buffer
+    call string_size
+    add 2 + 1 + 1
+
+
+    ld de, m4_buffer
+    ld (de), a : inc de                 ; Set size of the parameters                 
+    ld (de), C_DIRSETARGS%256 : inc de  ; Set low address of routine
+    ld (de), C_DIRSETARGS/256 : inc de  ; Set high address of routine
+    ld hl, interpreter.command_name_buffer : call string_copy_word
+    dec de                              ; go one char before the end of string
+    ld (de), '*' : inc de               ; Set wildcard
+    ld (de), 0                          ; Set end of the string
     ld hl, m4_buffer : call m4_send_command
 
 
