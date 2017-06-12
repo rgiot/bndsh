@@ -19,6 +19,7 @@ autocomplete_search_completion_on_filenames
     call FIRMWARE.KL_ROM_SELECT
     push bc ; Backup rom configuration 
 
+    xor a : ld (autocomplete.nb_commands),a 
 
 .configure_filtering_for_search
     ld hl, m4_buffer
@@ -28,14 +29,22 @@ autocomplete_search_completion_on_filenames
     ld (hl), 0
     ld hl, m4_buffer : call m4_send_command
 
+
+
+        ld de, file_names ; the buffer that will contains ALL the filenames
+        ld hl, autocomplete.commands_ptr_buffer  ; Buffer to add the pointer of filenames
 .loop
+        push de : push hl
+        ; HL : autocomplete buffer
+        ; DE = filenames buffer
 
         ; Ask to read a next filename
         ld hl, m4_buffer
         ld (hl), 2 : inc hl
         ld (hl), C_READDIR%256 : inc hl
         ld (hl), C_READDIR/256 : inc hl
-        ld hl, m4_buffer : call m4_send_command
+        ld hl, m4_buffer 
+        call m4_send_command
 
         ; Get memory address of result
         ld hl, (0xFF02)
@@ -43,6 +52,7 @@ autocomplete_search_completion_on_filenames
         ; HL = buffer to read
         ld a, (hl) : inc hl ; Get response size 
         cp 2 : jr z, .end_of_dir
+
 
         ; Remove 2 first things ; no idea what it is ..
         inc hl : dec a : inc hl : dec a
@@ -52,7 +62,35 @@ autocomplete_search_completion_on_filenames
 .is_dir
         inc hl: dec a ; Remove >
 .is_file
-        ld de, m4_buffer
+
+        pop de : pop bc
+        ; DE = autocomplete buffer
+        ; BC = filenames buffer
+        ; HL = m4 buffer
+
+        ; store the pointer of file name
+        ex de, hl
+
+        ; HL = autocomplete buffer
+        ; BC = filenames buffer
+        ; DE = m4 buffer
+            ld (hl), c : inc hl
+            ld (hl), b : inc hl
+
+        ex de, hl
+
+        ; DE = autocomplete buffer
+        ; BC = filenames buffer
+        ; HL = m4 buffer
+
+        push de 
+        ld d, b : ld e, c
+
+        ; DE = filenames_buffer
+        ; BC = filenames buffer
+        ; HL = m4 buffer
+
+
         ld b, a
 .fname_copy_loop
             ld a, (hl)
@@ -73,23 +111,29 @@ autocomplete_search_completion_on_filenames
         inc de
 .add_null_byte
         ; ensure the end is ok
-        xor a : ld (de), a
+        xor a : ld (de), a : inc de
 
-        ; For debug purpose, print the string on screen
-        ; once it will work => add it to a specific completion buffer
-        ld hl, m4_buffer
-        call display_print_string
 
+
+        pop hl
+
+
+        ld a, (autocomplete.nb_commands) : inc a : ld (autocomplete.nb_commands),a 
     jr .loop
     
 
 .end_of_dir
 
+        pop hl : pop de
+    xor a 
+    ld (hl), a : inc hl : ld (hl), a
+
     ; restore initial configuration
     pop bc
-    call FIRMWARE.KL_ROM_SELECT ; is restore needed ?
+    push hl
+       call FIRMWARE.KL_ROM_SELECT ; is restore needed ?
+    pop hl
 
-    call FIRMWARE.KM_WAIT_CHAR
     ret
 
     
@@ -97,11 +141,12 @@ autocomplete_search_completion_on_filenames
 
 
 autocomplete_search_completions_on_commands
-    xor a : ld (autocomplete.nb_commands),a 
 
-
-    ld hl, interpreter_command_list             ; Buffer of commands to search
-    ld de, autocomplete.commands_ptr_buffer     ; Buffer to fill with the pointers to the corresponding strings
+    ; XXX hl already feed up
+    dec hl ; 0 pointer
+    ex de, hl
+ ;   ld hl, interpreter_command_list             ; Buffer of commands to search
+  ;  ld de, autocomplete.commands_ptr_buffer     ; Buffer to fill with the pointers to the corresponding strings
 .loop
         push hl : push de
 
