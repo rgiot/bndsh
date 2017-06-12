@@ -88,3 +88,6 @@ autocomplete
 .commands_ptr_buffer defs 256 ; XXX cmpute its size based on the number of available commands
 
 rsx_names
+    defs 512
+
+file_names

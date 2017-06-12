@@ -15,8 +15,8 @@ autocomplete_search_completion_on_filenames
     ; Activate M4 ROM
     ; TODO programmatically select rom number (already found at init of the prog)
     ; TODO move this code in normal memory ? (I guess once really in ROM, the selection of another ROM will make crash everything)
-    ld	c, 6
-	call FIRMWARE.KL_ROM_SELECT
+    ld  c, 6
+    call FIRMWARE.KL_ROM_SELECT
     push bc ; Backup rom configuration 
 
 
@@ -53,9 +53,25 @@ autocomplete_search_completion_on_filenames
         inc hl: dec a ; Remove >
 .is_file
         ld de, m4_buffer
-        ld b, 0 : ld c, a
-        ldir ; TODO copy only filename ; remove extra stuff
+        ld b, a
+.fname_copy_loop
+            ld a, (hl)
+            cp ' ' : jr z, .do_no_copy_char
+            cp '.' : jr nz, .copy_char
+.is_dot
+            ld b, 3 ; we do not care of file size ! so copy only extension
+.copy_char
+            ld (de), a
+            inc de
+.do_no_copy_char
+            inc hl
+        djnz .fname_copy_loop
 
+        ; remove . if last char
+        dec de
+        ld a, (de) : cp '.' : jr z, .add_null_byte
+        inc de
+.add_null_byte
         ; ensure the end is ok
         xor a : ld (de), a
 
@@ -72,6 +88,8 @@ autocomplete_search_completion_on_filenames
     ; restore initial configuration
     pop bc
     call FIRMWARE.KL_ROM_SELECT ; is restore needed ?
+
+    call FIRMWARE.KM_WAIT_CHAR
     ret
 
     
