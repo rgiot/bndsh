@@ -10,7 +10,8 @@ autocomplete_search_completions
     ; XXX TODO Add other completions (RSX, filename)
     ret
 
-
+;;
+; TODO manage folders and files
 autocomplete_search_completion_on_filenames
     ; Activate M4 ROM
     ; TODO programmatically select rom number (already found at init of the prog)
@@ -23,21 +24,46 @@ autocomplete_search_completion_on_filenames
 
 .configure_filtering_for_search
 
-    ; Compute the size of the command to send
-    ld hl, interpreter.command_name_buffer
-    call string_size
-    add 2 + 1 + 1
+    if 1
+        ; Compute the size of the command to send
+        ld hl, interpreter.command_name_buffer
+        call string_size
+.min_size equ 2 + 1 + 1  ; arguments + * + 0 
+        add .min_size
 
 
-    ld de, m4_buffer
-    ld (de), a : inc de                 ; Set size of the parameters                 
-    ld (de), C_DIRSETARGS%256 : inc de  ; Set low address of routine
-    ld (de), C_DIRSETARGS/256 : inc de  ; Set high address of routine
-    ld hl, interpreter.command_name_buffer : call string_copy_word
-    dec de                              ; go one char before the end of string
-    ld (de), '*' : inc de               ; Set wildcard
-    ld (de), 0                          ; Set end of the string
-    ld hl, m4_buffer : call m4_send_command
+        ld hl, m4_buffer
+        ld (hl), a : inc hl                 ; Set size of the parameters                 
+        ld (hl), C_DIRSETARGS%256 : inc hl  ; Set low address of routine
+        ld (hl), C_DIRSETARGS/256 : inc hl  ; Set high address of routine
+     ;   ld (hl), 0x25 : inc hl
+     ;   ld (hl), 0x43 : inc hl
+
+        cp .min_size
+        jp z, .no_proposal
+            ex de, hl
+                ld hl, interpreter.command_name_buffer
+                call string_copy_word
+            ex de,hl
+          ;  dec hl                              ; go one char before the end of string
+.no_proposal
+        ld (hl), '*' : inc hl               ; Set wildcard
+        ld (hl), 0 : inc hl               ; Set wildcard
+    else
+
+        ; Display directory starting with m
+        ld hl, m4_buffer
+        ld (hl), 5 : inc hl                 ; Set size of the parameters                 
+        ld (hl), 0x25 : inc hl
+        ld (hl), 0x43 : inc hl
+        ld (hl), 'T'  : inc hl
+        ld (hl), '*'  : inc hl
+        ld (hl), 0
+
+    endif
+
+
+        ld hl, m4_buffer: call m4_send_command
 
 
 
