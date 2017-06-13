@@ -10,9 +10,20 @@ autocomplete_search_completions
     ; XXX TODO Add other completions (RSX, filename)
     ret
 
-;;
-; TODO manage folders and files
 autocomplete_search_completion_on_filenames
+    call m4_available
+    jr z, autocomplete_search_completion_on_filenames_m4
+.no_m4
+    ld hl, autocomplete.commands_ptr_buffer 
+    xor a
+    ld (hl), a
+    inc hl
+    ld (hl), a
+    ret
+
+
+
+autocomplete_search_completion_on_filenames_m4
     ; Activate M4 ROM
     ; TODO programmatically select rom number (already found at init of the prog)
     ; TODO move this code in normal memory ? (I guess once really in ROM, the selection of another ROM will make crash everything)

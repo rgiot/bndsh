@@ -176,6 +176,8 @@ interpreter_command_not_found
 ;; this is not a command, not an rsx, it is maybe a folder
 .try_to_cd
 
+    call m4_available : jp nz, .try_to_run
+
     ld  c, M4_ROM_NB
     call FIRMWARE.KL_ROM_SELECT
     push bc ; Backup rom configuration 
@@ -449,6 +451,8 @@ interpreter_command_cat
     ret
 
 interpreter_command_ls
+    call m4_available : jp nz, interpreter_command_unaivailable
+
 .nbArgs equ 0
 .name  string "LS"
 .help string "Display catalog (though |ls)."
@@ -469,6 +473,8 @@ interpreter_command_clear
 .help string "Clear the screen."
 .routine
     ;call FIRMWARE.SCR_CLEAR
+    ld a, screen.cpc_mode
+    call FIRMWARE.SCR_SET_MODE
     jp line_editor_init ; XXX Optimize
 
 
@@ -498,6 +504,8 @@ interpreter_command_pwd
 .name string "PWD"
 .help string "Display the current directory"
 .routine
+    call m4_available : jp nz, interpreter_command_unaivailable
+
     ld hl, rsx_name.getpath
     call FIRMWARE.KL_FIND_COMMAND
     jp nc, interpreter_rsx_not_found
@@ -508,6 +516,13 @@ interpreter_command_pwd
     call display_print_string
     ret
 
+interpreter_command_unaivailable
+    ld hl, interpreter_messages.unavailable
+    call display_print_string
+
+    ld hl, interpreter.command_name_buffer
+    call display_print_string
+    ret
 
 
 interpreter_command_rom
@@ -572,3 +587,5 @@ interpreter_messages
     string 'rsx not found: '
 .press_key
     string 'press key to launch: '
+.unavailable
+    string 'command unavailable: '

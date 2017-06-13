@@ -1,3 +1,13 @@
+ ;;
+; Basic interpreter for bndsh.
+;
+; @author Romain Giot
+; @date june 2017
+; @licence GPL
+
+
+
+ 
     org 0x8000
     include "lib/debug.asm"
 
@@ -6,9 +16,9 @@ M4_ROM_NB equ 6 ; TODO remove that for a final version
 config_enable_sound equ 1
 
 
-        ld de, roms_name.m4 : call bndsh_get_rom_number
+        ld de, roms_name.m4 : call bndsh_get_rom_number : ld (system.m4rom), a
         cp 0xff : jr nz, .init_stuff
-        ld de, roms_name.pdos : call bndsh_get_rom_number
+        ld de, roms_name.pdos : call bndsh_get_rom_number : ld (system.pdosrom), a
         cp 0xff : jr nz, .init_stuff
         
         ; fallback
@@ -33,6 +43,8 @@ config_enable_sound equ 1
 
 
     call bndsh_get_rsx_names
+    call bndsh_startup
+
     call line_editor_init
 
     jp line_editor_main_loop
@@ -259,10 +271,26 @@ bndsh_command_exists
 
 
 
+bndsh_startup
+    ld a, screen.cpc_mode
+    call FIRMWARE.SCR_SET_MODE
+
+
+    ld hl, startup_data.text : call display_print_string
+    
+    call m4_available : ret nz
+    ld hl, startup_data.m4 : call display_print_string
+
+    ret
+
+
+
+
 
 
 startup_data
-.text    string  "Benediction Shell v0.1 (june 2017)"
+.text    string  "Benediction Shell v0.1a      (june 2017)"
+.m4      string  "                            M4 detected."
 
 
     include "lib/system.asm"

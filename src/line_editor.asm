@@ -22,12 +22,7 @@ key_tab equ 0x09
 
 
 line_editor_init
-    ld a, screen.cpc_mode
-    call FIRMWARE.SCR_SET_MODE
 
-
-
-    ld hl, startup_data.text : call display_print_string
     call line_editor_clear_buffers
     ld a, 2 : ld (line_editor.cursor_ypos), a
 

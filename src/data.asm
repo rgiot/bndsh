@@ -16,6 +16,13 @@ rsx_name
 .getpath db "GETPAT", "H"+0x80
 .era db "ER", "A"+0x80
 
+
+
+
+system
+.m4rom db 0xff
+.pdosrom db 0xff
+
 screen
 .cpc_mode equ 1
     if .cpc_mode == 1
