@@ -244,8 +244,7 @@ interpreter_command_not_found
 
 
     ; Get memory address of result
-    ld hl, (0xFF02)
-    ld de, 3
+    ld hl, (0xFF02) : inc hl : inc hl
     add hl, de
     ld a, (hl)
     cp 0xff
