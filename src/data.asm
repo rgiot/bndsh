@@ -2,6 +2,10 @@
 ; Data content for bndsh
 ;
 
+
+
+
+
 ; TODO properly manage these data buffers to reduce their impact in memory
 ;
 ;  - size reduction
@@ -40,7 +44,7 @@ screen
 
 line_editor
 .visible_width equ screen.width
-.max_width equ 40
+.max_width equ 40 ; Max width that can be larger than screen
     assert line_editor.max_width <= screen.width, "[ERROR] Need to code the fact that a line is larger than the screen"
 .cursor_xpos db 0 ; XXX is it necessary ?
 .cursor_ypos db 0 ; Change with screen scrolling ; XXX is it necessary ?
@@ -55,7 +59,7 @@ line_editor
 
 
 interpreter
-.max_command_name equ 256
+.max_command_name equ line_editor.max_width
 .did_nothing db 0
 .command_name_buffer defs .max_command_name
 .next_token_ptr dw .command_name_buffer ; Address to the next token in the parsing (typically 1st argument)
@@ -84,7 +88,7 @@ history
 
 
 m4_buffer
-    defs 256
+    defs 50 ; XXX find its real size
 
 roms_name
 .m4 db "M4 BOAR", "D"+0x80, 0

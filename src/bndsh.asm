@@ -276,4 +276,15 @@ startup_data
     include "m4.asm"
 
 
-    include "data.asm"
+
+    if BNDSH_EXEC
+        include "data.asm"
+    endif
+
+    if BNDSH_ROM
+bndsh_rom_data_start
+        rorg BNDSH_DUMMY_MEMORY_LIMIT
+            include "data.asm"
+        rend
+bndsh_rom_data_stop
+    endif

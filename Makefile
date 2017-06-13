@@ -1,4 +1,4 @@
-all: BUILD_DSK
+all: BUILD_DSK BNDSH.ROM
 
 
 DSK_FNAME=bndsh.dsk
@@ -12,9 +12,15 @@ include CPC.mk
 
 
 exec.o: $(wildcard src/*.asm)
+rom.o: $(wildcard src/*.asm)
 
 BNDSH: exec.o 
 	$(call SET_HEADER,$^,$@,$(AMSDOS_BINARY),$(LOAD_ADDRESS),$(LOAD_ADDRESS))
+
+
+BNDSH.ROM: rom.o
+	cp $^ $@
+
 
 $(DSK_FNAME):
 	$(call CREATE_DSK,$(DSK_FNAME))
