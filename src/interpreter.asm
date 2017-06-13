@@ -129,7 +129,7 @@ interpreter_command_not_found
   ; Check if RSX exists
   ld hl, interpreter.next_token_buffer
   call FIRMWARE.KL_FIND_COMMAND
-  jp nc, .try_to_run
+  jp nc, .try_to_cd
 
   ; Call the RSX
   push bc : push hl
@@ -171,6 +171,86 @@ interpreter_command_not_found
   call FIRMWARE.KL_FAR_PCHL
 
   ret
+
+
+;; this is not a command, not an rsx, it is maybe a folder
+.try_to_cd
+
+    if 0
+
+    ; Check if the name is a folder
+
+    ; Compute the size of the command to send
+    ld hl, interpreter.command_name_buffer
+    call string_size
+    add 2 + 1
+
+    ld hl, m4_buffer
+    ld (hl), a : inc hl                 ; Set size of the parameters                 
+    ld (hl), C_DIRSETARGS%256 : inc hl  ; Set low address of routine
+    ld (hl), C_DIRSETARGS/256 : inc hl  ; Set high address of routine
+    ex de, hl
+        ld hl, interpreter.command_name_buffer
+        call string_copy_word
+    ex de,hl
+    ld (hl), 0 : inc hl  
+    ld hl, m4_buffer
+    call m4_send_command
+
+
+    
+    ; Ask to read a next filename
+    ld hl, m4_buffer
+    ld (hl), 2 : inc hl
+    ld (hl), C_READDIR%256 : inc hl
+    ld (hl), C_READDIR/256 : inc hl
+    ld hl, m4_buffer 
+    call m4_send_command
+
+    ; Get memory address of result
+    ld hl, (0xFF02)
+
+    ; HL = buffer to read
+    ld a, (hl) : inc hl ; Get response size 
+    cp 2 : jr z, .really_display_message ; there is no file / folder from this name
+    
+    inc hl : inc hl 
+    push hl
+        call display_print_string
+    pop hl
+    ld a ,(hl) : cp '>'
+    jr nz, .try_to_run
+
+
+   endif
+
+
+    ; Go in directory (works)
+    ld hl, interpreter.command_name_buffer
+    call string_size
+    add 2 + 1
+
+    ld hl, m4_buffer
+    ld (hl), a : inc hl                 ; Set size of the parameters                 
+    ld (hl), C_CD%256 : inc hl  ; Set low address of routine
+    ld (hl), C_CD/256 : inc hl  ; Set high address of routine
+    ex de, hl
+        ld hl, interpreter.command_name_buffer
+        call string_copy_word
+    ex de, hl
+    ld (hl), 0
+    ld hl, m4_buffer
+    call m4_send_command
+
+
+    ; Get memory address of result
+    ld hl, (0xFF02)
+    ld de, 3
+    add hl, de
+    ld a, (hl)
+    cp 0xff
+    ret nz
+
 
 ;;
 ; Uses the system to load and run the program
@@ -444,7 +524,7 @@ interpreter_command_rom
         ld a, 1 : call FIRMWARE.TXT_SET_COLUMN
 
         ; Get rom name
-        ld	hl,(0xC004)
+        ld  hl,(0xC004)
         call display_print_string2
 
         ld a, 20 : call FIRMWARE.TXT_SET_COLUMN
@@ -457,7 +537,7 @@ interpreter_command_rom
         call FIRMWARE.KL_ROM_SELECT
 
         ; Get rom name
-        ld	hl,(0xC004)
+        ld  hl,(0xC004)
         call display_print_string2
 
         ld a, 10 : call 0xbb5a
@@ -481,3 +561,5 @@ interpreter_messages
     string 'command not found: '
 .rsx_not_found
     string 'rsx not found: '
+.folder
+    string 'go inside folder: '
