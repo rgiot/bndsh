@@ -2,7 +2,7 @@ all: BUILD_DSK
 
 
 DSK_FNAME=bndsh.dsk
-LOAD_ADDRESS=x8000
+LOAD_ADDRESS=x9000
 
 
 vpath %.asm src/ 
@@ -11,9 +11,9 @@ vpath %.asm src/
 include CPC.mk
 
 
-bndsh.o: $(wildcard src/*.asm)
+exec.o: $(wildcard src/*.asm)
 
-BNDSH: bndsh.o
+BNDSH: exec.o 
 	$(call SET_HEADER,$^,$@,$(AMSDOS_BINARY),$(LOAD_ADDRESS),$(LOAD_ADDRESS))
 
 $(DSK_FNAME):
