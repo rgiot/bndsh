@@ -1,3 +1,57 @@
- Benediction Shell by benediction 
+# Benediction Shell 
 
- Minimalist shell for Amstrad CPC with m4 (in fact, it is not really a shell, just a command line editor...)
+
+## Purpose
+
+ Minimalist shell for Amstrad CPC with m4. People not interest by QuickCMD by No Recess may not be interest by bndsh...
+ Bndsh consists in a simple line editor where you'll type various commands. 
+ The additional value in comparison to the BASIC prompt of the Amstrad is the ability to propose completions a better integration of RSX with string parameters and a native folder management.
+
+
+ The current version is still not really useable: there are still tons of bugs, it almost never check for buffer overflows, it is still not a ROM and it is not memory friendly.
+However, fell free to test and provide patches.
+
+
+## Usage
+
+The line edition is similar to the one provided by the BASIC and can be used in the following way: `COMMAND [ARGUMENT...]`.
+
+ - If command is an `internal command` the internal command is executed.
+ - If command is an `RSX`, the RSX is executed with the following string arguments (currently only 1 argument is possible).
+ - If command is a `folder` then it becomes the working directory.
+ - If command is a `file` then the firmware tries to load and launch it. If it succeed you have no more access to bndsh. (highly limited has bndsh is still not in ROM)
+ - Otherwise the system displays an error message.
+
+
+ The current `internal command`s are:
+
+  - `cat` to display the catalog of the current directory or disc
+  - `clear` to clear the screen (as `cls`).
+  - `crtc` to display crtc number.
+  - `exit` to jump to BASIC interpreter
+  - `help` to display the list of internal commands
+  - `ls` similar to cat
+  - `pwd` to print the current working directory
+  - `rom` to manage the roms (currently nothing more that a listing)
+
+
+
+
+## Additional features I plan to code
+
+ - Faster display of the line to edit (even with the firmware as it is totally dumb now)
+ - Better integration of RSX (currently only one argument is used ...)
+ - More internal commands if needed
+ - Ability to bypass internal commands or rsx
+ - Alias to have several commands with the same name (mv with ren)
+ - Integration in a ROM
+
+## Construction
+
+~~~bash
+$ ./bootstrap.sh make
+~~~
+
+
+ 
+

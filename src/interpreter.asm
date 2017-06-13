@@ -444,6 +444,13 @@ interpreter_command_cat
 .name  string "CAT"
 .help string "Display catalog (though |dir)."
 .routine
+;    call m4_available : jr .m4_version
+;    
+;    ld de, file_names
+;    call FIRMWARE.CAS_CATALOG
+;    ret
+;
+;.m4_version
     ld hl, rsx_name.dir
     call FIRMWARE.KL_FIND_COMMAND
     jr nc, interpreter_rsx_not_found ; Should never append

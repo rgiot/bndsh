@@ -45,6 +45,8 @@ FIRMWARE
 .CAS_IN_OPEN equ &bc77
 .CAS_IN_CLOSE equ &bc7a
 .CAS_IN_DIRECT  equ &bc83
+.CAS_CATALOG equ 0xBC9B 
+
 
 .MC_START_PROGRAM equ 0xbd16
 

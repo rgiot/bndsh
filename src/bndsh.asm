@@ -278,9 +278,13 @@ bndsh_startup
 
     ld hl, startup_data.text : call display_print_string
     
-    call m4_available : ret nz
+    call m4_available : jr nz, .no_m4
     ld hl, startup_data.m4 : call display_print_string
+.no_m4
 
+    call pdos_available : jr nz, .no_pdos
+    ld hl, startup_data.pdos : call display_print_string
+.no_pdos
     ret
 
 
@@ -291,6 +295,7 @@ bndsh_startup
 startup_data
 .text    string  "Benediction Shell v0.1a      (june 2017)"
 .m4      string  "                            M4 detected."
+.pdos    string  " (do not still work)   Parados detected."
 
 
     include "lib/system.asm"
