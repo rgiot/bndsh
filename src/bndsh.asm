@@ -1,6 +1,7 @@
     org 0x8000
     include "lib/debug.asm"
 
+M4_ROM_NB equ 6 ; TODO remove that for a final version
 
 config_enable_sound equ 1
 
@@ -59,7 +60,7 @@ bndsh_get_rsx_names
         pop de
 
         ; Get rom name
-        ld	hl,(0xC004)
+        ld  hl,(0xC004)
         ld a, (hl) : or a
         jp z, .end_loop_over_rom
 
@@ -148,7 +149,7 @@ bndsh_get_rom_number
         push de : call FIRMWARE.KL_ROM_SELECT : pop de
 
         ; Get rom name
-        ld	hl,(0xC004)
+        ld  hl,(0xC004)
         push de : call string_is_prefix : pop de
         jr z,.found 
     pop af

@@ -16,7 +16,7 @@ autocomplete_search_completion_on_filenames
     ; Activate M4 ROM
     ; TODO programmatically select rom number (already found at init of the prog)
     ; TODO move this code in normal memory ? (I guess once really in ROM, the selection of another ROM will make crash everything)
-    ld  c, 6
+    ld  c, M4_ROM_NB
     call FIRMWARE.KL_ROM_SELECT
     push bc ; Backup rom configuration 
 
