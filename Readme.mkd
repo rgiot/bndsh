@@ -35,7 +35,9 @@ The line edition is similar to the one provided by the BASIC and can be used in 
   - `rom` to manage the roms (currently nothing more that a listing)
 
 
-
+To press `TAB` launches the search of words for which the word preceding `TAB` is a prefix.
+The search is done on the command list, the RSX list and the files/folders that start by the prefix.
+When there is only one choice, its content is injected in the line.
 
 ## Additional features I plan to code
 
