@@ -53,7 +53,7 @@ autocomplete_search_completions_on_commands
             call string_is_prefix               ; HL=command to compare with, DE=keyword typed by the user
         pop de: pop hl  ; does not affect z flag
 
-     ;   jr nz, .end_of_loop
+        jr nz, .end_of_loop
 
 .is_prefix
 

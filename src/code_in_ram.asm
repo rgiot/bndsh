@@ -5,6 +5,96 @@
 
 
 
+ram_cd_from_interpreter
+
+    ld  c, M4_ROM_NB ; TODO remove that
+    call FIRMWARE.KL_ROM_SELECT
+    push bc ; Backup rom configuration 
+
+
+    if 1
+        ; Compute the size of the command to send
+        ld hl, interpreter.command_name_buffer
+        call string_size_ram
+        add 2 + 1
+
+        ld hl, m4_buffer
+        ld (hl), a : inc hl                 ; Set size of the parameters                 
+        ld (hl), C_DIRSETARGS%256 : inc hl  ; Set low address of routine
+        ld (hl), C_DIRSETARGS/256 : inc hl  ; Set high address of routine
+        ex de, hl
+            ld hl, interpreter.command_name_buffer
+            call string_copy_word_ram
+        ex de,hl
+        ld (hl), 0 : inc hl  
+        ld hl, m4_buffer
+        call m4_send_command
+
+        ; Ask to read a next filename
+        ld hl, m4_buffer
+        ld (hl), 2 : inc hl
+        ld (hl), C_READDIR%256 : inc hl
+        ld (hl), C_READDIR/256 : inc hl
+        ld hl, m4_buffer 
+        call m4_send_command
+
+        ; Get memory address of result
+        ld hl, (0xFF02)
+
+        ; HL = buffer to read
+        ld a, (hl)  ; Get response size 
+        cp 2 : jp z, interpreter_command_not_found.really_display_message ; there is no file / folder from this name
+        
+        ld de, 3 : add hl, de
+       ; push hl
+       ;     ld a, (hl)
+       ;     call display_print_char_ram
+       ; pop hl
+        ld a ,(hl) : cp '>'
+        jr nz, .cd_error
+
+   endif
+
+
+    ; Go in directory (works)
+    ld hl, interpreter.command_name_buffer
+    call string_size_ram
+    add 2 + 1
+
+    ld hl, m4_buffer
+    ld (hl), a : inc hl                 ; Set size of the parameters                 
+    ld (hl), C_CD%256 : inc hl  ; Set low address of routine
+    ld (hl), C_CD/256 : inc hl  ; Set high address of routine
+    ex de, hl
+        ld hl, interpreter.command_name_buffer
+        call string_copy_word_ram
+    ex de, hl
+    ld (hl), 0
+    ld hl, m4_buffer
+    call m4_send_command
+
+
+    ; Get memory address of result
+    ld hl, (0xFF02)
+    inc hl  : inc hl  : inc hl 
+    ld a, (hl)
+    cp 0xff
+    jr z, .cd_error
+
+.cd_successfull
+    pop bc
+    call FIRMWARE.KL_ROM_SELECT 
+    ret
+
+.cd_error
+    pop bc
+    ld a, b
+    call FIRMWARE.KL_ROM_SELECT 
+    jp interpreter_command_not_found.try_to_run
+
+
+
+
 
 autocomplete_search_completion_on_filenames_m4
     ; Activate M4 ROM
