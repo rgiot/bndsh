@@ -44,4 +44,4 @@ launch: BUILD_DSK
 
 
 test_rom:
-	./bootstrap.sh make && ../cpcxfer/xfer -f 192.168.1.26 ./BNDSH.ROM 1 BNDSH && ../cpcxfer/xfer -r 192.168.1.26
+	./bootstrap.sh make && ../cpcxfer/xfer -f 192.168.1.24 ./BNDSH.ROM 1 BNDSH && ../cpcxfer/xfer -r 192.168.1.24

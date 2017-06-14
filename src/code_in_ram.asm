@@ -63,24 +63,32 @@ bndsh_get_rsx_names
         ld c, a
         push de
             call FIRMWARE.KL_ROM_SELECT
-            ld a, 1 : call FIRMWARE.TXT_SET_COLUMN
+      ;      ld a, '.' : call FIRMWARE.TXT_WR_CHAR
         pop de
+
 
         ; Get rom name
         ld  hl,(0xC004)
-        ld a, (hl) : or a
-        jp z, .end_loop_over_rom
+        ld a, (hl) : or a : jp z, .test_next_rom
+        ld a, (hl) : cp 'A' : jp c, .test_next_rom
 
         call .eat_string
 
 .loop_over_rsx
+
+
+
+   ;         push hl: push de: ld a, '*' : call FIRMWARE.TXT_WR_CHAR : pop de: pop hl
+
             ld a, (hl)
-            or a : jr z, .end_loop_over_rsx
-
-
-            bit 7, a : jr nz, .loop_over_rsx_forget
+            or a : jr z, .end_loop_over_rsx             ; End of table
+            bit 7, a : jr nz, .loop_over_rsx_forget     ; Unprintable string
+            cp 'A' : jr c, .test_next_rom               ; Memory error ?
 
                 push hl
+
+         ;           push hl: push de:call display_print_string2_ram: pop de: pop hl
+
                     push de
                         ld de, interpreter.command_name_buffer
                         call  .copy_name_in_buffer
@@ -101,6 +109,7 @@ bndsh_get_rsx_names
             call .eat_string
             jr .loop_over_rsx
 .end_loop_over_rsx
+.test_next_rom
     pop af : inc a
 
 
@@ -341,3 +350,22 @@ string_is_prefix_ram
 .is_not_prefix
     or 1; Z=0
     ret
+
+
+
+display_print_string2_ram
+.loop
+        ld a, (hl)
+
+        push hl
+        call FIRMWARE.TXT_WR_CHAR
+        pop hl
+
+        ld a, (hl)
+        bit 7, a : ret nz
+
+        inc hl
+
+    jr .loop
+
+
