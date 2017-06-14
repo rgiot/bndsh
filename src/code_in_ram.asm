@@ -83,13 +83,13 @@ ram_cd_from_interpreter
 
 .cd_successfull
     pop bc
-    call FIRMWARE.KL_ROM_SELECT 
+    call FIRMWARE.KL_ROM_DESELECT 
     ret
 
 .cd_error
     pop bc
     ld a, b
-    call FIRMWARE.KL_ROM_SELECT 
+    call FIRMWARE.KL_ROM_DESELECT 
     jp interpreter_command_not_found.try_to_run
 
 
@@ -213,7 +213,7 @@ autocomplete_search_completion_on_filenames_m4
     ; restore initial configuration
     pop bc
     push hl
-       call FIRMWARE.KL_ROM_SELECT ; is restore needed ?
+       call FIRMWARE.KL_ROM_DESELECT ; is restore needed ?
     pop hl
 
     ret
@@ -255,7 +255,7 @@ bndsh_get_rom_number
 .continue
     ; Restore the previous state of the ROM
     pop bc
-    push af : call FIRMWARE.KL_ROM_SELECT : pop af
+    push af : call FIRMWARE.KL_ROM_DESELECT : pop af
     ret
 
 .found
