@@ -8,7 +8,7 @@
  The additional value in comparison to the BASIC prompt of the Amstrad is the ability to propose completions a better integration of RSX with string parameters and a native folder management.
 
 
- The current version is still not really useable: there are still tons of bugs, it almost never check for buffer overflows, it is still not a ROM and it is not memory friendly.
+ The current version is still not really useable: there are still tons of bugs, it almost never check for buffer overflows, it is still not totally ROM friendly and it is not extra memory RAM friendly.
 However, fell free to test and provide patches.
 
 
@@ -54,6 +54,19 @@ When there is only one choice, its content is injected in the line.
 $ ./bootstrap.sh make
 ~~~
 
+## Requirements
 
+    - Mandatory
+
+        - Ramcard or equivalent (Megaflash, X-Mem, M4, ...)
+        - Additional Memory (X-Mem, ...)
+
+    - Optional
+
+        - M4 (the project has less interest without it)
  
 
+## Installation & launch
+
+Use your rom manager to put `BNDSH.ROM` in the slot of your choice. Note that I have never tested in another place than 1.
+Type `|bndsh` to start it.
