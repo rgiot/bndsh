@@ -46,7 +46,7 @@ When there is only one choice, its content is injected in the line.
  - More internal commands if needed
  - Ability to bypass internal commands or rsx
  - Alias to have several commands with the same name (mv with ren)
- - Integration in a ROM
+ - Better RAM management (use the latest page of the latest bank available on the machine in order to work on CPC6128 without extra RAM)
 
 ## Construction
 
@@ -56,14 +56,14 @@ $ ./bootstrap.sh make
 
 ## Requirements
 
-    - Mandatory
+  - Mandatory
 
-        - Ramcard or equivalent (Megaflash, X-Mem, M4, ...)
-        - Additional Memory (X-Mem, ...)
+    - Ramcard or equivalent (Megaflash, X-Mem, M4, ...)
+    - Additional Memory (X-Mem, ...)
 
-    - Optional
+  - Optional
 
-        - M4 (the project has less interest without it)
+    - M4 (the project has less interest without it)
  
 
 ## Installation & launch
