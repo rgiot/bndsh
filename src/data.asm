@@ -1,6 +1,8 @@
 ;;
 ; Data content for bndsh
-;
+; All this stuff is in extra RAM not ROM
+
+
 
 
 

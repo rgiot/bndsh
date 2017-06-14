@@ -5,7 +5,7 @@ autocomplete_reset_buffers
 
 autocomplete_search_completions
     call autocomplete_search_completion_on_filenames
-    call autocomplete_search_completions_on_commands
+  ;  call autocomplete_search_completions_on_commands
     call autocomplete_search_completions_on_rsx
     ; XXX TODO Add other completions (RSX, filename)
     ret
