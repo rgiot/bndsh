@@ -122,7 +122,7 @@ m4_set_dir_filter_from_token
 
         ; Compute the size of the command to send
         ld hl, interpreter.command_name_buffer
-        call string_size
+        call string_size_ram
 .min_size equ 2 + 1 + 1  ; arguments + * + 0 
         add .min_size
 
@@ -138,7 +138,7 @@ m4_set_dir_filter_from_token
         jp z, .no_proposal
             ex de, hl
                 ld hl, interpreter.command_name_buffer
-                call string_copy_word
+                call string_copy_word_ram
             ex de,hl
           ;  dec hl                              ; go one char before the end of string
 .no_proposal

@@ -5,14 +5,14 @@ autocomplete_reset_buffers
 
 autocomplete_search_completions
     call autocomplete_search_completion_on_filenames
-  ;  call autocomplete_search_completions_on_commands
+    call autocomplete_search_completions_on_commands
     call autocomplete_search_completions_on_rsx
     ; XXX TODO Add other completions (RSX, filename)
     ret
 
 autocomplete_search_completion_on_filenames
     call m4_available
-    jr z, autocomplete_search_completion_on_filenames_m4
+    jp z, autocomplete_search_completion_on_filenames_m4 ;; ram
 .no_m4
     ld hl, autocomplete.commands_ptr_buffer 
     xor a
@@ -21,129 +21,6 @@ autocomplete_search_completion_on_filenames
     ld (hl), a
     ret
 
-
-
-autocomplete_search_completion_on_filenames_m4
-    ; Activate M4 ROM
-    ; TODO programmatically select rom number (already found at init of the prog)
-    ; TODO move this code in normal memory ? (I guess once really in ROM, the selection of another ROM will make crash everything)
-    ld  c, M4_ROM_NB
-    call FIRMWARE.KL_ROM_SELECT
-    push bc ; Backup rom configuration 
-
-    xor a : ld (autocomplete.nb_commands),a 
-
-.configure_filtering_for_search
-
-        call m4_set_dir_filter_from_token
-
-
-
-
-        ld de, file_names ; the buffer that will contains ALL the filenames
-        ld hl, autocomplete.commands_ptr_buffer  ; Buffer to add the pointer of filenames
-.loop
-        push de : push hl
-        ; HL : autocomplete buffer
-        ; DE = filenames buffer
-
-        ; Ask to read a next filename
-        ld hl, m4_buffer
-        ld (hl), 2 : inc hl
-        ld (hl), C_READDIR%256 : inc hl
-        ld (hl), C_READDIR/256 : inc hl
-        ld hl, m4_buffer 
-        call m4_send_command
-
-        ; Get memory address of result
-        ld hl, (0xFF02)
-
-        ; HL = buffer to read
-        ld a, (hl) : inc hl ; Get response size 
-        cp 2 : jr z, .end_of_dir
-
-
-        ; Remove 2 first things ; no idea what it is ..
-        inc hl : dec a : inc hl : dec a
-
-        ; Copy string out of ROM to the main memory
-        ld a, (hl) : cp '>' : jr nz, .is_file
-.is_dir
-        inc hl: dec a ; Remove >
-.is_file
-
-        pop de : pop bc
-        ; DE = autocomplete buffer
-        ; BC = filenames buffer
-        ; HL = m4 buffer
-
-        ; store the pointer of file name
-        ex de, hl
-
-        ; HL = autocomplete buffer
-        ; BC = filenames buffer
-        ; DE = m4 buffer
-            ld (hl), c : inc hl
-            ld (hl), b : inc hl
-
-        ex de, hl
-
-        ; DE = autocomplete buffer
-        ; BC = filenames buffer
-        ; HL = m4 buffer
-
-        push de 
-        ld d, b : ld e, c
-
-        ; DE = filenames_buffer
-        ; BC = filenames buffer
-        ; HL = m4 buffer
-
-
-        ld b, a
-.fname_copy_loop
-            ld a, (hl)
-            cp ' ' : jr z, .do_no_copy_char
-            cp '.' : jr nz, .copy_char
-.is_dot
-            ld b, 3 ; we do not care of file size ! so copy only extension
-.copy_char
-            ld (de), a
-            inc de
-.do_no_copy_char
-            inc hl
-        djnz .fname_copy_loop
-
-        ; remove . if last char
-        dec de
-        ld a, (de) : cp '.' : jr z, .add_null_byte
-        inc de
-.add_null_byte
-        ; ensure the end is ok
-        xor a : ld (de), a : inc de
-
-
-
-        pop hl
-
-
-        ld a, (autocomplete.nb_commands) : inc a : ld (autocomplete.nb_commands),a 
-    jr .loop
-    
-
-.end_of_dir
-
-        pop hl : pop de
-    xor a 
-    ld (hl), a : inc hl : ld (hl), a
-
-    ; restore initial configuration
-    pop bc
-    push hl
-       call FIRMWARE.KL_ROM_SELECT ; is restore needed ?
-    pop hl
-
-    ret
 
     
 

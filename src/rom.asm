@@ -53,6 +53,13 @@ bndsh_launch
 
     assert (bndsh_rom_data_stop - bndsh_rom_data_start) < (0xa700- 0x9000)
 
+
+    ld de, roms_name.m4 : call bndsh_get_rom_number : ld (system.m4rom), a
+    cp 0xff : jr nz, .init_stuff
+    ld de, roms_name.pdos : call bndsh_get_rom_number : ld (system.pdosrom), a
+    cp 0xff : jr nz, .init_stuff
+
+.init_stuff
     call bndsh_get_rsx_names  ; XXX  This stuff is in the extra memory
     call bndsh_startup ; XXX Reimplement it does not work for the ROM
 

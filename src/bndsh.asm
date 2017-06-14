@@ -54,11 +54,11 @@ startup_data
     include "string.asm"
     include "history.asm"
     include "autocomplete.asm"
-    include "m4.asm"
 
 
 
     if BNDSH_EXEC
+        include "m4.asm"
         include "code_in_ram.asm"
         include "data.asm"
     endif
@@ -66,6 +66,7 @@ startup_data
     if BNDSH_ROM
 bndsh_rom_data_start
         rorg BNDSH_DATA_LOCATION
+            include "m4.asm"
             include "code_in_ram.asm"
             include "data.asm"
         rend
