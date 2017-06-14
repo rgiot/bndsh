@@ -176,6 +176,7 @@ bndsh_get_rom_number
 
 ;;;
 ; ATTENTION as this code is in extra RAM and other ROMs are activated, this function MUST NOT call code of the ROM
+; TODO this is a very sill way to retreive RSX names. I'm sure there are somewhere in memory !
 bndsh_get_rsx_names
 
     ; Save current state of the ROM
@@ -201,6 +202,7 @@ bndsh_get_rsx_names
         ld a, (hl) : or a : jp z, .test_next_rom
         ld a, (hl) : cp 'A' : jp c, .test_next_rom
 
+         push hl: push de:call display_print_string2_ram: ld a, 10: call 0xbb5a: ld a,13:call 0xbb5a :pop de: pop hl
         call .eat_string
 
 .loop_over_rsx
@@ -216,7 +218,7 @@ bndsh_get_rsx_names
 
                 push hl
 
-         ;           push hl: push de:call display_print_string2_ram: pop de: pop hl
+                    push hl: push de:call display_print_string2_ram: pop de: pop hl
 
                     push de
                         ld de, interpreter.command_name_buffer
@@ -363,7 +365,7 @@ bndsh_command_exists
     ret
 
 
-
+;;; XXX very bad code here XXX
 ;;; XXX Duplicated code XXX
 ;;; XXX Find a way to remove this ugly thing or at least generate it programmaticaly XXX
 

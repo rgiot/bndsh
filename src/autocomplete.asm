@@ -4,10 +4,15 @@ autocomplete_reset_buffers
     ret
 
 autocomplete_search_completions
+    ld hl, autocomplete.commands_ptr_buffer 
+    xor a
+    ld (hl), a
+    inc hl
+    ld (hl), a
+
     call autocomplete_search_completion_on_filenames
     call autocomplete_search_completions_on_commands
     call autocomplete_search_completions_on_rsx
-    ; XXX TODO Add other completions (RSX, filename)
     ret
 
 autocomplete_search_completion_on_filenames
@@ -31,7 +36,7 @@ autocomplete_search_completions_on_commands
     ; XXX hl already feed up
     dec hl ; 0 pointer
     ex de, hl
- ;   ld hl, interpreter_command_list             ; Buffer of commands to search
+    ld hl, interpreter_command_list             ; Buffer of commands to search
   ;  ld de, autocomplete.commands_ptr_buffer     ; Buffer to fill with the pointers to the corresponding strings
 .loop
         push hl : push de
@@ -48,7 +53,7 @@ autocomplete_search_completions_on_commands
             call string_is_prefix               ; HL=command to compare with, DE=keyword typed by the user
         pop de: pop hl  ; does not affect z flag
 
-        jr nz, .end_of_loop
+     ;   jr nz, .end_of_loop
 
 .is_prefix
 
