@@ -347,6 +347,8 @@ interpreter_command_help
 
 .display_full_list
 
+    ld hl, interpreter_messages.internal_commands : call display_print_string
+
     ld hl, interpreter_command_list
 .loop_full
 
@@ -357,7 +359,7 @@ interpreter_command_help
     ; Quit if this is the end
     ld a, d
     or e
-    ret z
+    jr .display_rsx
 
     push hl
         ex de, hl
@@ -374,7 +376,18 @@ interpreter_command_help
 
 
 
-    ret
+.display_rsx
+
+   ld hl, interpreter_messages.rsx: call display_print_string
+
+    ld hl, rsx_names
+.loop_rsx
+    ld a, (hl) : or a : ret z
+
+    call display_print_string
+
+    jr .loop_rsx
+
 
 
 
@@ -548,3 +561,7 @@ interpreter_messages
     string 'command unavailable: '
 .read_error
     string 'read error'
+.internal_commands
+    string "Internal commands: "
+.rsx
+    string "RSX: "
