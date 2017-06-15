@@ -88,7 +88,6 @@ ram_cd_from_interpreter
 
 .cd_error
     pop bc
-    ld a, b
     call FIRMWARE.KL_ROM_DESELECT 
     jp interpreter_command_not_found.try_to_run
 

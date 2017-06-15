@@ -45,6 +45,7 @@ interpreter_manage_input
 
 
 interpreter_search_and_launch_routine
+
     ld hl, interpreter_command_list
 .loop
         push hl
@@ -189,19 +190,30 @@ interpreter_command_not_found
         ; initial code to load an application
         ; Get string size
 
-    if 0
-
-        ld hl, interpreter.command_name_buffer 
-        call string_size
-        ld b, a
 
         ; Load file
         ; HL=filename
         ; B=filenamesize
         ld hl, interpreter.command_name_buffer 
-        ld de, 0
+        ld de, 0x170 ; put string name in the input buffer of basic ...
+        call string_copy_word
+        xor a
+        ld (de), a
+
+        if BNDSH_ROM
+           call bndsh_select_normal_memory
+        endif
+
+        ld hl, 0x170
+        call string_size
+        ld b, a
+
+
+        ld hl, 0x170 ; get name from basic buffer
+        ld de, 0xc000
         call FIRMWARE.CAS_IN_OPEN
         jr nc, .really_display_message ; Jump if file note opened
+
 
 
 
@@ -216,44 +228,23 @@ interpreter_command_not_found
         push hl
             ex de, hl
             call FIRMWARE.CAS_IN_DIRECT
+            jr nc, .read_error
             call FIRMWARE.CAS_IN_CLOSE
         pop hl
 
-        ; Retreive execution address
-        ; XXX Note that it has not yet been tested with programs whose executio naddress differ to the load address....
-        ld de, 26 : add hl, de
-        ld c, 0
+
+        ld de, 26 : or a : add hl, de
+        ld e, (hl) : inc hl : ld d, (hl)
+        ex de, hl
+        ld c, 0xff
         call FIRMWARE.MC_START_PROGRAM
-    else
-        if 0
-        ; New way, greatly inspired by QuickCmd
-        ld hl, RunProgramBasic
-        ld de, 0x170 ; BASIC command line
-        ld bc, RunProgramBasic_end - RunProgramBasic
-        ldir
-        ld hl, interpreter.command_name_buffer : call string_size
-        ld hl, interpreter.command_name_buffer : call string_copy_word
-        xor a : ld (de), a
 
-        push de 
-            ld hl, RunProgramLaunchBF00
-            ld de, &BF00
-            ld bc, RunProgramLaunchBF00End - RunProgramLaunchBF00
-            ldir        
 
-            ld c, 0 ; ROM BASIC (paremter in QuickCMD)
-
-        pop hl
-        ld ( &AE66 ), hl
-        ld ( &AE68 ), hl
-        ld de , 0x18e-0x185 ; no idea what it is ..
-        add hl, de
-        ld ( &AE6A ), hl
-        ld ( &AE6C ), hl
-
-        jp &BF00
+        
+        if BNDSH_ROM
+            ; go back to normal memory if des not work
+            call bndsh_select_extra_memory
         endif
-    endif
 
 .really_display_message
 
@@ -262,14 +253,9 @@ interpreter_command_not_found
      ld hl, interpreter.command_name_buffer : call display_print_string
      ret
 
-RunProgramBasic
-	db &13, &00, &0A, &00, &CA, &22
-RunProgramBasic_end
-
-RunProgramLaunchBF00:
-	call FIRMWARE.KL_ROM_SELECT
-	jp &EA78
-RunProgramLaunchBF00End
+.read_error
+     ld hl, interpreter_messages.read_error : call display_print_string
+    ret
 
 interpreter_command_list
     command interpreter_command_cat.name, interpreter_command_cat.help, interpreter_command_cat.routine
@@ -560,3 +546,5 @@ interpreter_messages
     string 'press key to launch: '
 .unavailable
     string 'command unavailable: '
+.read_error
+    string 'read error'

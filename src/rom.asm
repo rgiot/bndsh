@@ -97,6 +97,7 @@ EnableQCMDKeys:
 bndsh_launch
     ; Select extra memory
     call bndsh_select_extra_memory
+ ;   call DisableQCMDKeys
 
 
 
