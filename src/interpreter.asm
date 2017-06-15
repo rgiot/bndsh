@@ -359,7 +359,7 @@ interpreter_command_help
     ; Quit if this is the end
     ld a, d
     or e
-    jr .display_rsx
+    jr z, .display_rsx
 
     push hl
         ex de, hl
