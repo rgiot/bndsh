@@ -30,9 +30,62 @@ bndsh_rom_command_table
 ; Output:
 ; - HL : last memory byte used  TODO put a real vlaue
 bndsh_init_rom
-    ld hl, BNDSH_DUMMY_MEMORY_LIMIT
+    ; Rom takes only the space of its command
+    ld de, bndsh_RSXBasicEnd - bndsh_RSXBasic + 1
+    and a
+    sbc hl, de ; get space for the autocmd
+
+    push hl
+
+        call bndsh_select_extra_memory
+
+            ; copy command name in main memory
+            push hl
+                ex de, hl
+                ld hl, bndsh_RSXBasic
+                ld bc, bndsh_RSXBasicEnd - bndsh_RSXBasic + 1
+                ldir
+
+            ; add CTRL + TAB shortcut as with quickdmd	ld b, &8D
+            pop hl
+            ld b, 0x8D
+            ld c, bndsh_RSXBasicEnd - bndsh_RSXBasic
+            call FIRMWARE.KM_SET_EXPAND
+
+            call EnableQCMDKeys
+
+            ; copy other things in extra memory
+            ld hl, bndsh_rom_data_start
+            ld de, BNDSH_DATA_LOCATION
+            ld bc, bndsh_rom_data_stop - bndsh_rom_data_start
+            ldir
+
+
+        call bndsh_select_normal_memory
+
+    pop hl ; retreive memory after space removal
     SCF
     ret
+bndsh_RSXBasic
+	db "|BNDSH", 13
+bndsh_RSXBasicEnd
+    db 0
+
+DisableQCMDKeys:
+	ld a, 68
+	ld b, &FF
+	call FIRMWARE.KM_SET_CONTROL
+	ld a, 68
+	ld b, &FF
+	jp FIRMWARE.KM_SET_SHIFT
+
+EnableQCMDKeys:
+	ld a, 68
+	ld b, &8D
+	call FIRMWARE.KM_SET_CONTROL
+	ld a, 68
+	ld b, &8D
+	jp FIRMWARE.KM_SET_SHIFT
 
 
 ;;
@@ -45,11 +98,7 @@ bndsh_launch
     ; Select extra memory
     call bndsh_select_extra_memory
 
-    ; TOTALLY stupid; most of these things of WASTE ....
-    ld hl, bndsh_rom_data_start
-    ld de, BNDSH_DATA_LOCATION
-    ld bc, bndsh_rom_data_stop - bndsh_rom_data_start
-    ldir
+
 
     assert (bndsh_rom_data_stop - bndsh_rom_data_start) < (0xa700- 0x9000)
 
@@ -70,6 +119,7 @@ bndsh_launch
 
     ret
    
+
 
 
 bndsh_select_extra_memory

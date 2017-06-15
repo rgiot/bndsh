@@ -43,7 +43,7 @@ ram_cd_from_interpreter
 
         ; HL = buffer to read
         ld a, (hl)  ; Get response size 
-        cp 2 : jp z, interpreter_command_not_found.really_display_message ; there is no file / folder from this name
+        cp 2 : jp z, .cd_error
         
         ld de, 3 : add hl, de
        ; push hl

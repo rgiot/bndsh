@@ -69,4 +69,4 @@ $ ./bootstrap.sh make
 ## Installation & launch
 
 Use your rom manager to put `BNDSH.ROM` in the slot of your choice. Note that I have never tested in another place than 1.
-Type `|bndsh` to start it.
+Type `|bndsh` or `CTRL+TAB` (no idea what happens if you also have installed QuickCMD) to start it.

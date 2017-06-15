@@ -186,46 +186,90 @@ interpreter_command_not_found
 ;;
 ; Uses the system to load and run the program
 .try_to_run
+        ; initial code to load an application
+        ; Get string size
 
-    ; Get string size
-    ld hl, interpreter.command_name_buffer 
-    call string_size
-    ld b, a
+    if 0
 
-    ; Load file
-    ld hl, interpreter.command_name_buffer 
-    ld de, 0
-    call FIRMWARE.CAS_IN_OPEN
-    jr nc, .really_display_message ; Jump if file note opened
+        ld hl, interpreter.command_name_buffer 
+        call string_size
+        ld b, a
+
+        ; Load file
+        ; HL=filename
+        ; B=filenamesize
+        ld hl, interpreter.command_name_buffer 
+        ld de, 0
+        call FIRMWARE.CAS_IN_OPEN
+        jr nc, .really_display_message ; Jump if file note opened
 
 
-;; cas_in_open returns:
-;; if file was opened successfully:
-;; - carry is true 
-;; - HL contains address of the file's AMSDOS header
-;; - DE contains the load address of the file (from the header)
-;; - BC contains the length of the file (from the file header)
-;; - A contains the file type (2 for binary files)
 
-    push hl
-        ex de, hl
-        call FIRMWARE.CAS_IN_DIRECT
-        call FIRMWARE.CAS_IN_CLOSE
-    pop hl
+    ;; cas_in_open returns:
+    ;; if file was opened successfully:
+    ;; - carry is true 
+    ;; - HL contains address of the file's AMSDOS header
+    ;; - DE contains the load address of the file (from the header)
+    ;; - BC contains the length of the file (from the file header)
+    ;; - A contains the file type (2 for binary files)
 
-    ; Retreive execution address
-    ; XXX Note that it has not yet been tested with programs whose executio naddress differ to the load address....
-    ld de, 26 : add hl, de
-    ld c, 0
-    call FIRMWARE.MC_START_PROGRAM
+        push hl
+            ex de, hl
+            call FIRMWARE.CAS_IN_DIRECT
+            call FIRMWARE.CAS_IN_CLOSE
+        pop hl
+
+        ; Retreive execution address
+        ; XXX Note that it has not yet been tested with programs whose executio naddress differ to the load address....
+        ld de, 26 : add hl, de
+        ld c, 0
+        call FIRMWARE.MC_START_PROGRAM
+    else
+        if 0
+        ; New way, greatly inspired by QuickCmd
+        ld hl, RunProgramBasic
+        ld de, 0x170 ; BASIC command line
+        ld bc, RunProgramBasic_end - RunProgramBasic
+        ldir
+        ld hl, interpreter.command_name_buffer : call string_size
+        ld hl, interpreter.command_name_buffer : call string_copy_word
+        xor a : ld (de), a
+
+        push de 
+            ld hl, RunProgramLaunchBF00
+            ld de, &BF00
+            ld bc, RunProgramLaunchBF00End - RunProgramLaunchBF00
+            ldir        
+
+            ld c, 0 ; ROM BASIC (paremter in QuickCMD)
+
+        pop hl
+        ld ( &AE66 ), hl
+        ld ( &AE68 ), hl
+        ld de , 0x18e-0x185 ; no idea what it is ..
+        add hl, de
+        ld ( &AE6A ), hl
+        ld ( &AE6C ), hl
+
+        jp &BF00
+        endif
+    endif
 
 .really_display_message
+
 
      ld hl, interpreter_messages : call display_print_string
      ld hl, interpreter.command_name_buffer : call display_print_string
      ret
 
+RunProgramBasic
+	db &13, &00, &0A, &00, &CA, &22
+RunProgramBasic_end
 
+RunProgramLaunchBF00:
+	call FIRMWARE.KL_ROM_SELECT
+	jp &EA78
+RunProgramLaunchBF00End
 
 interpreter_command_list
     command interpreter_command_cat.name, interpreter_command_cat.help, interpreter_command_cat.routine

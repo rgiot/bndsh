@@ -32,6 +32,9 @@ FIRMWARE
 
 .KM_WAIT_CHAR       equ 0xbb06
 .KM_READ_CHAR       equ 0xbb09
+.KM_SET_EXPAND      equ 0xBB0F 
+.KM_SET_CONTROL equ 0xbb33
+.KM_SET_SHIFT equ 0xbb30
 
 .KL_ROM_SELECT  equ 0xB90F
 .KL_ROM_DESELECT  equ 0xB918
