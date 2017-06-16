@@ -14,6 +14,8 @@ key_backspace equ 0x7f
 key_del equ 0x10
 key_left equ 0xf2
 key_right equ 0xf3
+key_ctrl_left equ 0xfa
+key_ctrl_right equ 0xfb
 key_up equ 0xf0
 key_down equ 0xf1
 key_return equ 0x0d
@@ -59,6 +61,7 @@ line_editor_get_key
 line_editor_treat_key
 
 
+    ; TODO Use a jump table
     cp key_backspace : jp z, .backspace
     cp key_left : jp z, .key_left
     cp key_right : jp z, .key_right
@@ -67,9 +70,24 @@ line_editor_treat_key
     cp key_up : jp z, .history_previous
     cp key_down : jp z, .history_next
     cp key_tab : jp z, .autocomplete
+    cp key_ctrl_left : jp z, .go_first_char
+    cp key_ctrl_right : jp z, .go_last_char
  ;   cp key_eot: jp interpreter_command_exit.routine ; XXX for an unknown reason, does not work
 
     jp .insert_char
+
+;;
+; Move the cursor to the very first char of the line
+.go_first_char
+    xor a
+    ld  (line_editor.cursor_xpos), a
+    ret
+
+.go_last_char
+    ld hl, line_editor.text_buffer
+    call string_size : dec a
+    ld  (line_editor.cursor_xpos), a
+    ret
 
 
 .autocomplete

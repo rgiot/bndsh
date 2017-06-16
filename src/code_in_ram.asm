@@ -596,7 +596,7 @@ string_size_ram
 .loop
   ld a, (hl)
   call string_char_is_eof_ram: jr z, .end
-  call string_char_is_space_ram: jr z, .end ; XXX this is an error here !!
+;  call string_char_is_space_ram: jr z, .end ; XXX this is an error here !!
   inc hl
   inc b
   jr .loop

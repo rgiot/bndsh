@@ -107,7 +107,7 @@ string_size
 .loop
   ld a, (hl)
   call string_char_is_eof: jr z, .end
-  call string_char_is_space: jr z, .end
+ ; call string_char_is_space: jr z, .end ; for a word not a string !
   inc hl
   inc b
   jr .loop
