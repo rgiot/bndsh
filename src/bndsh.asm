@@ -48,6 +48,7 @@ startup_data
     include "lib/system.asm"
     include "lib/CRTC_detection.asm" ; XXX Attention may not be ROM friendly
 
+    include "new_line_editor.asm"
     include "line_editor.asm"
     include "interpreter.asm"
     include "display.asm"

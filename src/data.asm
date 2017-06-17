@@ -4,7 +4,17 @@
 
 
 
-
+key_backspace equ 0x7f
+key_del equ 0x10
+key_left equ 0xf2
+key_right equ 0xf3
+key_ctrl_left equ 0xfa
+key_ctrl_right equ 0xfb
+key_up equ 0xf0
+key_down equ 0xf1
+key_return equ 0x0d
+key_eot equ  0x04
+key_tab equ 0x09
 
 
 
@@ -45,11 +55,20 @@ screen
 
 
 line_editor
+.refresh_line db 0
 .visible_width equ screen.width
 .max_width equ 40 ; Max width that can be larger than screen
     assert line_editor.max_width <= screen.width, "[ERROR] Need to code the fact that a line is larger than the screen"
 .cursor_xpos db 0 ; XXX is it necessary ?
 .cursor_ypos db 0 ; Change with screen scrolling ; XXX is it necessary ?
+
+.copy_cursor_position
+.copy_cursor_xpos db 0 ; XXX is it necessary ?
+.copy_cursor_ypos db 0 ; Change with screen scrolling ; XXX is it necessary ?
+
+.insert_mode db 0 ; XXX Use 0xb1114 ?
+
+
 .check_cursor db 1
 .autocomplete_start dw 0    ; Start address (in text buffer) of the word for the autocompletion
 .autocomplete_stop dw 0    ;  Stop address (in text buffer) of the word for the autocompletion

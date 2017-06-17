@@ -10,17 +10,7 @@
 ; @licence GPL
 
 
-key_backspace equ 0x7f
-key_del equ 0x10
-key_left equ 0xf2
-key_right equ 0xf3
-key_ctrl_left equ 0xfa
-key_ctrl_right equ 0xfb
-key_up equ 0xf0
-key_down equ 0xf1
-key_return equ 0x0d
-key_eot equ  0x04
-key_tab equ 0x09
+
 
 
 line_editor_init
@@ -60,6 +50,7 @@ line_editor_get_key
 ;  - A: key char
 line_editor_treat_key
 
+    BREAKPOINT_WINAPE
 
     ; TODO Use a jump table
     cp key_backspace : jp z, .backspace
@@ -70,8 +61,10 @@ line_editor_treat_key
     cp key_up : jp z, .history_previous
     cp key_down : jp z, .history_next
     cp key_tab : jp z, .autocomplete
-    cp key_ctrl_left : jp z, .go_first_char
-    cp key_ctrl_right : jp z, .go_last_char
+    ;cp key_ctrl_left : jp z, .go_first_char
+    ;cp key_ctrl_right : jp z, .go_last_char
+    cp key_ctrl_left : jp z, .key_left
+    cp key_ctrl_right : jp z, .key_right
  ;   cp key_eot: jp interpreter_command_exit.routine ; XXX for an unknown reason, does not work
 
     jp .insert_char
@@ -246,6 +239,15 @@ line_editor_treat_key
     or a : jp z, .play_sound_and_leave
     dec a
     ld (line_editor.cursor_xpos), a
+
+
+    BREAKPOINT_WINAPE
+    call FIRMWARE.TXT_GET_CURSOR
+    dec h : dec h
+    call FIRMWARE.TXT_VALIDATE
+    call FIRMWARE.TXT_SET_CURSOR
+
+    ld a, 8: call FIRMWARE.TXT_OUTPUT
     ret
 
 
@@ -256,6 +258,15 @@ line_editor_treat_key
     cp c : jp z, .play_sound_and_leave
     inc a
     ld (line_editor.cursor_xpos), a
+
+    BREAKPOINT_WINAPE
+
+    call FIRMWARE.TXT_GET_CURSOR
+    inc h : inc h
+    call FIRMWARE.TXT_VALIDATE
+    call FIRMWARE.TXT_SET_CURSOR
+
+    ld a, 9: call FIRMWARE.TXT_OUTPUT
     ret
 
 .backspace
@@ -286,7 +297,15 @@ line_editor_treat_key
 
 
 .insert_char
-    call string_char_to_upper
+
+    
+    ;call string_char_to_upper
+    call FIRMWARE.TXT_WR_CHAR
+
+    xor a
+    ld (line_editor.refresh_line), a
+
+    ret
 
     ;; Compute the buffer address
     ld hl, line_editor.text_buffer
@@ -350,13 +369,13 @@ line_editor_treat_key
     inc e
     ld a, line_editor.max_width
     cp e
-    ret z  ; no increment when arrived at the very end
+    jr z, .insert_char_end  ; no increment when arrived at the very end
     ld a, e
     ld (line_editor.cursor_xpos), a
 
 
     ld a, (line_editor.current_width) : inc a : ld (line_editor.current_width), a
-    ret
+    jr z, .insert_char_end
 .insert_char_no_scroll_put_guard
     ; The space for the next char
     ld a, ' '
@@ -366,6 +385,9 @@ line_editor_treat_key
     inc hl
     xor a
     ld (hl), a
+
+.insert_char_end
+
     ret
 
 
@@ -462,19 +484,28 @@ line_editor_display_line
 line_editor_main_loop
 
 
+.loop
 
-    call line_editor_display_line_without_cursor
+    ld a, (line_editor.refresh_line)
+    or a
+    jr nz,  .no_line_refresh
 
-    ld a, (line_editor.cursor_xpos) : ld h, a : inc h : inc h
-    ld a, (line_editor.cursor_ypos) : ld l, a : inc l 
-    call FIRMWARE.TXT_SET_CURSOR
-    call FIRMWARE.TXT_CUR_ON
 
+  ;  ld a, (line_editor.cursor_xpos) : ld h, a : inc h : inc h
+  ;  ld a, (line_editor.cursor_ypos) : ld l, a : inc l 
+  ;  call FIRMWARE.TXT_SET_CURSOR
+  ;  call FIRMWARE.TXT_CUR_ON
+
+    
+    ld a, 1
+    ld (line_editor.refresh_line), a
+.no_line_refresh
     call line_editor_get_key
-    jp nc, line_editor_main_loop
+    jp nc, .no_line_refresh ;line_editor_main_loop
 
-    call FIRMWARE.TXT_CUR_OFF
+ ;   call FIRMWARE.TXT_CUR_OFF
     call line_editor_treat_key
 
+    call 0xbb8a
 
-    jp line_editor_main_loop
+    jp .loop

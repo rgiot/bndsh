@@ -1,12 +1,29 @@
+
+    org 0x8000
+
 BNDSH_ROM equ 0
 BNDSH_EXEC equ 1
 
+    include lib/debug.asm
+    include lib/system.asm
     
-    org 0x9000
 
+.loop
+    ld hl, test
+    call new_line_editor
+    jp .loop
+    
+test
+    string 'Hello World !'
+    defs 256
+    include new_line_editor.asm
+    include data.asm
+
+    if 0
 
 start
 
+        BREAKPOINT_WINAPE
         ld de, roms_name.m4 : call bndsh_get_rom_number : ld (system.m4rom), a
         cp 0xff : jr nz, .init_stuff
         ld de, roms_name.pdos : call bndsh_get_rom_number : ld (system.pdosrom), a
@@ -32,14 +49,18 @@ start
         ld (hl),a
 
 
+    if  0
 
     call bndsh_get_rsx_names
     call bndsh_startup
 
-    call line_editor_init
-
-    jp line_editor_main_loop
-
+        call line_editor_init
+        jp line_editor_main_loop
+    else
+        call new_line_editor
+    endif
 
 
     include bndsh.asm
+
+    endif

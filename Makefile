@@ -2,7 +2,7 @@ all: BUILD_DSK BNDSH.ROM
 
 
 DSK_FNAME=bndsh.dsk
-LOAD_ADDRESS=x9000
+LOAD_ADDRESS=x8000
 
 
 vpath %.asm src/ 

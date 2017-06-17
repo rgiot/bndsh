@@ -29,6 +29,7 @@ FIRMWARE
 .TXT_CUR_ENABLE     equ 0xBB7B
 .TXT_CUR_ON         equ 0xBB81
 .TXT_CUR_OFF        equ 0xBB84
+.TXT_VALIDATE        equ 0xBB87
 
 .KM_WAIT_CHAR       equ 0xbb06
 .KM_READ_CHAR       equ 0xbb09
@@ -51,7 +52,7 @@ FIRMWARE
 .CAS_IN_DIRECT  equ &bc83
 .CAS_CATALOG equ 0xBC9B 
 
-
+.PCDE_INSTRUCTION equ 0x0016
 .MC_START_PROGRAM equ 0xbd16
 
     macro KILL_SYSTEM   
