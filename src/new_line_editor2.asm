@@ -839,16 +839,31 @@ input_txt_tab
     call FIRMWARE.TXT_GET_CURSOR
     push hl
         ; TODO Save scroll number to properly treat completions atthe end of the screen
-      ;  call display_crlf ; TODO move to the end of the edit string before that (to not smash multi line edit)
+        call .move_to_completion_place
         call autocomplete_print_completions ; TODO add something to clear the completions previously displayed
     pop hl
     call FIRMWARE.TXT_SET_CURSOR
 
 
 .autocomplete_no_completion
+    call FIRMWARE.TXT_GET_CURSOR
+    push hl
+
+    ld b, 40; XXX erase the right amount of completion (depend on the previous completion)
+.autocomplete_no_completion_line_loop
+        push bc : ld a, ' ' : call FIRMWARE.TXT_WR_CHAR : pop bc
+        djnz .autocomplete_no_completion_line_loop
+    pop hl
+    call FIRMWARE.TXT_SET_CURSOR
+    jr .exit
+
 .autocomplete_insert_completion
 .exit
     pop af : pop bc : pop de : pop hl
+    ret
+
+.move_to_completion_place
+      call display_crlf ; TODO move to the end of the edit string before that (to not smash multi line edit)
     ret
 
 
