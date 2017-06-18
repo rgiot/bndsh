@@ -129,7 +129,8 @@ input_txt_2c72
     defb &ef
     defw input_txt_2cce
     defb &0d                                ; RETURN key
-    defw input_txt_2cf2
+;    defw input_txt_2cf2
+    defw input_txt_key_return
     defb &f0                                ; up cursor key
     defw input_txt_2d3c
     defb &f1                                ; down cursor key
@@ -231,13 +232,40 @@ input_txt_2cea
 
 ;;--------------------------------------------------------------------
 ;; display 0 terminated string
-
+input_txt_key_return
 input_txt_2cf2	push af
 input_txt_2cf3	ld      a,(hl)           ; get character
 input_txt_2cf4	inc     hl
 input_txt_2cf5	or      a                ; end of string marker?
 input_txt_2cf6	call    nz,input_txt_2f25         ; display character
 input_txt_2cf9	jr      nz,input_txt_2cf3         ; loop for next character
+
+
+    pop af : cp key_return
+    jr nz, input_txt_2cfc	
+
+    BREAKPOINT_WINAPE
+    push af
+
+    ; Launch execution
+    ld hl, line_editor.text_buffer
+    call interpreter_manage_input
+
+    ; clear the buffer
+    call line_editor_clear_buffers ; ensure the editor starts by 0
+
+    ld a, (interpreter.did_nothing)
+    or a : jr z, .interpreter_did_nothing
+
+.interpreter_acted
+    ; Properly set cursor
+    ld a, key_return : call FIRMWARE.TXT_OUTPUT
+    ld a, key_return : call FIRMWARE.TXT_OUTPUT
+    call FIRMWARE.TXT_GET_CURSOR
+    ret
+
+
+.interpreter_did_nothing
 input_txt_2cfb	pop     af
 input_txt_2cfc	scf     
 input_txt_2cfd	ret     
@@ -923,7 +951,7 @@ line_editor_clear_buffers
     ld (history.current), a
 
     xor a
-    ld (line_editor.text_buffer + 1 ), a
+    ld (line_editor.text_buffer), a
 
     ld a, ' '
     ld (line_editor.text_buffer), a
