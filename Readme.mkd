@@ -35,9 +35,28 @@ The line edition is similar to the one provided by the BASIC and can be used in 
   - `rom` to manage the roms (currently nothing more that a listing)
 
 
-To press `TAB` launches the search of words for which the word preceding `TAB` is a prefix.
-The search is done on the command list, the RSX list and the files/folders that start by the prefix.
-When there is only one choice, its content is injected in the line.
+ The original shortcuts are:
+
+  - left: move cursor to the left
+  - right: move cursor to the right
+  - CONTROL + left: move cursor to the beginnig of the line
+  - CONTROL + right: move cursor to the end of the line
+  - CONTROL + up: move cursor to the beginnig of the text
+  - CONTROL + down: move cursor to the end of the text
+  - SHIFT + left: move copy cursor to the left
+  - SHIFT + right: move copy cursor to the right
+  - SHIFT + up: move copy cursor to the up
+  - SHIFT + down: move copy cursor to the dowa
+  - CONTROL + TAB: switch between insert/replace modes
+  - BREAK: breaks the input control flow
+  - ENTER: validate and execute the instruction of the line by the BASIC interpreter
+
+The additional shortcuts are:
+
+  - TAB: control autocompletion on filenames, RSX, internal commands
+  - ENTER: before the BASIC interpreter manages the line, the shell execute its own instructions
+
+
 
 ## Additional features I plan to code
 

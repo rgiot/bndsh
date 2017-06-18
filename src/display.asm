@@ -8,6 +8,12 @@
 
 
 
+display_crlf
+    ld a, 10 : call FIRMWARE.TXT_OUTPUT
+    ld a, 13 : call FIRMWARE.TXT_OUTPUT
+    ret
+
+
 display_print_char
         res 7, a
         push hl : call FIRMWARE.TXT_OUTPUT: pop hl

@@ -77,8 +77,11 @@ input_txt_2c45	jp      input_txt_2f25
 
 ;;--------------------------------------------------------------------
 
-input_txt_2c48	push    hl
-input_txt_2c49	ld      hl,input_txt_2c72
+input_txt_2c48	
+input_txt_treat_key                
+    BREAKPOINT_WINAPE
+                push    hl
+input_txt_2c49	ld      hl, key_table1 ;input_txt_2c72
 input_txt_2c4c	ld      e,a
 input_txt_2c4d	ld      a,b
 input_txt_2c4e	or      c
@@ -95,6 +98,7 @@ input_txt_2c58	jr      nc,input_txt_2c5d         ; (+0x03)
 input_txt_2c5a	ld      hl,input_txt_2cae
 
 ;;--------------------------------------------------------------------
+
 input_txt_2c5d	ld      d,(hl)
 input_txt_2c5e	inc     hl
 input_txt_2c5f	push    hl
@@ -116,8 +120,9 @@ input_txt_2c70	ex      (sp),hl
 input_txt_2c71	ret     
 
 ;; keys for editing an existing line
+key_table1
 input_txt_2c72 
-    defb &13
+    defb &14 ; +1 for tab
     defw input_txt_2d8a
     defb &fc                                ; ESC key
     defw input_txt_2cd0                              
@@ -157,7 +162,8 @@ input_txt_2c72
     defw input_txt_2dcd
     defb &e1                                ; CTRL key+TAB key (toggle insert/overwrite)
     defw input_txt_2d81
-
+    defb key_tab                            ; TAB key (additional key code for BNDSH)
+    defw input_txt_tab
 ;;--------------------------------------------------------------------
 
 ;; keys for 
@@ -780,3 +786,110 @@ input_txt_2f6a	call    nz,input_txt_2e06
 input_txt_2f6d	call    FIRMWARE.KM_WAIT_CHAR            ; KM WAIT CHAR
 input_txt_2f70	jp      FIRMWARE.TXT_CUR_OFF            ; TXT CUR OFF
 
+
+
+;;
+; Manage the autocompletion stuff
+; HL = pointer to the current position in the text
+input_txt_tab
+    push hl : push de : push bc : push af ; XXX Check which one are really usefull
+
+    BREAKPOINT_WINAPE
+
+    ; Save current position
+    ld (line_editor.autocomplete_stop), hl
+
+    ; Compute the address of the first char of the current word
+    ld a, b : or a ; test if string is empty
+    jr z, .save_beginning
+
+    ld a, (hl) : or a; test if we are on the null char
+    jr nz, .move_to_beginning
+    
+    dec hl ; go to previous char
+
+.move_to_beginning
+    call string_go_to_beginning_of_current_word ; XXX Need to check if we can go out
+.save_beginning
+    ld (line_editor.autocomplete_start), hl
+
+    ; Get the size of the string
+    ld hl, (line_editor.autocomplete_stop)
+    ld de, (line_editor.autocomplete_start)
+    or a
+    sbc hl, de
+    inc hl
+    ld (line_editor.autocomplete_word_size), hl
+
+    ; Copy the word to the appropriate buffer
+    ld b, h : ld c, l                       ; BC = Size of string
+    ex de, hl                               ; HL = Start of the string
+    ld de, interpreter.command_name_buffer  ; DE = bufferto write
+    ldir
+    xor a : ld (de), a
+
+    call autocomplete_reset_buffers 
+    call autocomplete_search_completions
+
+    call autocomplete_get_number_of_completions
+    or a : jr z, .autocomplete_no_completion
+    cp 1 : jr z, .autocomplete_insert_completion
+
+.autocomplete_print_completion
+    call FIRMWARE.TXT_GET_CURSOR
+    push hl
+        ; TODO Save scroll number to properly treat completions atthe end of the screen
+      ;  call display_crlf ; TODO move to the end of the edit string before that (to not smash multi line edit)
+        call autocomplete_print_completions ; TODO add something to clear the completions previously displayed
+    pop hl
+    call FIRMWARE.TXT_SET_CURSOR
+
+
+.autocomplete_no_completion
+.autocomplete_insert_completion
+.exit
+    pop af : pop bc : pop de : pop hl
+    ret
+
+
+
+
+
+line_editor_init
+line_editor_clear_buffers
+    call history_save_current_context ; For performance reasons, I think it is better to save history here and not before launching a command that may never return
+
+    ld a, -1
+    ld (history.current), a
+
+    xor a
+    ld (line_editor.text_buffer + 1 ), a
+
+    ld a, ' '
+    ld (line_editor.text_buffer), a
+
+
+    xor a
+    ld (line_editor.cursor_xpos), a
+    ld (line_editor.current_width), a
+    ret
+
+
+line_editor_main_loop
+
+
+.loop
+
+
+    ; TODO add a function for that
+    ; TODO add sstuff to manage history    
+    ld a, 10 : call 0xbb5a : ld a, 13: call 0xbb5a
+
+    BREAKPOINT_WINAPE
+    ld hl, line_editor.text_buffer
+    xor a : ld (hl), a
+
+    call new_line_editor ; XXX Use the appropriate firmware functin
+
+
+    jp .loop

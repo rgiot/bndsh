@@ -171,7 +171,6 @@ autocomplete_print_completions
         push hl
             ex de, hl
             call display_print_string
-            BREAKPOINT_WINAPE
 
             ld a, ' ' : call display_print_char
         pop hl
