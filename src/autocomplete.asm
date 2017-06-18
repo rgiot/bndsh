@@ -154,7 +154,7 @@ autocomplete_search_completions_on_rsx
 autocomplete_print_completions
     ld a, 10 : call 0xbb5a
     ld a, 13 : call 0xbb5a
-    ld a, ' ' : call 0xbb5a
+ ;   ld a, ' ' : call 0xbb5a
 
     ld hl,  autocomplete.commands_ptr_buffer
 .loop

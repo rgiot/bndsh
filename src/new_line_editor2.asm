@@ -79,7 +79,6 @@ input_txt_2c45	jp      input_txt_2f25
 
 input_txt_2c48	
 input_txt_treat_key                
-    BREAKPOINT_WINAPE
                 push    hl
 input_txt_2c49	ld      hl, key_table1 ;input_txt_2c72
 input_txt_2c4c	ld      e,a
@@ -123,7 +122,8 @@ input_txt_2c71	ret
 key_table1
 input_txt_2c72 
     defb &14 ; +1 for tab
-    defw input_txt_2d8a
+ ;   defw input_txt_2d8a
+    defw input_txt_insert_char
     defb &fc                                ; ESC key
     defw input_txt_2cd0                              
     defb &ef
@@ -386,6 +386,8 @@ input_txt_2d88	or      a
 input_txt_2d89	ret     
 
 ;;--------------------------------------------------------------------
+
+input_txt_insert_char	or      a
 input_txt_2d8a	or      a
 input_txt_2d8b	ret     z
 
@@ -792,9 +794,8 @@ input_txt_2f70	jp      FIRMWARE.TXT_CUR_OFF            ; TXT CUR OFF
 ; Manage the autocompletion stuff
 ; HL = pointer to the current position in the text
 input_txt_tab
-    push hl : push de : push bc : push af ; XXX Check which one are really usefull
+    push de : push af : push bc : push hl  ; XXX Check which one are really usefull
 
-    BREAKPOINT_WINAPE
 
     ; Save current position
     ld (line_editor.autocomplete_stop), hl
@@ -858,8 +859,52 @@ input_txt_tab
     jr .exit
 
 .autocomplete_insert_completion
+
+
+    BREAKPOINT_WINAPE
+    ; scroll the buffer content
+    ld a, (line_editor.autocomplete_word_size) : dec a : push af
+    call autocomplete_get_unique_completion : call string_size : pop bc 
+    
+    ; A=size of the string to insert
+    ; B=size of the prefix
+    sub b : ld b, a
+    ; A = size of the thing to copy; Value is verified
+
+    
+    ; Go to the right place
+    call autocomplete_get_unique_completion
+    ld d, 0 : ld e, a
+    add hl, de
+    ex de, hl
+
+    pop hl : pop bc
+
+    ; DE = source to copy
+    ; HL = buffer position
+    ; BC = current string length
+
+.autocomplete_insert_completion_loop
+
+    ld a, (de) : inc de
+    or a
+    jr z, .autocomplete_insert_completion_end_loop
+    push de
+        call input_txt_insert_char
+    pop de
+    jr .autocomplete_insert_completion_loop
+.autocomplete_insert_completion_end_loop
+    
+    
+    pop af : pop de
+    ret
+
+
+
+
+
 .exit
-    pop af : pop bc : pop de : pop hl
+    pop hl : pop bc :  pop af : pop de 
     ret
 
 .move_to_completion_place
@@ -900,11 +945,12 @@ line_editor_main_loop
     ; TODO add sstuff to manage history    
     ld a, 10 : call 0xbb5a : ld a, 13: call 0xbb5a
 
-    BREAKPOINT_WINAPE
     ld hl, line_editor.text_buffer
     xor a : ld (hl), a
 
     call new_line_editor ; XXX Use the appropriate firmware functin
+    ld hl, line_editor.text_buffer
+    call display_print_string
 
 
     jp .loop
