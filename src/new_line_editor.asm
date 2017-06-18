@@ -45,14 +45,13 @@ new_line_editor
     call new_line_editor_display_initial_string
 
 
-    BREAKPOINT_WINAPE
 
 .wait_key
     push bc : push hl
         call    new_line_edit_read_key
     pop hl : pop bc
 
-    call    new_line_edit_treat_key			; process key
+    call    new_line_edit_treat_key         ; process key
 
     jr      nc, .wait_key         ; (-$0c)
 
@@ -69,6 +68,7 @@ new_line_editor
 
 ; 2c48
 new_line_edit_treat_key
+    BREAKPOINT_WINAPE
     push    hl
     ld      hl, new_line_edit_key_table
     ld      e,a
@@ -77,12 +77,12 @@ new_line_edit_treat_key
     ld      a,e
     jr      nz,.continue ; (+$0b)
 
-    cp      key_up				;
+    cp      key_up              ;
     jr      c,  .continue; (+$07)
     cp      $f4
     jr      nc, .continue         ; (+$03)
 
-;; cursor keys
+;; cursor keys ?
     ld      hl, new_line_edit_key_table2
 
 ;;--------------------------------------------------------------------
@@ -115,85 +115,85 @@ new_line_edit_treat_key
 new_line_edit_key_table
     defb &13
     defw new_line_edit_any_key_pressed
-    defb &fc								; ESC key
-    defw &2cd0								
+    defb &fc                                ; ESC key
+    defw &2cd0                              
     defb &ef
     defw &2cce
-    defb &0d								; RETURN key
+    defb &0d                                ; RETURN key
     defw &2cf2
-    defb &f0								; up cursor key
+    defb &f0                                ; up cursor key
     defw &2d3c
-    defb &f1								; down cursor key
+    defb &f1                                ; down cursor key
     defw &2d0a
-    defb &f2								; left cursor key
-    defw &2d34
-    defb &f3								; right cursor key
+    defb &f2                                ; left cursor key
+    defw new_line_edit_left_cursor_key_pressed
+    defb &f3                                ; right cursor key
     defw &2d02
-    defb &f8								; CTRL key + up cursor key
+    defb &f8                                ; CTRL key + up cursor key
     defw &2d4f
-    defb &f9								; CTRL key + down cursor key
+    defb &f9                                ; CTRL key + down cursor key
     defw &2d1d
-    defb &fa								; CTRL key + left cursor key
+    defb &fa                                ; CTRL key + left cursor key
     defw &2d45
-    defb &fb								; CTRL key + right cursor key
+    defb &fb                                ; CTRL key + right cursor key
     defw &2d14
-    defb &f4								; SHIFT key + up cursor key
+    defb &f4                                ; SHIFT key + up cursor key
     defw &2e21
-    defb &f5								; SHIFT key + down cursor key
+    defb &f5                                ; SHIFT key + down cursor key
     defw &2e26
-    defb &f6								; SHIFT key + left cursor key
+    defb &f6                                ; SHIFT key + left cursor key
     defw &2e1c
-    defb &f7								; SHIFT key + right cursor key
-    defw &2e17								
-    defb &e0								; COPY key
+    defb &f7                                ; SHIFT key + right cursor key
+    defw &2e17                              
+    defb &e0                                ; COPY key
     defw &2e65
-    defb &7f								; ESC key
+    defb &7f                                ; ESC key
     defw &2dc3
-    defb &10								; CLR key
+    defb &10                                ; CLR key
     defw &2dcd
-    defb &e1								; CTRL key+TAB key (toggle insert/overwrite)
+    defb &e1                                ; CTRL key+TAB key (toggle insert/overwrite)
     defw &2d81
 ;2cae:
 new_line_edit_key_table2
     defb &04
-    defw new_line_edit_bel					; Sound bleeper
-    defb &f0								; up cursor key
-    defw new_line_edit_move_cursor.up		; Move cursor up a line
-    defb &f1								; down cursor key
-    defw new_line_edit_move_cursor.down		; Move cursor down a line
-    defb &f2								; left cursor key
-    defw new_line_edit_move_cursor.left		; Move cursor back one character
-    defb &f3								; right cursor key
+    defw new_line_edit_bel                  ; Sound bleeper
+    defb &f0                                ; up cursor key
+    defw new_line_edit_move_cursor.up       ; Move cursor up a line
+    defb &f1                                ; down cursor key
+    defw new_line_edit_move_cursor.down     ; Move cursor down a line
+    defb &f2                                ; left cursor key
+    defw new_line_edit_move_cursor.left     ; Move cursor back one character
+    defb &f3                                ; right cursor key
     defw new_line_edit_move_cursor.right    ; Move cursor forward one character
 
 ;;--------------------------------------------------------------------
 ;; up cursor key pressed
 new_line_edit_move_cursor
 .up
-    ld      a,0x0b			; VT (Move cursor up a line)
+    ld      a,0x0b          ; VT (Move cursor up a line)
     jr      .done            ; 
 
 ;;--------------------------------------------------------------------
 ;; down cursor key pressed
 .down
-    ld      a,0x0a			; LF (Move cursor down a line)
+    ld      a,0x0a          ; LF (Move cursor down a line)
     jr      .done           
 
 ;;--------------------------------------------------------------------
 ;; right cursor key pressed
 .right
-    ld      a,0x09			; TAB (Move cursor forward one character)
+    ld      a,0x09          ; TAB (Move cursor forward one character)
     jr      .done            ; 
 
 ;;--------------------------------------------------------------------
 ;; left cursor key pressed
 .left
-    ld      a,0x08			; BS (Move character back one character)
+    ld      a,0x08          ; BS (Move character back one character)
 
 ;;--------------------------------------------------------------------
 ; 2ccb
 .done
-    call    FIRMWARE.TXT_OUTPUT			; TXT OUTPUT
+    call    FIRMWARE.TXT_OUTPUT         ; TXT OUTPUT
 
 ;;--------------------------------------------------------------------
     or      a
@@ -202,10 +202,63 @@ new_line_edit_move_cursor
 ;;===========================================================================
 ; 2cfe
 new_line_edit_bel
-    ld      a, 0x07			; BEL (Sound bleeper)
+    ld      a, 0x07         ; BEL (Sound bleeper)
     jr      new_line_edit_move_cursor.done
 
 
+
+
+;; left cursor key pressed
+new_line_edit_left_cursor_key_pressed
+; 2d34
+    ld      d,0x01
+    call    new_line_edit_ctrl_up_cursor_key_pressed.loop
+    jr      z, new_line_edit_bel
+    ret     
+
+
+
+
+
+
+; CTRL key + up cursor key pressed
+;; go to start of text
+new_line_edit_ctrl_up_cursor_key_pressed
+; 2d4f
+    ld      d,c
+.loop
+; 2d50
+    ld      a,b
+
+new_line_edit_manage_cursor_move
+    or      a
+    ret     z
+
+    call    new_line_editor_try_left_cursor_move
+    jr      nc, .unable_to_move_left         ; (+$07)
+    dec     b
+    dec     hl
+    dec     d
+    jr      nz, new_line_edit_ctrl_up_cursor_key_pressed.loop         
+    jr      .leave           
+
+;;===========================================================================
+.unable_to_move_left
+    ld      a,b
+    or      a
+    jr      z, .before_display         
+    dec     b
+    dec     hl
+    push    de
+    call    unknown_2ea2
+    pop     de
+    dec     d
+    jr      nz, new_line_edit_manage_cursor_move. unable_to_move_left 
+.before_display
+    call    new_line_editor_display_initial_string
+.leave
+    or      0xff
+    ret  
 
 ;2d8a
 new_line_edit_any_key_pressed
@@ -298,19 +351,19 @@ new_line_edit_print_on_screen_char
     push    de
     push    hl
     ld      b,a
-    call    FIRMWARE.TXT_GET_CURSOR			; TXT GET CURSOR
+    call    FIRMWARE.TXT_GET_CURSOR         ; TXT GET CURSOR
     ld      c,a
     push    bc
-    call    FIRMWARE.TXT_VALIDATE			; TXT VALIDATE
+    call    FIRMWARE.TXT_VALIDATE           ; TXT VALIDATE
     pop     bc
     call    c, new_line_editor_compare_copy_cursor_relative_position
     push    af
     call    c, new_line_editor_manage_cursor_display.remove
     ld      a,b
     push    bc
-    call    FIRMWARE.TXT_WR_CHAR			; TXT WR CHAR
+    call    FIRMWARE.TXT_WR_CHAR            ; TXT WR CHAR
     pop     bc
-    call    FIRMWARE.TXT_GET_CURSOR			; TXT GET CURSOR
+    call    FIRMWARE.TXT_GET_CURSOR         ; TXT GET CURSOR
     sub     c
     call    nz, new_line_editor_adjust_copy_cursor_position
     pop     af
@@ -330,19 +383,19 @@ new_line_edit_print_on_screen_char
 ;
 ;;;--------------------------------------------------------------------
 ;
-;2cd0 cdf22c    call    $2cf2			; display message
+;2cd0 cdf22c    call    $2cf2           ; display message
 ;2cd3 f5        push    af
-;2cd4 21ea2c    ld      hl,$2cea			; "*Break*"
-;2cd7 cdf22c    call    $2cf2			; display message
+;2cd4 21ea2c    ld      hl,$2cea            ; "*Break*"
+;2cd7 cdf22c    call    $2cf2           ; display message
 ;
-;2cda cd7c11    call    $117c			; TXT GET CURSOR
+;2cda cd7c11    call    $117c           ; TXT GET CURSOR
 ;2cdd 25        dec     h
 ;2cde 2808      jr      z,$2ce8          
 ;
 ;;; go to next line
-;2ce0 3e0d      ld      a,$0d			; CR (Move cursor to left edge of window on current line)
-;2ce2 cdfe13    call    $13fe			; TXT OUTPUT
-;2ce5 cdc12c    call    $2cc1			; Move cursor down a line
+;2ce0 3e0d      ld      a,$0d           ; CR (Move cursor to left edge of window on current line)
+;2ce2 cdfe13    call    $13fe           ; TXT OUTPUT
+;2ce5 cdc12c    call    $2cc1           ; Move cursor down a line
 ;
 ;2ce8 f1        pop     af
 ;2ce9 c9        ret     
@@ -352,7 +405,9 @@ new_line_edit_print_on_screen_char
 ;defb "*Break*",0
 
 
-; 2dfd
+
+
+; 2df2
 new_line_editor_init_copy_cursor
 
 ; init cursor
@@ -391,13 +446,57 @@ new_line_editor_get_copy_cursor_position
     ret
 
 
+;; try to move cursor left?
+new_line_editor_try_left_cursor_move
+; 2ec7
+    push    de
+    ld      de, 0xff08
+    jr       new_line_editor_try_right_cursor_move
+
+;;--------------------------------------------------------------------
+;; try to move cursor right?
+new_line_editor_try_right_cursor_move
+    push    de
+    ld      de,0x0109
+
+;;--------------------------------------------------------------------
+;; D = column increment
+;; E = character to plot
+new_line_editor_try_cursor_horizontal_move
+    push    bc
+    push    hl
+
+    ;; get current cursor position
+    call   FIRMWARE.TXT_GET_CURSOR ; TXT GET CURSOR
+
+    ;; adjust cursor position
+    ld      a,d				; column increment
+    add     a,h				; add on column
+    ld      h,a				; final column
+
+    ;; validate this new position
+    call    FIRMWARE.TXT_VALIDATE			; TXT VALIDATE
+
+    ;; if valid then output character, otherwise report error
+    ld      a,e
+    call    c, FIRMWARE.TXT_OUTPUT  ; TXT OUTPUT
+
+    pop     hl
+    pop     bc
+    pop     de
+    ret  
+
+
+
+
+
 ; 2e06
 ; this method is called when the screen is scroll after printing a chars
 new_ligne_editor_adjust_copy_cursor_position
 new_line_editor_adjust_copy_cursor_position
     ld      c,a
-    call    new_line_editor_get_copy_cursor_position			; get copy cursor position
-    ret     z				; quit if not active
+    call    new_line_editor_get_copy_cursor_position            ; get copy cursor position
+    ret     z               ; quit if not active
 
     ;; adjust y position
     ld      a,l
@@ -406,7 +505,7 @@ new_line_editor_adjust_copy_cursor_position
 
 .validate
     ;; validate new position
-    call    FIRMWARE.TXT_VALIDATE			; TXT VALIDATE
+    call    FIRMWARE.TXT_VALIDATE           ; TXT VALIDATE
     jr      nc, new_line_editor_init_copy_cursor         ; reset relative cursor pos
 
     ;; set cursor position
@@ -418,12 +517,12 @@ new_line_editor_manage_cursor_display
 ; 2e4a
 .place
 .insert
-    ld      de, FIRMWARE.TXT_PLACE_CURSOR			; TXT PLACE CURSOR/TXT REMOVE CURSOR
+    ld      de, FIRMWARE.TXT_PLACE_CURSOR           ; TXT PLACE CURSOR/TXT REMOVE CURSOR
     jr      .manage            
 ; 2e4f
 .remove
     ;;--------------------------------------------------------------------
-    ld      de, FIRMWARE.TXT_REMOVE_CURSOR			; TXT PLACE CURSOR/TXT REMOVE CURSOR
+    ld      de, FIRMWARE.TXT_REMOVE_CURSOR          ; TXT PLACE CURSOR/TXT REMOVE CURSOR
 
     ;;--------------------------------------------------------------------
 .manage
@@ -434,7 +533,7 @@ new_line_editor_manage_cursor_display
     call    FIRMWARE.TXT_GET_CURSOR
     ex      (sp),hl
     call    FIRMWARE.TXT_SET_CURSOR             ; TXT SET CURSOR
-    call    FIRMWARE.PCDE_INSTRUCTION			; LOW: PCDE INSTRUCTION
+    call    FIRMWARE.PCDE_INSTRUCTION           ; LOW: PCDE INSTRUCTION
     pop     hl
     jp      FIRMWARE.TXT_SET_CURSOR
 

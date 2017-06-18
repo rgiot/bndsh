@@ -30,6 +30,8 @@ FIRMWARE
 .TXT_CUR_ON         equ 0xBB81
 .TXT_CUR_OFF        equ 0xBB84
 .TXT_VALIDATE        equ 0xBB87
+.TXT_GET_WINDOW     equ 0xbb69
+.TXT_RD_CHAR        equ 0xBB60
 
 .KM_WAIT_CHAR       equ 0xbb06
 .KM_READ_CHAR       equ 0xbb09

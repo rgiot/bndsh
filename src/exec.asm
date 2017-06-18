@@ -11,12 +11,14 @@ BNDSH_EXEC equ 1
 .loop
     ld hl, test
     call new_line_editor
+
+    ld a, 'X' : call 0xbb5a
+
     jp .loop
     
 test
-    string 'Hello World !'
     defs 256
-    include new_line_editor.asm
+    include new_line_editor2.asm
     include data.asm
 
     if 0
