@@ -833,11 +833,13 @@ input_txt_tab
     
     ld a, (hl) : cp ' '
     jr nz, .move_to_beginning
+
+    inc hl
     ld hl, (line_editor.autocomplete_stop)
     jr .save_beginning
-    ld (line_editor.autocomplete_stop), hl
 
 .move_to_beginning
+    ld (line_editor.autocomplete_stop), hl
     call string_go_to_beginning_of_current_word ; XXX Need to check if we can go out
 .save_beginning
     ld (line_editor.autocomplete_start), hl
