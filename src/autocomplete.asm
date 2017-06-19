@@ -9,6 +9,7 @@ autocomplete_search_completions
     ld (hl), a
     inc hl
     ld (hl), a
+    ld (autocomplete.nb_commands), a
 
     call autocomplete_search_completion_on_filenames
     call autocomplete_search_completions_on_commands
