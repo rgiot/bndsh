@@ -107,10 +107,12 @@ history_copy_buffer
 
 history_select_previous
   ld a, (history.delta) 
-  inc a
+  dec a
   and history.size-1
   ld (history.delta), a
 
+  inc a
+  and history.size-1
   call history_get_buffer
   ld de, line_editor.text_buffer
 
@@ -120,10 +122,12 @@ history_select_previous
 
 history_select_next
   ld a, (history.delta) 
-  dec a
+  inc a
   and history.size-1
   ld (history.delta), a
 
+  dec a
+  and history.size-1
   call history_get_buffer
   ld de, line_editor.text_buffer
 
