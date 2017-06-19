@@ -1002,13 +1002,13 @@ input_txt_draw_retreived_history
     ; Redraw the text and count the size
     call input_txt_print_new_string
 
+  call input_txt_ctrl_down_cursor_key ; go to last char
   pop af : ld (input_txt_mode_ptr), a
   ret
 
 
 input_txt_clear_printed_line
 
-  BREAKPOINT_WINAPE
   ; Go back to beginning of line
   call input_txt_ctrl_up_cursor_key
 
