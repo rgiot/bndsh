@@ -985,10 +985,7 @@ input_txt_history_previous
      call history_select_previous
     pop hl
 
-    ; Redraw the text and count the size
-    call input_txt_print_new_string
-
-  ret
+    jr input_txt_draw_retreived_history
 
 input_txt_history_next
     call input_txt_clear_printed_line
@@ -998,16 +995,23 @@ input_txt_history_next
      call history_select_next
     pop hl
 
+input_txt_draw_retreived_history
+  ld a, (input_txt_mode_ptr) : push af
+  xor a : ld (input_txt_mode_ptr), a
+
     ; Redraw the text and count the size
     call input_txt_print_new_string
 
+  pop af : ld (input_txt_mode_ptr), a
   ret
 
 
 input_txt_clear_printed_line
 
+  BREAKPOINT_WINAPE
   ; Go back to beginning of line
   call input_txt_ctrl_up_cursor_key
+
 
   ; Backup insertion mode
   ld a, (input_txt_mode_ptr) : push af
@@ -1020,7 +1024,7 @@ input_txt_clear_printed_line
     jr z, .end_of_loop
 
     ld a, ' ' : call input_txt_insert_char
-    inc hl
+    jr .loop
 .end_of_loop
 
   ; Restore insertion mode
