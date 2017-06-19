@@ -89,23 +89,28 @@ interpreter
 .parameter_buffer defs 2*1
 
 history
-.size equ 5
+.size equ 8 ; XXX ATTENTION must be a power of two
 .current db 0
+.delta db 0
 .buffer1
-    db 0 ; Size
-    defs line_editor.max_width + 2 ; data
+    defs 256
 .buffer2
-    db 0
-    defs line_editor.max_width + 2
+    defs 256
 .buffer3
-    db 0
-    defs line_editor.max_width + 2
+    defs 256
 .buffer4
-    db 0
-    defs line_editor.max_width + 2
+    defs 256
 .buffer5
-    db 0
-    defs line_editor.max_width + 2
+    defs 256
+.buffer6
+    defs 256
+.buffer7
+    defs 256
+.buffer8
+    defs 256
+
+
+
 
 
 m4_buffer

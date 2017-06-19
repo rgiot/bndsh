@@ -17,37 +17,8 @@ input_txt_2c02  push    bc
 input_txt_2c03  push    de
 input_txt_2c04  push    hl
 input_txt_2c05  call    input_txt_reset_copy_cursor            ; reset relative cursor pos
-input_txt_2c08  ld      bc,0x00ff         
-; B = position in edit buffer
-; C = number of characters remaining in buffer
 
-;; if there is a number at the start of the line then skip it
-input_txt_2c0b  ld      a,(hl)
-input_txt_2c0c  cp      0x30              ; '0'
-input_txt_2c0e  jr      c,input_txt_2c17          ; (+0x07)
-input_txt_2c10  cp      0x3a              ; '9'+1
-input_txt_2c12  call    c,input_txt_2c42
-input_txt_2c15  jr      c,input_txt_2c0b          
-
-;;--------------------------------------------------------------------
-;; all other characters
-input_txt_2c17  ld      a,b
-input_txt_2c18  or      a
-;; zero flag set if start of buffer, zero flag clear if not start of buffer
-
-input_txt_2c19  ld      a,(hl)
-input_txt_2c1a  call    nz,input_txt_2c42
-
-input_txt_2c1d  push    hl
-input_txt_2c1e  inc     c
-input_txt_2c1f  ld      a,(hl)
-input_txt_2c20  inc     hl
-input_txt_2c21  or      a
-input_txt_2c22  jr      nz,input_txt_2c1e         ; (-0x06)
-
-input_txt_2c24  ld      (input_txt_mode_ptr),a        ; insert/overwrite mode
-input_txt_2c27  pop     hl
-input_txt_2c28  call    input_txt_2ee4
+                call input_txt_print_new_string
 
 
 input_txt_2c2b  push    bc
@@ -61,9 +32,20 @@ input_txt_2c35  jr      nc,input_txt_2c2b         ; (-0x0c)
 input_txt_2c37  push    af
 input_txt_2c38  call    input_txt_2e4f
 input_txt_2c3b  pop     af
+
 input_txt_2c3c  pop     hl
+
+
+                ; Backup the string in the hisotry buffer
+                push hl : push af
+                call history_save_current_context
+                pop af : pop hl
+
 input_txt_2c3d  pop     de
 input_txt_2c3e  pop     bc
+
+
+                
 input_txt_2c3f  cp      0xfc
 input_txt_2c41  ret     
 
@@ -129,20 +111,19 @@ input_txt_2c72
     defb &ef
     defw input_txt_2cce
     defb &0d                                ; RETURN key
-;    defw input_txt_2cf2
     defw input_txt_key_return
     defb &f0                                ; up cursor key
-    defw input_txt_2d3c
+    defw input_txt_up_cursor_key
     defb &f1                                ; down cursor key
-    defw input_txt_2d0a
+    defw input_txt_down_cursor_key
     defb &f2                                ; left cursor key
     defw input_txt_2d34
     defb &f3                                ; right cursor key
     defw input_txt_2d02
     defb &f8                                ; CTRL key + up cursor key
-    defw input_txt_2d4f
+    defw input_txt_ctrl_up_cursor_key
     defb &f9                                ; CTRL key + down cursor key
-    defw input_txt_2d1d
+    defw input_txt_ctrl_down_cursor_key
     defb &fa                                ; CTRL key + left cursor key
     defw input_txt_2d45
     defb &fb                                ; CTRL key + right cursor key
@@ -169,31 +150,35 @@ input_txt_2c72
 
 ;; keys for 
 input_txt_2cae
-    defb &04
-    defw input_txt_2cfe                              ; Sound bleeper
-    defb &f0                                ; up cursor key
+    defb &06
+    defw input_txt_print_bel                              ; Sound bleeper
+    defb &f8;&f0                                ; up cursor key
     defw input_txt_2cbd                              ; Move cursor up a line
-    defb &f1                                ; down cursor key
+    defb &f9;&f1                                ; down cursor key
     defw input_txt_2cc1                              ; Move cursor down a line
     defb &f2                                ; left cursor key
     defw input_txt_2cc9                              ; Move cursor back one character
     defb &f3                                ; right cursor key
     defw input_txt_2cc5                              ; Move cursor forward one character
+    defb &f0                                ; up cursor key
+    defw input_txt_up_cursor_key
+    defb &f1                                ; down cursor key
+    defw input_txt_down_cursor_key
 
 ;;--------------------------------------------------------------------
 ;; up cursor key pressed
 input_txt_2cbd  ld      a,0x0b            ; VT (Move cursor up a line)
-input_txt_2cbf  jr      input_txt_2ccb            ; 
+input_txt_2cbf  jr      input_txt_txt_output            ; 
 
 ;;--------------------------------------------------------------------
 ;; down cursor key pressed
 input_txt_2cc1  ld      a,0x0a            ; LF (Move cursor down a line)
-input_txt_2cc3  jr      input_txt_2ccb           
+input_txt_2cc3  jr      input_txt_txt_output           
 
 ;;--------------------------------------------------------------------
 ;; right cursor key pressed
 input_txt_2cc5  ld      a,0x09            ; TAB (Move cursor forward one character)
-input_txt_2cc7  jr      input_txt_2ccb            ; 
+input_txt_2cc7  jr      input_txt_txt_output            ; 
 
 ;;--------------------------------------------------------------------
 ;; left cursor key pressed
@@ -201,7 +186,7 @@ input_txt_2cc9  ld      a,0x08            ; BS (Move character back one characte
 
 ;;--------------------------------------------------------------------
 
-input_txt_2ccb  call    FIRMWARE.TXT_OUTPUT            ; TXT OUTPUT
+input_txt_txt_output  call    FIRMWARE.TXT_OUTPUT            ; TXT OUTPUT
 
 ;;--------------------------------------------------------------------
 input_txt_2cce  or      a
@@ -264,31 +249,32 @@ input_txt_2cfc  scf
 input_txt_2cfd  ret     
 
 ;;===========================================================================
-input_txt_2cfe  ld      a,0x07            ; BEL (Sound bleeper)
-input_txt_2d00  jr      input_txt_2ccb
+input_txt_print_bel  ld      a,0x07            ; BEL (Sound bleeper)
+input_txt_2d00  jr      input_txt_txt_output
 
 ;;===========================================================================
 ;; right cursor key pressed
 input_txt_2d02  ld      d,0x01
 input_txt_2d04  call    input_txt_2d1e
-input_txt_2d07  jr      z,input_txt_2cfe          ; (-0x0b)
+input_txt_2d07  jr      z,input_txt_print_bel          ; (-0x0b)
 input_txt_2d09  ret     
 
 ;;===========================================================================
 ;; down cursor key pressed
 
-input_txt_2d0a  call    input_txt_2d73
+input_txt_down_cursor_key  call    input_txt_get_window_width_and_column_pos
 input_txt_2d0d  ld      a,c
 input_txt_2d0e  sub     b
 input_txt_2d0f  cp      d
-input_txt_2d10  jr      c,input_txt_2cfe          ; (-0x14)
+;input_txt_2d10  jr      c,input_txt_print_bel          ; (-0x14)
+input_txt_2d10  jp      c,input_txt_history_next ; (-0x14)
 input_txt_2d12  jr      input_txt_2d1e            ; (+0x0a)
 
 ;;--------------------------------------------------------------------
 ;; CTRL key + right cursor key pressed
 ;; 
 ;; go to end of current line
-input_txt_2d14  call    input_txt_2d73
+input_txt_2d14  call    input_txt_get_window_width_and_column_pos
 input_txt_2d17  ld      a,d
 input_txt_2d18  sub     e
 input_txt_2d19  ret     z
@@ -301,7 +287,7 @@ input_txt_2d1b  jr      input_txt_2d1e            ; (+0x01)
 ;;
 ;; go to end of text 
 
-input_txt_2d1d  ld      d,c
+input_txt_ctrl_down_cursor_key  ld      d,c
 
 ;;--------------------------------------------------------------------
 
@@ -325,16 +311,18 @@ input_txt_2d32  jr      input_txt_2d70            ; (+0x3c)
 ;; left cursor key pressed
 input_txt_2d34  ld      d,0x01
 input_txt_2d36  call    input_txt_2d50
-input_txt_2d39  jr      z,input_txt_2cfe          ; (-0x3d)
+input_txt_2d39  jr      z,input_txt_print_bel          ; (-0x3d)
 input_txt_2d3b  ret     
 
 
 ;;===========================================================================
 ;; up cursor key pressed
-input_txt_2d3c  call    input_txt_2d73
-input_txt_2d3f  ld      a,b
-input_txt_2d40  cp      d
-input_txt_2d41  jr      c,input_txt_2cfe          ; (-0x45)
+input_txt_up_cursor_key
+input_txt_2d3c  call    input_txt_get_window_width_and_column_pos
+input_txt_2d3f  ld      a,b ; position in string ?
+input_txt_2d40  cp      d ; compared to window width
+;input_txt_2d41  jr      c,input_txt_print_bel          ; (-0x45)
+                jp c, input_txt_history_previous
 input_txt_2d43  jr      input_txt_2d50            ; (+0x0b)
 
 
@@ -343,7 +331,7 @@ input_txt_2d43  jr      input_txt_2d50            ; (+0x0b)
 ;;
 ;; go to start of current line
 
-input_txt_2d45  call    input_txt_2d73
+input_txt_2d45  call    input_txt_get_window_width_and_column_pos
 input_txt_2d48  ld      a,e
 input_txt_2d49  sub     0x01
 input_txt_2d4b  ret     z
@@ -356,7 +344,7 @@ input_txt_2d4d  jr      input_txt_2d50            ; (+0x01)
 
 ;; go to start of text
 
-input_txt_2d4f  ld      d,c
+input_txt_ctrl_up_cursor_key  ld      d,c
 
 input_txt_2d50  ld      a,b
 input_txt_2d51  or      a
@@ -386,14 +374,17 @@ input_txt_2d70  or      0xff
 input_txt_2d72  ret     
 
 ;;--------------------------------------------------------------------
-input_txt_2d73  push    hl
+; OUTPUT
+; - D window width
+; - E cursor column
+input_txt_get_window_width_and_column_pos  push    hl
 input_txt_2d74  call    FIRMWARE.TXT_GET_WINDOW            ; TXT GET WINDOW
-input_txt_2d77  ld      a,d
-input_txt_2d78  sub     h
+input_txt_2d77  ld      a,d ; holds the column number of the right edge.
+input_txt_2d78  sub     h ; substract the column number of the left edge
 input_txt_2d79  inc     a
-input_txt_2d7a  ld      d,a
+input_txt_2d7a  ld      d,a ; Window width ?
 input_txt_2d7b  call    FIRMWARE.TXT_GET_CURSOR            ; TXT GET CURSOR
-input_txt_2d7e  ld      e,h
+input_txt_2d7e  ld      e,h ; logical column number
 input_txt_2d7f  pop     hl
 input_txt_2d80  ret     
 ;;--------------------------------------------------------------------
@@ -427,7 +418,7 @@ input_txt_2d9b  ld      a,e
 input_txt_2d9c  jp      input_txt_2f25
 
 input_txt_2d9f  cp      0xff
-input_txt_2da1  jp      z,input_txt_2cfe
+input_txt_2da1  jp      z,input_txt_print_bel
 input_txt_2da4  xor     a
 input_txt_2da5  ld      (input_txt_unknwown_var1_ptr),a
 input_txt_2da8  call    input_txt_2d9b
@@ -453,14 +444,14 @@ input_txt_2dc2  ret
 input_txt_2dc3  ld      a,b
 input_txt_2dc4  or      a
 input_txt_2dc5  call    nz,input_txt_2ec7
-input_txt_2dc8  jp      nc,input_txt_2cfe
+input_txt_2dc8  jp      nc,input_txt_print_bel
 input_txt_2dcb  dec     b
 input_txt_2dcc  dec     hl
 
 ;; CLR key pressed
 input_txt_2dcd  ld      a,b
 input_txt_2dce  cp      c
-input_txt_2dcf  jp      z,input_txt_2cfe
+input_txt_2dcf  jp      z,input_txt_print_bel
 input_txt_2dd2  push    hl
 input_txt_2dd3  inc     hl
 input_txt_2dd4  ld      a,(hl)
@@ -642,7 +633,7 @@ input_txt_2e99  pop     af
 input_txt_2e9a  pop     hl
 input_txt_2e9b  pop     bc
 input_txt_2e9c  jp      c,input_txt_2d8a
-input_txt_2e9f  jp      input_txt_2cfe
+input_txt_2e9f  jp      input_txt_print_bel
 
 ;;--------------------------------------------------------------------
 
@@ -974,12 +965,78 @@ line_editor_main_loop
     ; TODO add sstuff to manage history    
     ld a, 10 : call 0xbb5a : ld a, 13: call 0xbb5a
 
+
+
     ld hl, line_editor.text_buffer
     xor a : ld (hl), a
 
-    call new_line_editor ; XXX Use the appropriate firmware functin
-    ld hl, line_editor.text_buffer
-    call display_print_string
+    ; Display the editor
+    call new_line_editor ; XXX Use TEXT_INPUT after replacing it by this function
 
 
     jp .loop
+
+input_txt_history_previous
+    ; move hl to the beginning of the buffer
+    call input_txt_ctrl_up_cursor_key
+
+    ; change the buffer
+    push hl
+     call history_select_previous
+    pop hl
+
+    ; Redraw the text and count the size
+    call input_txt_print_new_string
+
+  ret
+
+input_txt_history_next
+    ; move hl to the beginning of the buffer
+    call input_txt_ctrl_up_cursor_key
+
+    ; change the buffer
+    push hl
+     call history_select_next
+    pop hl
+
+    ; Redraw the text and count the size
+    call input_txt_print_new_string
+
+  ret
+
+
+input_txt_print_new_string
+;input_txt_2c08  
+    ld      bc,0x00ff         
+; B = position in edit buffer
+; C = number of characters remaining in buffer
+
+;; if there is a number at the start of the line then skip it
+input_txt_2c0b  ld      a,(hl)
+input_txt_2c0c  cp      0x30              ; '0'
+input_txt_2c0e  jr      c,input_txt_2c17          ; (+0x07)
+input_txt_2c10  cp      0x3a              ; '9'+1
+input_txt_2c12  call    c,input_txt_2c42
+input_txt_2c15  jr      c,input_txt_2c0b          
+
+;;--------------------------------------------------------------------
+;; all other characters
+input_txt_2c17  ld      a,b
+input_txt_2c18  or      a
+;; zero flag set if start of buffer, zero flag clear if not start of buffer
+
+input_txt_2c19  ld      a,(hl)
+input_txt_2c1a  call    nz,input_txt_2c42
+
+input_txt_2c1d  push    hl
+input_txt_2c1e  inc     c
+input_txt_2c1f  ld      a,(hl)
+input_txt_2c20  inc     hl
+input_txt_2c21  or      a
+input_txt_2c22  jr      nz,input_txt_2c1e         ; (-0x06)
+
+input_txt_2c24  ld      (input_txt_mode_ptr),a        ; insert/overwrite mode
+input_txt_2c27  pop     hl
+input_txt_2c28  call    input_txt_2ee4
+  ret
+

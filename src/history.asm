@@ -1,85 +1,189 @@
 ; TODO use a circular buffer instead of copying everything !!!!
 
+
+;;
+; Reset the delta 
+; Must be called at each new buffer line input
+history_reset_delta
+  xor a
+  ld (history.delta), a
+  ret
+
+;;
+; Input
+;  A = relative buffer number
+; Modified
+;  DE
+; Output
+; HL = buffer address for the current configuration
+history_get_buffer
+  ; Compute the absolute position
+  ld hl, history.current
+  add (hl)
+  and history.size- 1
+
+  ; Get the ptr to the buffer
+  add a
+  ld d, 0
+  ld e, a
+  ld hl, history_jump_table
+  add hl, de
+
+  ; Read the buffer address from the table
+  ld e, (hl)
+  inc hl
+  ld d, (hl)
+  ex de, hl
+
+  ret
+  
+
+;;
+; Input
+; - HL: source buffer
+; Modified
+; - HL, AF, BC, DE
 history_save_current_context
-
-    ld hl, history.buffer4
-    ld de, history.buffer5
-    call history_copy_buffer
-
-    ld hl, history.buffer3
-    ld de, history.buffer4
-    call history_copy_buffer
-
-    ld hl, history.buffer2
-    ld de, history.buffer3
-    call history_copy_buffer
-
-    ld hl, history.buffer1
-    ld de, history.buffer2
-    call history_copy_buffer
-
-    ld hl, line_editor.history_pointer
-    ld de, history.buffer1
-    call history_copy_buffer
-
-    ret
-
-
-history_select_previous
+  push hl
+    ; Rotate the history buffer of one step
     ld a, (history.current)
     inc a
-    cp history.size
-    jr nz, .no_ovf
-    dec a
-.no_ovf
+    and history.size- 1
     ld (history.current), a
 
-    jr history_select_current
-
-history_select_next
-    ld a, (history.current)
-    dec a
-    cp 0xff
-    jr nz, .no_ovf
-    inc a
-.no_ovf
-    ld (history.current), a
-
-history_select_current
-    ld hl, .table
-    add a
-    ld d, 0 : ld e, a
-    add hl, de
-    ld e, (hl) : inc hl : ld d, (hl)
+    ; Get the buffer address
+    xor a
+    call history_get_buffer
     ex de, hl
 
-    ld de, line_editor.history_pointer
-    call  history_copy_buffer
-
-    ret
-
-.table
-    dw history.buffer1
-    dw history.buffer2
-    dw history.buffer3
-    dw history.buffer4
-    dw history.buffer5
-
-
-
+  pop hl
+  ; ... copy now ...
 ;;
 ; Input
 ;  - HL: source buffer
 ;  - DE: destination buffer
 history_copy_buffer
-    ldi     ; Copy buffer size
-    dec de : ld a, (de) : inc de ; Get size
-    or a : ret z ; do nothing if size is 0
+    ld a, (hl)
+    ldi
+    or a
+  jr nz, history_copy_buffer
+  ret
 
-    inc a: inc a ; ensure there is the space for the 2 special bytes of the end
 
-    ld b, 0  : ld c, a
-    ldir
-    ret
+
+
+history_select_previous
+  ld a, (history.delta) 
+  inc a
+  and history.size-1
+  ld (history.delta), a
+
+  call history_get_buffer
+  ld de, line_editor.text_buffer
+
+  jr history_copy_buffer
+
+
+
+history_select_next
+  ld a, (history.delta) 
+  dec a
+  and history.size-1
+  ld (history.delta), a
+
+  call history_get_buffer
+  ld de, line_editor.text_buffer
+
+  jr history_copy_buffer
+
+
+;; TODO do not use thes huge tables / things should be done programmatically
+history_jump_table
+.table0
+    dw history.buffer1
+    dw history.buffer2
+    dw history.buffer3
+    dw history.buffer4
+    dw history.buffer5
+    dw history.buffer6
+    dw history.buffer7
+    dw history.buffer8
+    if 0 ; Totally useless, no ?
+.table1
+    dw history.buffer2
+    dw history.buffer3
+    dw history.buffer4
+    dw history.buffer5
+    dw history.buffer6
+    dw history.buffer7
+    dw history.buffer8
+    dw history.buffer1
+.table2
+    dw history.buffer3
+    dw history.buffer4
+    dw history.buffer5
+    dw history.buffer6
+    dw history.buffer7
+    dw history.buffer8
+    dw history.buffer1
+    dw history.buffer2
+.table3
+    dw history.buffer4
+    dw history.buffer5
+    dw history.buffer6
+    dw history.buffer7
+    dw history.buffer8
+    dw history.buffer1
+    dw history.buffer2
+    dw history.buffer3
+.table4
+    dw history.buffer5
+    dw history.buffer6
+    dw history.buffer7
+    dw history.buffer8
+    dw history.buffer1
+    dw history.buffer2
+    dw history.buffer3
+    dw history.buffer4
+.table5
+    dw history.buffer6
+    dw history.buffer7
+    dw history.buffer8
+    dw history.buffer1
+    dw history.buffer2
+    dw history.buffer3
+    dw history.buffer4
+    dw history.buffer5
+.table6
+    dw history.buffer8
+    dw history.buffer1
+    dw history.buffer2
+    dw history.buffer3
+    dw history.buffer4
+    dw history.buffer5
+    dw history.buffer6
+.table7
+    dw history.buffer8
+    dw history.buffer1
+    dw history.buffer2
+    dw history.buffer3
+    dw history.buffer4
+    dw history.buffer5
+    dw history.buffer6
+    dw history.buffer7
+.table_choice
+  dw .table0
+  dw .table1
+  dw .table2
+  dw .table3
+  dw .table4
+  dw .table5
+  dw .table6
+  dw .table7
+    endif
+
+
+
+
 
 
