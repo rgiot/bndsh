@@ -18,6 +18,7 @@ input_txt_2c03  push    de
 input_txt_2c04  push    hl
 input_txt_2c05  call    input_txt_reset_copy_cursor            ; reset relative cursor pos
 
+                call history_reset_delta
                 call input_txt_print_new_string
 
 
@@ -977,8 +978,7 @@ line_editor_main_loop
     jp .loop
 
 input_txt_history_previous
-    ; move hl to the beginning of the buffer
-    call input_txt_ctrl_up_cursor_key
+    call input_txt_clear_printed_line
 
     ; change the buffer
     push hl
@@ -991,8 +991,7 @@ input_txt_history_previous
   ret
 
 input_txt_history_next
-    ; move hl to the beginning of the buffer
-    call input_txt_ctrl_up_cursor_key
+    call input_txt_clear_printed_line
 
     ; change the buffer
     push hl
@@ -1002,6 +1001,33 @@ input_txt_history_next
     ; Redraw the text and count the size
     call input_txt_print_new_string
 
+  ret
+
+
+input_txt_clear_printed_line
+
+  ; Go back to beginning of line
+  call input_txt_ctrl_up_cursor_key
+
+  ; Backup insertion mode
+  ld a, (input_txt_mode_ptr) : push af
+  
+  ld a, 1 : ld (input_txt_mode_ptr), a ; replace mode
+
+  ; Empty screen until the end of string
+.loop
+    ld a, (hl) : or a
+    jr z, .end_of_loop
+
+    ld a, ' ' : call input_txt_insert_char
+    inc hl
+.end_of_loop
+
+  ; Restore insertion mode
+  pop af : ld (input_txt_mode_ptr), a
+
+  ; Go back to beginning of line
+  call input_txt_ctrl_up_cursor_key
   ret
 
 

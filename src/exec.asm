@@ -41,6 +41,7 @@ start
     call bndsh_startup
 
     call line_editor_init
+    call history_init
     jp line_editor_main_loop
 
     include bndsh.asm

@@ -1,6 +1,38 @@
 ; TODO use a circular buffer instead of copying everything !!!!
 
 
+
+
+history_init
+  call history_reset_delta
+  ld (history.current), a
+
+  xor a
+  ld hl, history_jump_table
+  ld b, history.size
+.loop
+
+    ld e, (hl) : inc hl
+    ld d, (hl) : inc hl
+
+    ld (de), a
+  djnz .loop
+  ret
+
+
+history_print
+  xor a
+.loop 
+  push af
+    call history_get_buffer
+    call display_print_string
+    call display_crlf
+  pop af
+  inc a
+  cp history.size
+  jp nz, .loop
+  ret
+
 ;;
 ; Reset the delta 
 ; Must be called at each new buffer line input
@@ -8,6 +40,7 @@ history_reset_delta
   xor a
   ld (history.delta), a
   ret
+
 
 ;;
 ; Input

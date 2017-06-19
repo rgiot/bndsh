@@ -264,6 +264,7 @@ interpreter_command_list
     command interpreter_command_crtc.name, interpreter_command_crtc.help, interpreter_command_crtc.routine
     command interpreter_command_exit.name, interpreter_command_exit.help, interpreter_command_exit.routine
     command interpreter_command_help.name, interpreter_command_help.help, interpreter_command_help.routine
+    command interpreter_command_history.name, interpreter_command_history.help, interpreter_command_history.routine
     command interpreter_command_ls.name, interpreter_command_ls.help, interpreter_command_ls.routine
     command interpreter_command_pwd.name, interpreter_command_pwd.help, interpreter_command_pwd.routine
     command interpreter_command_rom.name, interpreter_command_rom.help, interpreter_command_rom.routine
@@ -493,6 +494,14 @@ interpreter_command_unaivailable
     ld hl, interpreter.command_name_buffer
     call display_print_string
     ret
+
+
+interpreter_command_history
+.name string "HISTORY"
+.help string "Display the 8 lines of history"
+.routine
+  call history_print
+  ret
 
 
 interpreter_command_rom
