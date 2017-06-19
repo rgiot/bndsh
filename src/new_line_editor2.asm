@@ -244,7 +244,6 @@ input_txt_2cf9  jr      nz,input_txt_2cf3         ; loop for next character
     pop af : cp key_return
     jr nz, input_txt_2cfc   
 
-    BREAKPOINT_WINAPE
     push af
 
     ; Launch execution
@@ -819,6 +818,7 @@ input_txt_tab
     push de : push af : push bc : push hl  ; XXX Check which one are really usefull
 
 
+    BREAKPOINT_WINAPE
     ; Save current position
     ld (line_editor.autocomplete_stop), hl
 
@@ -827,10 +827,15 @@ input_txt_tab
     jr z, .save_beginning
 
  ;   In any case go to previous char
- ;   ld a, (hl) : or a; test if we are on the null char and that we have a
- ;   jr nz, .move_to_beginning
-    
+
+    ld a, (hl) : or a; test if we are on the null char and that we have a
     dec hl ; go to previous char
+    
+    ld a, (hl) : cp ' '
+    jr nz, .move_to_beginning
+    ld hl, (line_editor.autocomplete_stop)
+    jr .save_beginning
+    ld (line_editor.autocomplete_stop), hl
 
 .move_to_beginning
     call string_go_to_beginning_of_current_word ; XXX Need to check if we can go out
@@ -884,7 +889,6 @@ input_txt_tab
 .autocomplete_insert_completion
 
 
-    BREAKPOINT_WINAPE
 
     call autocomplete_get_unique_completion
     ex de, hl
@@ -900,7 +904,7 @@ input_txt_tab
     inc de: inc hl
     ld a, (de)
     cp (hl)
-    jr z, .autocomplete_insert_completion_skip_loop
+    jr z, .autocomplete_insert_completion_skip_loop ; XXX I'm sure it can bug as we do not test position in buffer
 
 
 
