@@ -104,32 +104,38 @@ history_copy_buffer
 
 
 
-
+;;
+; Input
+; HL=buffer where to copy paste string
 history_select_previous
-  ld a, (history.delta) 
-  dec a
-  and history.size-1
-  ld (history.delta), a
+  push hl
+    ld a, (history.delta) 
+    dec a
+    and history.size-1
+    ld (history.delta), a
 
-  inc a
-  and history.size-1
-  call history_get_buffer
-  ld de, line_editor.text_buffer
+    inc a
+    and history.size-1
+    call history_get_buffer
+  pop de
 
   jr history_copy_buffer
 
 
-
+;;
+; Input
+; HL=buffer where to copy paste string
 history_select_next
-  ld a, (history.delta) 
-  inc a
-  and history.size-1
-  ld (history.delta), a
+  push hl
+    ld a, (history.delta) 
+    inc a
+    and history.size-1
+    ld (history.delta), a
 
-  dec a
-  and history.size-1
-  call history_get_buffer
-  ld de, line_editor.text_buffer
+    dec a
+    and history.size-1
+    call history_get_buffer
+  pop de
 
   jr history_copy_buffer
 
@@ -145,82 +151,6 @@ history_jump_table
     dw history.buffer6
     dw history.buffer7
     dw history.buffer8
-    if 0 ; Totally useless, no ?
-.table1
-    dw history.buffer2
-    dw history.buffer3
-    dw history.buffer4
-    dw history.buffer5
-    dw history.buffer6
-    dw history.buffer7
-    dw history.buffer8
-    dw history.buffer1
-.table2
-    dw history.buffer3
-    dw history.buffer4
-    dw history.buffer5
-    dw history.buffer6
-    dw history.buffer7
-    dw history.buffer8
-    dw history.buffer1
-    dw history.buffer2
-.table3
-    dw history.buffer4
-    dw history.buffer5
-    dw history.buffer6
-    dw history.buffer7
-    dw history.buffer8
-    dw history.buffer1
-    dw history.buffer2
-    dw history.buffer3
-.table4
-    dw history.buffer5
-    dw history.buffer6
-    dw history.buffer7
-    dw history.buffer8
-    dw history.buffer1
-    dw history.buffer2
-    dw history.buffer3
-    dw history.buffer4
-.table5
-    dw history.buffer6
-    dw history.buffer7
-    dw history.buffer8
-    dw history.buffer1
-    dw history.buffer2
-    dw history.buffer3
-    dw history.buffer4
-    dw history.buffer5
-.table6
-    dw history.buffer8
-    dw history.buffer1
-    dw history.buffer2
-    dw history.buffer3
-    dw history.buffer4
-    dw history.buffer5
-    dw history.buffer6
-.table7
-    dw history.buffer8
-    dw history.buffer1
-    dw history.buffer2
-    dw history.buffer3
-    dw history.buffer4
-    dw history.buffer5
-    dw history.buffer6
-    dw history.buffer7
-.table_choice
-  dw .table0
-  dw .table1
-  dw .table2
-  dw .table3
-  dw .table4
-  dw .table5
-  dw .table6
-  dw .table7
-    endif
-
-
-
 
 
 
