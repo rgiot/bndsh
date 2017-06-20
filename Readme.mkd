@@ -7,9 +7,9 @@
  Bndsh consists in a simple line editor where you'll type various commands. 
  The additional value in comparison to the BASIC prompt of the Amstrad is the ability to propose completions a better integration of RSX with string parameters and a native folder management.
 
+The main difference between BNDSH and QUICKCMD is that QUICKCMD is an application, whereas BNDSH replace the system call `TEXT_INPUT` (&BD5E) by a modified one.
 
- The current version is still not really useable: there are still tons of bugs, it almost never check for buffer overflows, it is still not totally ROM friendly and it is not extra memory RAM friendly.
-However, fell free to test and provide patches.
+However, fell free to test and provide patches as there are tons of bugs.
 
 
 ## Usage
@@ -88,4 +88,6 @@ $ ./bootstrap.sh make
 ## Installation & launch
 
 Use your rom manager to put `BNDSH.ROM` in the slot of your choice. Note that I have never tested in another place than 1.
-Type `|bndsh` or `CTRL+TAB` (no idea what happens if you also have installed QuickCMD) to start it.
+The indirection is automatically installed.
+
+If you want to disable BNDSH, pres `ESC` while the firmware initialises the ROMs.
