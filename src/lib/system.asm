@@ -60,6 +60,9 @@ FIRMWARE
 .PCDE_INSTRUCTION equ 0x0016
 .MC_START_PROGRAM equ 0xbd16
 
+
+.BIOS_SET_MESSAGE equ 0xc033
+
     macro KILL_SYSTEM   
         ld hl, 0xc9fb
         ld (0x38), hl

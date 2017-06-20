@@ -246,12 +246,19 @@ input_txt_2cf9  jr      nz,input_txt_2cf3         ; loop for next character
     ; Launch execution
     call input_txt_ctrl_up_cursor_key ; move to beginning of input
     dec hl ; XXX for an unknown reason, the cursor is not at the expected position
-    call interpreter_manage_input
+    push hl
+      call input_txt_ctrl_down_cursor_key
+      call display_crlf
+    pop hl
+    push hl
+      call interpreter_manage_input
+    pop hl
 
     ld a, (interpreter.did_nothing)
     or a : jr z, .interpreter_did_nothing
 
 .interpreter_acted
+  xor a : ld (hl), a ; when something has been executed, replace string by empty one
     ; Properly set cursor
     ld a, key_return : call FIRMWARE.TXT_OUTPUT
     ld a, key_return : call FIRMWARE.TXT_OUTPUT
