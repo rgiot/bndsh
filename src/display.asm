@@ -19,7 +19,8 @@ display_print_char
         push hl : call FIRMWARE.TXT_OUTPUT: pop hl
         ret
 
-
+;;
+; Attention remove bit 7 of char
 display_print_string
 .loop
         ld a, (hl)
@@ -30,6 +31,19 @@ display_print_string
         inc hl
 
     jr .loop
+
+
+display_print_string_256
+.loop
+        ld a, (hl)
+        or a : ret z
+
+        push hl : call FIRMWARE.TXT_OUTPUT: pop hl
+
+        inc hl
+
+    jr .loop
+
 
 
 

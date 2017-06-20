@@ -265,6 +265,7 @@ interpreter_command_list
     command interpreter_command_exit.name, interpreter_command_exit.help, interpreter_command_exit.routine
     command interpreter_command_help.name, interpreter_command_help.help, interpreter_command_help.routine
     command interpreter_command_history.name, interpreter_command_history.help, interpreter_command_history.routine
+    command interpreter_command_keys.name, interpreter_command_keys.help, interpreter_command_keys.routine
     command interpreter_command_ls.name, interpreter_command_ls.help, interpreter_command_ls.routine
     command interpreter_command_pwd.name, interpreter_command_pwd.help, interpreter_command_pwd.routine
     command interpreter_command_rom.name, interpreter_command_rom.help, interpreter_command_rom.routine
@@ -558,6 +559,31 @@ interpreter_command_rom
     pop bc : call FIRMWARE.KL_ROM_SELECT
 
     ret
+
+
+
+interpreter_command_keys
+.name string "KEYS"
+.help string "Display the keys used by the line editor"
+.routine
+  ld hl, .description
+  call display_print_string_256
+  ret
+.description
+  db 0xf0,": move cursor to the left", 10, 13
+	db 243,": move cursor to the right", 10, 13
+	db "CONTROL+",242,": move cursor to the beginnig of the line", 10, 13
+	db "CONTROL+:",243," move cursor to the end of the line", 10, 13
+	db "CONTROL+",240,": move cursor to the beginnig of the text", 10, 13
+	db "CONTROL+",241,": move cursor to the end of the text", 10, 13
+	db "SHIFT+",242,": move copy cursor to the left", 10, 13
+	db "SHIFT+",243,": move copy cursor to the right", 10, 13
+	db "SHIFT+",240",: move copy cursor to the up", 10, 13
+	db "SHIFT+",241,": move copy cursor to the dowa", 10, 13
+	db "CONTROL+TAB: switch between insert/replace modes", 10, 13
+	db "BREAK: break the input control flow", 10, 13
+	db "ENTER: validate and execute the instruction of the line by the BASIC interpreter", 10, 13
+  db 0
 
 interpreter_messages
 .command_not_found
