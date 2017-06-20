@@ -30,8 +30,9 @@ bndsh_rom_command_table
 ; Output:
 ; - HL : last memory byte used  TODO put a real vlaue
 bndsh_init_rom
+    push de : push bc
     ; Rom takes only the space of its command
-    ld de, bndsh_RSXBasicEnd - bndsh_RSXBasic + 1
+    ld de, 3 + 1 ; space for the far call
     and a
     sbc hl, de ; get space for the autocmd
 
@@ -39,20 +40,6 @@ bndsh_init_rom
 
         call bndsh_select_extra_memory
 
-            ; copy command name in main memory
-            push hl
-                ex de, hl
-                ld hl, bndsh_RSXBasic
-                ld bc, bndsh_RSXBasicEnd - bndsh_RSXBasic + 1
-                ldir
-
-            ; add CTRL + TAB shortcut as with quickdmd	ld b, &8D
-            pop hl
-            ld b, 0x8D
-            ld c, bndsh_RSXBasicEnd - bndsh_RSXBasic
-            call FIRMWARE.KM_SET_EXPAND
-
-            call EnableQCMDKeys
 
             ; copy other things in extra memory
             ld hl, bndsh_rom_data_start
@@ -61,31 +48,33 @@ bndsh_init_rom
             ldir
 
 
-        call bndsh_select_normal_memory
+
+            ld de, roms_name.m4 : call bndsh_get_rom_number : ld (system.m4rom), a
+            cp 0xff : jr nz, .init_stuff
+            ld de, roms_name.pdos : call bndsh_get_rom_number : ld (system.pdosrom), a
+            cp 0xff : jr nz, .init_stuff
+
+.init_stuff
+            call bndsh_get_rsx_names  ; XXX  This stuff is in the extra memory
+            call bndsh_startup ; XXX Reimplement it does not work for the ROM
+
+
+
+            call line_editor_init
+            call history_init
+
+    pop hl 
+    push hl ; retreive address
+            inc hl
+            call input_txt_replace_firmware
+
+
+            call bndsh_select_normal_memory
 
     pop hl ; retreive memory after space removal
+    pop bc : pop de
     SCF
     ret
-bndsh_RSXBasic
-	db "|BNDSH", 13
-bndsh_RSXBasicEnd
-    db 0
-
-DisableQCMDKeys:
-	ld a, 68
-	ld b, &FF
-	call FIRMWARE.KM_SET_CONTROL
-	ld a, 68
-	ld b, &FF
-	jp FIRMWARE.KM_SET_SHIFT
-
-EnableQCMDKeys:
-	ld a, 68
-	ld b, &8D
-	call FIRMWARE.KM_SET_CONTROL
-	ld a, 68
-	ld b, &8D
-	jp FIRMWARE.KM_SET_SHIFT
 
 
 ;;
@@ -97,25 +86,15 @@ EnableQCMDKeys:
 bndsh_launch
     ; Select extra memory
     call bndsh_select_extra_memory
- ;   call DisableQCMDKeys
 
 
 
     assert (bndsh_rom_data_stop - bndsh_rom_data_start) < (0xa700- 0x9000)
 
 
-    ld de, roms_name.m4 : call bndsh_get_rom_number : ld (system.m4rom), a
-    cp 0xff : jr nz, .init_stuff
-    ld de, roms_name.pdos : call bndsh_get_rom_number : ld (system.pdosrom), a
-    cp 0xff : jr nz, .init_stuff
-
-.init_stuff
-    call bndsh_get_rsx_names  ; XXX  This stuff is in the extra memory
-    call bndsh_startup ; XXX Reimplement it does not work for the ROM
 
 
 
-    call line_editor_init
     jp line_editor_main_loop
 
     ret

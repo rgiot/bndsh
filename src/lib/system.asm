@@ -33,6 +33,9 @@ FIRMWARE
 .TXT_GET_WINDOW     equ 0xbb69
 .TXT_RD_CHAR        equ 0xBB60
 
+
+.TEXT_INPUT          equ &BD5E 
+
 .KM_WAIT_CHAR       equ 0xbb06
 .KM_READ_CHAR       equ 0xbb09
 .KM_SET_EXPAND      equ 0xBB0F 

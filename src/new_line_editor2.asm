@@ -16,6 +16,12 @@ new_line_editor
 input_txt_2c02  push    bc
 input_txt_2c03  push    de
 input_txt_2c04  push    hl
+
+
+                if BNDSH_ROM
+                  call bndsh_select_extra_memory
+                endif
+
 input_txt_2c05  call    input_txt_reset_copy_cursor            ; reset relative cursor pos
 
                 call history_reset_delta
@@ -41,6 +47,11 @@ input_txt_2c3c  pop     hl
                 push hl : push af
                 call history_save_current_context
                 pop af : pop hl
+
+
+                if BNDSH_ROM
+                  call bndsh_select_normal_memory
+                endif
 
 input_txt_2c3d  pop     de
 input_txt_2c3e  pop     bc
@@ -1070,3 +1081,28 @@ input_txt_2c27  pop     hl
 input_txt_2c28  call    input_txt_2ee4
   ret
 
+
+
+;;
+; Input :
+; HL: address where to jump
+input_txt_replace_firmware
+.rst_18_instruction equ &df
+
+
+  if 1 
+    ld a, .rst_18_instruction
+    ld (FIRMWARE.TEXT_INPUT+0), a
+    ld (FIRMWARE.TEXT_INPUT+1), hl
+  endif
+
+  if 1:
+    push hl : call FIRMWARE.KL_CURR_SELECTION : pop hl
+    ld de, new_line_editor
+
+    ; Write far call
+    ld (hl), e : inc hl
+    ld (hl), d : inc hl
+    ld (hl), a 
+  endif
+  ret
