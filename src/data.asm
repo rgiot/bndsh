@@ -75,8 +75,10 @@ line_editor
 .autocomplete_word_size dw 0 ; XXX byte is needed
 ; XXX current widht MUST be before text_buffer in order to STRICTLY have the same structure than the history
 .history_pointer
+ if BNDSH_EXEC
 .current_width db 0
 .text_buffer defs .max_width + 2
+ endif
 
 
 interpreter

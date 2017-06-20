@@ -15,11 +15,11 @@ ROM
 .command_table_ptr  dw bndsh_rom_command_table
 .execution_table  
     jp bndsh_init_rom
-    jp bndsh_launch
+    jp bndsh_select_memory
 
 bndsh_rom_command_table
     defb 'BNDSH RO', 0x80+'M'
-    defb 'BNDS', 0x80+'H'
+    defb 'BNDSHME', 0x80+'M'
     defb 0
 
 
@@ -83,19 +83,9 @@ bndsh_init_rom
 ; A: number of parameters
 ; IY: memory zone provided (I guess in our case it is always BNDSH_DUMMY_MEMORY_LIMIT)
 ; C: rom number
-bndsh_launch
-    ; Select extra memory
-    call bndsh_select_extra_memory
+bndsh_select_memory
 
-
-
-    assert (bndsh_rom_data_stop - bndsh_rom_data_start) < (0xa700- 0x9000)
-
-
-
-
-
-    jp line_editor_main_loop
+  ; TODO backup the user choice of memory selection
 
     ret
    

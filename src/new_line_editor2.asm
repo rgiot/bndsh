@@ -244,7 +244,8 @@ input_txt_2cf9  jr      nz,input_txt_2cf3         ; loop for next character
     push af
 
     ; Launch execution
-    ld hl, line_editor.text_buffer
+    call input_txt_ctrl_up_cursor_key ; move to beginning of input
+    dec hl ; XXX for an unknown reason, the cursor is not at the expected position
     call interpreter_manage_input
 
     ld a, (interpreter.did_nothing)
@@ -954,18 +955,18 @@ line_editor_clear_buffers
     ld a, -1
     ld (history.current), a
 
+  if ! BNDSH_ROM
     xor a
     ld (line_editor.text_buffer), a
 
-    ld a, ' '
-    ld (line_editor.text_buffer), a
-
+ endif
 
     xor a
     ld (line_editor.cursor_xpos), a
-    ld (line_editor.current_width), a
     ret
 
+
+  if BNDSH_EXEC
 
 line_editor_main_loop
 
@@ -987,6 +988,8 @@ line_editor_main_loop
 
 
     jp .loop
+
+  endif
 
 input_txt_history_previous
     call input_txt_clear_printed_line
