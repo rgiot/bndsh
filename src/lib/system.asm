@@ -38,6 +38,8 @@ FIRMWARE
 
 .KM_WAIT_CHAR       equ 0xbb06
 .KM_READ_CHAR       equ 0xbb09
+.KM_READ_KEY       equ 0xbb1b
+.KM_TEST_KEY       equ 0xbb1e
 .KM_SET_EXPAND      equ 0xBB0F 
 .KM_SET_CONTROL equ 0xbb33
 .KM_SET_SHIFT equ 0xbb30

@@ -38,6 +38,37 @@ bndsh_init_rom
 
     push hl
 
+; XXX it seems firmware does not work here ...
+; XXX this routine must be buggy
+; Test clavier de la ligne
+; dont le numéro est dans D
+; D doit contenir une valeur de 0 à 9
+;
+  ld d, 8
+        ld bc,&f40e  ; Valeur 14 sur le port A
+        out (c),c
+        ld bc,&f6c0  ; C'est un registre
+        out (c),c    ; BDIR=1, BC1=1
+        ld bc,&f600  ; Validation
+        out (c),c
+        ld bc,&f792  ; Port A en entrée
+        out (c),c
+        ld a,d       ; A=ligne clavier
+        or %01000000 ; BDIR=0, BC1=1
+        ld b,&f6
+        out (c),a
+        ld b,&f4     ; Lecture du port A
+        in a,(c)     ; A=Reg 14 du PSG
+        ld bc,&f782  ; Port A en sortie
+        out (c),c
+        ld bc,&f600  ; Validation
+        out (c),c
+; Et A contient la ligne
+        bit 2, a
+        jr z, .leave_init
+
+.no_key_pressed
+
         call bndsh_select_extra_memory
 
 
@@ -71,6 +102,7 @@ bndsh_init_rom
 
             call bndsh_select_normal_memory
 
+.leave_init
     pop hl ; retreive memory after space removal
     pop bc : pop de
     SCF

@@ -264,8 +264,15 @@ input_txt_2cf9  jr      nz,input_txt_2cf3         ; loop for next character
     ; Properly set cursor
     ld a, key_return : call FIRMWARE.TXT_OUTPUT
     ld a, key_return : call FIRMWARE.TXT_OUTPUT
+    jr .leave
 
 .interpreter_did_nothing
+ ; XXX Remove that when the syntax error mistake will disappear
+  push hl
+  call display_print_string
+  pop hl
+
+.leave
 input_txt_2cfb  pop     af
 input_txt_2cfc  scf     
 input_txt_2cfd  ret     
