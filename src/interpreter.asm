@@ -43,6 +43,10 @@ interpreter_manage_input
 
     ld (interpreter.next_token_ptr), hl
 
+    ; put string in uppercase
+    ld hl, interpreter.command_name_buffer
+    call string_string_to_upper
+
 
 interpreter_search_and_launch_routine
 

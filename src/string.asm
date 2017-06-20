@@ -24,7 +24,18 @@ string_char_to_upper
   ret
 
 
-
+;;
+; Input: 
+; HL: buffer to modify
+string_string_to_upper
+  ld a, (hl)
+  or a
+  ret z
+  
+  call string_char_to_upper
+  ld (hl), a
+  inc hl
+  jr string_string_to_upper
 
 
 
