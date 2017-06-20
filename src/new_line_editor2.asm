@@ -43,10 +43,6 @@ input_txt_2c3b  pop     af
 input_txt_2c3c  pop     hl
 
 
-                ; Backup the string in the hisotry buffer
-                push hl : push af
-                call history_save_current_context
-                pop af : pop hl
 
 
                 if BNDSH_ROM
@@ -246,6 +242,11 @@ input_txt_2cf9  jr      nz,input_txt_2cf3         ; loop for next character
     ; Launch execution
     call input_txt_ctrl_up_cursor_key ; move to beginning of input
     dec hl ; XXX for an unknown reason, the cursor is not at the expected position
+
+    push hl
+      call history_save_current_context
+    pop hl
+
     push hl
       call input_txt_ctrl_down_cursor_key
       call display_crlf
@@ -253,6 +254,7 @@ input_txt_2cf9  jr      nz,input_txt_2cf3         ; loop for next character
     push hl
       call interpreter_manage_input
     pop hl
+
 
     ld a, (interpreter.did_nothing)
     or a : jr z, .interpreter_did_nothing
