@@ -28,13 +28,13 @@ input_txt_2c05  call    input_txt_reset_copy_cursor            ; reset relative 
                 call input_txt_print_new_string
 
 
-input_txt_2c2b  push    bc
+input_txt_input_key_loop  push    bc
 input_txt_2c2c  push    hl
-input_txt_2c2d  call    input_txt_2f56
+input_txt_2c2d  call    input_txt_wait_key_press
 input_txt_2c30  pop     hl
 input_txt_2c31  pop     bc
 input_txt_2c32  call    input_txt_2c48            ; process key
-input_txt_2c35  jr      nc,input_txt_2c2b         ; (-0x0c)
+input_txt_2c35  jr      nc,input_txt_input_key_loop         ; (-0x0c)
 
 input_txt_2c37  push    af
 input_txt_2c38  call    input_txt_2e4f
@@ -817,7 +817,7 @@ input_txt_2f53  pop     bc
 input_txt_2f54  pop     af
 input_txt_2f55  ret     
 
-input_txt_2f56  call    FIRMWARE.TXT_GET_CURSOR            ; TXT GET CURSOR
+input_txt_wait_key_press  call    FIRMWARE.TXT_GET_CURSOR            ; TXT GET CURSOR
 input_txt_2f59  ld      c,a
 input_txt_2f5a  call    FIRMWARE.TXT_VALIDATE            ; TXT VALIDATE
 input_txt_2f5d  call    input_txt_2dfa
@@ -835,10 +835,10 @@ input_txt_2f70  jp      FIRMWARE.TXT_CUR_OFF            ; TXT CUR OFF
 ; Manage the autocompletion stuff
 ; HL = pointer to the current position in the text
 input_txt_tab
+
     push de : push af : push bc : push hl  ; XXX Check which one are really usefull
 
 
-    BREAKPOINT_WINAPE
     ; Save current position
     ld (line_editor.autocomplete_stop), hl
 
@@ -946,6 +946,7 @@ input_txt_tab
     
     
     pop af : pop de
+    or a
     ret
 
 
@@ -954,6 +955,7 @@ input_txt_tab
 
 .exit
     pop hl : pop bc :  pop af : pop de 
+    or a
     ret
 
 .move_to_completion_place

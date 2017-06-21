@@ -282,23 +282,21 @@ bndsh_get_rsx_names
         ld c, a
         push de
             call FIRMWARE.KL_ROM_SELECT
-      ;      ld a, '.' : call FIRMWARE.TXT_WR_CHAR
         pop de
 
 
         ; Get rom name
-        ld  hl,(0xC004)
+        ld  hl, (0xC004)
         ld a, (hl) : or a : jp z, .test_next_rom
         ld a, (hl) : cp 'A' : jp c, .test_next_rom
 
-         push hl: push de:call display_print_string2_ram: ld a, 10: call 0xbb5a: ld a,13:call 0xbb5a :pop de: pop hl
         call .eat_string
 
+        ld bc, 0 ; counter for the animated char
 .loop_over_rsx
 
 
 
-   ;         push hl: push de: ld a, '*' : call FIRMWARE.TXT_WR_CHAR : pop de: pop hl
 
             ld a, (hl)
             or a : jr z, .end_loop_over_rsx             ; End of table
@@ -307,14 +305,28 @@ bndsh_get_rsx_names
 
                 push hl
 
-                    push hl: push de:call display_print_string2_ram: pop de: pop hl
+                    ; manage the symbol
+                    push hl
+                      ld a, l
+                      ld hl, .anim
+                      ld b, 0
+                      and 3
+                      ld c, a
+                      add hl, bc
+                      ld a, (hl)
+                      call FIRMWARE.TXT_OUTPUT
+                      ld a, 8
+                      call FIRMWARE.TXT_OUTPUT
+                    pop hl
 
-                    push de
+
+                    ; XXX this is far too slow here
+                    push de 
                         ld de, interpreter.command_name_buffer
                         call  .copy_name_in_buffer
                         call bndsh_rsx_exists
                         call nz, bndsh_command_exists 
-                    pop de
+                     pop de
                 pop hl
                 jr z, .loop_over_rsx_forget
                 
@@ -347,6 +359,7 @@ bndsh_get_rsx_names
 
     ret
 
+
 .eat_string
     ld a, (hl)
     inc hl
@@ -366,6 +379,8 @@ bndsh_get_rsx_names
     inc de
     ret
 
+.anim
+  db '|/-\'
 
 
 bndsh_rsx_exists
