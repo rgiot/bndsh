@@ -226,6 +226,9 @@ input_txt_2cea
 ;;--------------------------------------------------------------------
 ;; display 0 terminated string
 input_txt_key_return
+
+  BREAKPOINT_WINAPE
+    push de : push bc
 input_txt_2cf2  push af
 input_txt_2cf3  ld      a,(hl)           ; get character
 input_txt_2cf4  inc     hl
@@ -264,17 +267,17 @@ input_txt_2cf9  jr      nz,input_txt_2cf3         ; loop for next character
     ; Properly set cursor
     ld a, key_return : call FIRMWARE.TXT_OUTPUT
     ld a, key_return : call FIRMWARE.TXT_OUTPUT
-    jr .leave
+
+    pop af : pop bc : pop de
+    ld bc, 0
+    BREAKPOINT_WINAPE
+    ret
 
 .interpreter_did_nothing
- ; XXX Remove that when the syntax error mistake will disappear
-  push hl
-  call display_print_string
-  pop hl
-
-.leave
 input_txt_2cfb  pop     af
 input_txt_2cfc  scf     
+                pop bc : pop de
+    BREAKPOINT_WINAPE
 input_txt_2cfd  ret     
 
 ;;===========================================================================
@@ -527,7 +530,7 @@ input_txt_2e05  ret
 ;;--------------------------------------------------------------------
 
 input_txt_2e06  ld      c,a
-input_txt_2e07  call    input_txt_2ec1            ; get copy cursor position
+input_txt_2e07  call    input_txt_get_copy_cursor_position            ; get copy cursor position
 input_txt_2e0a  ret     z                ; quit if not active
 
 ;; adjust y position
@@ -572,7 +575,7 @@ input_txt_2e26  ld      de,0x0001
 ;; E = row increment
 input_txt_2e29  push    bc
 input_txt_2e2a  push    hl
-input_txt_2e2b  call    input_txt_2ec1            ; get copy cursor position
+input_txt_2e2b  call    input_txt_get_copy_cursor_position            ; get copy cursor position
 
 ;; get cursor position
 input_txt_2e2e  call    z,FIRMWARE.TXT_GET_CURSOR          ; TXT GET CURSOR
@@ -618,7 +621,7 @@ input_txt_2e4d  jr      input_txt_2e52
 input_txt_2e4f  ld      de,FIRMWARE.TXT_PLACE_CURSOR         ; TXT PLACE CURSOR/TXT REMOVE CURSOR
 
 ;;--------------------------------------------------------------------
-input_txt_2e52  call    input_txt_2ec1            ; get copy cursor position
+input_txt_2e52  call    input_txt_get_copy_cursor_position            ; get copy cursor position
 input_txt_2e55  ret     z
 
 input_txt_2e56  push    hl
@@ -634,7 +637,7 @@ input_txt_2e65  push    bc
 input_txt_2e66  push    hl
 input_txt_2e67  call    FIRMWARE.TXT_GET_CURSOR            ; TXT GET CURSOR
 input_txt_2e6a  ex      de,hl
-input_txt_2e6b  call    input_txt_2ec1
+input_txt_2e6b  call    input_txt_get_copy_cursor_position
 input_txt_2e6e  jr      nz,input_txt_2e7c         ; perform copy
 input_txt_2e70  ld      a,b
 input_txt_2e71  or      c
@@ -678,7 +681,7 @@ input_txt_2ea9  push    hl
 input_txt_2eaa  push    de
 input_txt_2eab  call    input_txt_2e4f
 input_txt_2eae  pop     de
-input_txt_2eaf  call    input_txt_2ec1
+input_txt_2eaf  call    input_txt_get_copy_cursor_position
 input_txt_2eb2  jr      z,input_txt_2ebd          ; (+0x09)
 input_txt_2eb4  ld      a,h
 input_txt_2eb5  add     a,d
@@ -695,7 +698,8 @@ input_txt_2ec0  ret
 ;; this is relative to the actual cursor pos
 ;;
 ;; zero flag set if cursor is not active
-input_txt_2ec1  ld      hl,(input_txt_copy_cursor_x_ptr)
+input_txt_get_copy_cursor_position  ld      hl,(input_txt_copy_cursor_x_ptr)
+input_txt_2ec1  
 input_txt_2ec4  ld      a,h
 input_txt_2ec5  or      l
 input_txt_2ec6  ret  
