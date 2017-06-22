@@ -13,6 +13,8 @@ input_txt_copy_cursor_y_ptr equ line_editor.copy_cursor_ypos
 ;; HL = address of buffer
 
 new_line_editor
+
+  BREAKPOINT_WINAPE
 input_txt_2c02  push    bc
 input_txt_2c03  push    de
 input_txt_2c04  push    hl
@@ -33,11 +35,11 @@ input_txt_2c2c  push    hl
 input_txt_2c2d  call    input_txt_wait_key_press
 input_txt_2c30  pop     hl
 input_txt_2c31  pop     bc
-input_txt_2c32  call    input_txt_2c48            ; process key
+input_txt_2c32  call    input_txt_treat_key             ; process key
 input_txt_2c35  jr      nc,input_txt_input_key_loop         ; (-0x0c)
 
 input_txt_2c37  push    af
-input_txt_2c38  call    input_txt_2e4f
+input_txt_2c38  call    input_txt_remove_cursor
 input_txt_2c3b  pop     af
 
 input_txt_2c3c  pop     hl
@@ -54,7 +56,7 @@ input_txt_2c3e  pop     bc
 
 
                 
-input_txt_2c3f  cp      0xfc
+input_txt_2c3f  cp      0xfc ; check if it is the ESC key
 input_txt_2c41  ret     
 
 ;;--------------------------------------------------------------------
@@ -238,7 +240,7 @@ input_txt_2cf9  jr      nz,input_txt_2cf3         ; loop for next character
 
 
     pop af : cp key_return
-    jr nz, input_txt_2cfc   
+    jr nz, input_txt_2cfc   ; XXX Manage break BUT this is actually btroken
 
     push af
 
@@ -270,12 +272,18 @@ input_txt_2cf9  jr      nz,input_txt_2cf3         ; loop for next character
 
     pop af : pop bc : pop de
     ld bc, 0
+    ; scf ; XXX Ugly hack: scf SHOULD be used to inform system input is finished. Instead we say it is not finished and print a new string some lines lower ...
     BREAKPOINT_WINAPE
     ret
 
 .interpreter_did_nothing
-input_txt_2cfb  pop     af
-input_txt_2cfc  scf     
+input_txt_2cfb  pop     af : pop bc: pop de
+    scf
+    BREAKPOINT_WINAPE
+              ret
+
+input_txt_break
+input_txt_2cfc  scf   ;  No idea why I removed it => it is probably an error
                 pop bc : pop de
     BREAKPOINT_WINAPE
 input_txt_2cfd  ret     
@@ -598,7 +606,7 @@ input_txt_2e3a  jr      nc,input_txt_2e47         ; position invalid?
 ;; position is valid
 
 input_txt_2e3c  push    hl
-input_txt_2e3d  call    input_txt_2e4f
+input_txt_2e3d  call    input_txt_remove_cursor
 input_txt_2e40  pop     hl
 
 ;; store new position
@@ -618,7 +626,8 @@ input_txt_2e4a  ld      de,FIRMWARE.TXT_PLACE_CURSOR         ; TXT PLACE CURSOR/
 input_txt_2e4d  jr      input_txt_2e52            
 
 ;;--------------------------------------------------------------------
-input_txt_2e4f  ld      de,FIRMWARE.TXT_PLACE_CURSOR         ; TXT PLACE CURSOR/TXT REMOVE CURSOR
+input_txt_2e4f
+input_txt_remove_cursor  ld      de,FIRMWARE.TXT_PLACE_CURSOR         ; TXT PLACE CURSOR/TXT REMOVE CURSOR
 
 ;;--------------------------------------------------------------------
 input_txt_2e52  call    input_txt_get_copy_cursor_position            ; get copy cursor position
@@ -679,7 +688,7 @@ input_txt_2ea6  ld      d,0xff
 input_txt_2ea8  push    bc
 input_txt_2ea9  push    hl
 input_txt_2eaa  push    de
-input_txt_2eab  call    input_txt_2e4f
+input_txt_2eab  call    input_txt_remove_cursor
 input_txt_2eae  pop     de
 input_txt_2eaf  call    input_txt_get_copy_cursor_position
 input_txt_2eb2  jr      z,input_txt_2ebd          ; (+0x09)
@@ -802,7 +811,7 @@ input_txt_2f2f  call    FIRMWARE.TXT_VALIDATE            ; TXT VALIDATE
 input_txt_2f32  pop     bc
 input_txt_2f33  call    c,input_txt_2dfa
 input_txt_2f36  push    af
-input_txt_2f37  call    c,input_txt_2e4f
+input_txt_2f37  call    c,input_txt_remove_cursor
 input_txt_2f3a  ld      a,b
 input_txt_2f3b  push    bc
 input_txt_2f3c  call    FIRMWARE.TXT_WR_CHAR            ; TXT WR CHAR
