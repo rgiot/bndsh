@@ -271,6 +271,7 @@ input_txt_2cf9  jr      nz,input_txt_2cf3         ; loop for next character
     or a : jr z, .interpreter_did_nothing
 
 .interpreter_acted
+  ld a, "'" : ld (hl), a : inc hl
   xor a : ld (hl), a ; when something has been executed, replace string by empty one
     ; Properly set cursor
     ld a, key_return : call FIRMWARE.TXT_OUTPUT
@@ -278,8 +279,7 @@ input_txt_2cf9  jr      nz,input_txt_2cf3         ; loop for next character
 
     pop af : pop bc : pop de
     ld bc, 0
-    ; scf ; XXX Ugly hack: scf SHOULD be used to inform system input is finished. Instead we say it is not finished and print a new string some lines lower ...
-    BREAKPOINT_WINAPE
+    scf ; XXX Ugly hack: scf SHOULD be used to inform system input is finished. Instead we say it is not finished and print a new string some lines lower ...
     ret
 
 .interpreter_did_nothing

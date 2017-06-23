@@ -259,9 +259,7 @@ interpreter_command_not_found
 
 .really_display_message
 
-        xor a
-        ld (interpreter.did_nothing), a
-     ;   call FIRMWARE .BIOS_SET_MESSAGE
+        xor a : ld (interpreter.did_nothing), a
         ld a, 0xcf: ld (0xbb5a), a ; enable print
 
   if BNDSH_EXEC
