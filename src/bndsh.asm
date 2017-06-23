@@ -54,7 +54,7 @@ startup_data
     include "string.asm"
     include "history.asm"
     include "autocomplete.asm"
-
+    include "more.asm"
 
 
     if BNDSH_EXEC

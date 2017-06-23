@@ -31,6 +31,7 @@ The line edition is similar to the one provided by the BASIC and can be used in 
   - `exit` to jump to BASIC interpreter
   - `help` to display the list of internal commands
   - `ls` similar to cat
+  - `more` print an ASCII file on screen
   - `pwd` to print the current working directory
   - `rom` to manage the roms (currently nothing more that a listing)
 

@@ -283,11 +283,21 @@ interpreter_command_list
     command interpreter_command_history.name, interpreter_command_history.help, interpreter_command_history.routine
     command interpreter_command_keys.name, interpreter_command_keys.help, interpreter_command_keys.routine
     command interpreter_command_ls.name, interpreter_command_ls.help, interpreter_command_ls.routine
+    command interpreter_command_more.name, interpreter_command_more.help, interpreter_command_more.routine
     command interpreter_command_pwd.name, interpreter_command_pwd.help, interpreter_command_pwd.routine
     command interpreter_command_rom.name, interpreter_command_rom.help, interpreter_command_rom.routine
     command 0, 0
 
 
+
+
+interpreter_command_more
+.name string "MORE"
+.help string "Display the content of an ASCII file on screen. ESC quit the viewing. SPACE pause the viewing."
+.routine
+  ld hl, (interpreter.next_token_ptr)
+  call more_view_file
+  ret
 
 interpreter_command_help
 .nbArgs equ 0
