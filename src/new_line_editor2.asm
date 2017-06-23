@@ -3,6 +3,7 @@
 ; Dumb copy/paste of OS disassembly by Kevin Thacker
 
 
+
 input_txt_unknwown_var1_ptr equ 0xb114
 input_txt_mode_ptr          equ line_editor.insert_mode
 input_txt_copy_cursor_x_ptr equ line_editor.copy_cursor_xpos
@@ -15,6 +16,11 @@ input_txt_copy_cursor_y_ptr equ line_editor.copy_cursor_ypos
 new_line_editor
 
   BREAKPOINT_WINAPE
+
+  if BNDSH_ROM
+    ex de, hl
+  endif
+
 input_txt_2c02  push    bc
 input_txt_2c03  push    de
 input_txt_2c04  push    hl
@@ -1122,10 +1128,16 @@ input_txt_2c28  call    input_txt_2ee4
 ; HL: address where to jump
 input_txt_replace_firmware
 .rst_18_instruction equ &df
+.jp equ 0xc3
+.call equ 0xcd
+.ret equ 0xc9
+.ld_hl equ 0x21
+.ld_c equ 0x0e
+.ex_de_hl equ 0xeb
 
 
   if 1 
-    ld a, .rst_18_instruction
+    ld a, .jp
     ld (FIRMWARE.TEXT_INPUT+0), a
     ld (FIRMWARE.TEXT_INPUT+1), hl
   endif
@@ -1135,8 +1147,16 @@ input_txt_replace_firmware
     ld de, new_line_editor
 
     ; Write far call
+    ld (hl), .ex_de_hl : inc hl
+    ld (hl), .ld_hl: inc hl
     ld (hl), e : inc hl
     ld (hl), d : inc hl
-    ld (hl), a 
+    ld (hl), .ld_c : inc hl
+    ld (hl), a : inc hl
+    ld (hl), .call : inc hl
+    ld de, FIRMWARE.KL_FAR_PCHL
+    ld (hl), e : inc hl
+    ld (hl), d : inc hl
+    ld (hl), .ret
   endif
   ret

@@ -32,7 +32,7 @@ bndsh_rom_command_table
 bndsh_init_rom
     push de : push bc
     ; Rom takes only the space of its command
-    ld de, 3 + 1 ; space for the far call
+    ld de, 10 + 1 ; space for the far call
     and a
     sbc hl, de ; get space for the autocmd
 
