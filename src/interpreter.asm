@@ -194,9 +194,7 @@ interpreter_command_not_found
         ; initial code to load an application
         ; Get string size
 
-; does not seem to work :(
-;        ld a, 0xff
-;        call FIRMWARE .BIOS_SET_MESSAGE
+        ld a, 0xc9: ld (0xbb5a), a ; disable print
 
 
         ; Load file
@@ -241,9 +239,7 @@ interpreter_command_not_found
         pop hl
 
 
-; does not seem to work :(
-;        xor a
-;        call FIRMWARE .BIOS_SET_MESSAGE
+        ld a, 0xcf: ld (0xbb5a), a ; enable print
 
 
 
@@ -266,6 +262,7 @@ interpreter_command_not_found
         xor a
         ld (interpreter.did_nothing), a
      ;   call FIRMWARE .BIOS_SET_MESSAGE
+        ld a, 0xcf: ld (0xbb5a), a ; enable print
 
   if BNDSH_EXEC
 
