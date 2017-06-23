@@ -164,7 +164,7 @@ interpreter_command_not_found
 .arg1
 
  ; Build the string parameter
- ld hl, (interpreter.next_token_ptr) : call string_size : ld (interpreter.param_string1), a
+ ld hl, (interpreter.next_token_ptr) : call string_word_size : ld (interpreter.param_string1), a
  ld hl, (interpreter.next_token_ptr) : ld (interpreter.param_string1+1), hl
 
  ld hl, interpreter.param_string1
@@ -289,6 +289,7 @@ interpreter_command_list
     command interpreter_command_keys.name, interpreter_command_keys.help, interpreter_command_keys.routine
     command interpreter_command_ls.name, interpreter_command_ls.help, interpreter_command_ls.routine
     command interpreter_command_more.name, interpreter_command_more.help, interpreter_command_more.routine
+    command interpreter_command_mv.name, interpreter_command_mv.help, interpreter_command_mv.routine
     command interpreter_command_pwd.name, interpreter_command_pwd.help, interpreter_command_pwd.routine
     command interpreter_command_rom.name, interpreter_command_rom.help, interpreter_command_rom.routine
     command 0, 0
@@ -485,12 +486,12 @@ interpreter_command_cat
     ret
 
 interpreter_command_ls
-    call m4_available : jp nz, interpreter_command_unaivailable
 
 .nbArgs equ 0
 .name  string "LS"
 .help string "Display catalog (though |ls)."
 .routine
+    call m4_available : jp nz, interpreter_command_unaivailable
     ld hl, rsx_name.ls
     call FIRMWARE.KL_FIND_COMMAND
     jr nc, interpreter_rsx_not_found ; Should never append
@@ -499,6 +500,46 @@ interpreter_command_ls
 
 
 
+interpreter_command_mv
+.name string 'MV'
+.help string 'Rename a file. Attention parameter order is the opposite of |REN: MV SOURCE DESTINATION instead of |REN,"DESTINATION","SOURCE"'
+.routine
+
+  BREAKPOINT_WINAPE
+
+  ld hl, rsx_name.ren
+  call FIRMWARE.KL_FIND_COMMAND
+
+  push hl: push bc
+
+ ; TODO check the number of arguments to be sure there are no overflows
+
+ ld ix, interpreter.parameter_buffer
+
+ ; consumme first argument (source)
+ ld hl, (interpreter.next_token_ptr) : call string_word_size : ld (interpreter.param_string1), a
+ ld hl, (interpreter.next_token_ptr) : ld (interpreter.param_string1+1), hl
+
+ ; Go until next argument
+ call string_move_until_null_or_space_char
+ call string_move_until_first_nonspace_char
+ ld (interpreter.next_token_ptr), hl
+
+ ; consumme second argument (destination)
+ ld hl, (interpreter.next_token_ptr) : call string_word_size : ld (interpreter.param_string2), a
+ ld hl, (interpreter.next_token_ptr) : ld (interpreter.param_string2+1), hl
+
+ ; Fill the RSX call table
+ ld hl, interpreter.param_string1
+ ld (ix+0), l :  ld (ix+1), h
+
+ ld hl, interpreter.param_string2
+ ld (ix+2), l :  ld (ix+3), h
+
+  pop bc : pop hl
+  ld a, 2
+  call FIRMWARE.KL_FAR_PCHL
+  ret
 
 
 interpreter_command_clear

@@ -113,12 +113,31 @@ string_move_until_null_or_space_char
         jr .loop
 
 
+;;
+; Comput ethe size of the current string
 string_size
   ld b, 0
 .loop
   ld a, (hl)
   call string_char_is_eof: jr z, .end
  ; call string_char_is_space: jr z, .end ; for a word not a string !
+  inc hl
+  inc b
+  jr .loop
+.end
+  ld a, b
+  ret
+
+
+
+;;
+; Compute the size of the current word
+string_word_size
+  ld b, 0
+.loop
+  ld a, (hl)
+  call string_char_is_eof: jr z, .end
+  call string_char_is_space: jr z, .end 
   inc hl
   inc b
   jr .loop

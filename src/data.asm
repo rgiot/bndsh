@@ -31,7 +31,7 @@ rsx_name
 .ls db "L", "S"+0x80
 .getpath db "GETPAT", "H"+0x80
 .era db "ER", "A"+0x80
-
+.ren db "RE", "N"+0x80
 
 
 
@@ -91,7 +91,8 @@ interpreter
 .next_token_ptr dw .command_name_buffer ; Address to the next token in the parsing (typically 1st argument)
 .next_token_buffer defs .max_command_name
 .param_string1 defs 3
-.parameter_buffer defs 2*1
+.param_string2 defs 3
+.parameter_buffer defs 2*2
 
 history
 .size equ 8 ; XXX ATTENTION must be a power of two
