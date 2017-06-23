@@ -39,12 +39,7 @@ more_view_file
 .read_loop
 
       call FIRMWARE.CAS_IN_CHAR
-      jr nc, .not_eof
-      jr nz, .not_eof
-
-  ;    cp 0xf
-  ;    jr nz, .not_eof
-      jr .eof
+      jr nc, .eof
 
 .not_eof
       call FIRMWARE.TXT_OUTPUT
