@@ -19,6 +19,10 @@ routine dw 0
 interpreter_manage_input
   xor a: ld (interpreter.did_nothing), a
 
+ if BNDSH_ROM
+  ld (line_editor.text_buffer_ptr), hl
+ endif
+
     ; Ensure we really start at the right position
     call string_move_until_first_nonspace_char
 
@@ -274,6 +278,7 @@ interpreter_command_not_found
     ret
 
 interpreter_command_list
+    command interpreter_command_basic.name, interpreter_command_basic.help, interpreter_command_basic.routine
     command interpreter_command_cat.name, interpreter_command_cat.help, interpreter_command_cat.routine
     command interpreter_command_clear.name, interpreter_command_clear.help, interpreter_command_clear.routine
 ;    command interpreter_command_cd.name, interpreter_command_cd.name
@@ -297,6 +302,37 @@ interpreter_command_more
 .routine
   ld hl, (interpreter.next_token_ptr)
   call more_view_file
+  ret
+
+
+
+interpreter_command_basic
+.name string "BASIC"
+.help string "Sends the command to the BASIC interpreter (disambiguity purpose)"
+.routine
+
+  ; Get buffer address
+  if BNDSH_ROM
+   ld hl, (line_editor.text_buffer_ptr)
+  endif
+  if BNDSH_EXEC
+   ld hl, line_editor.text_buffer
+  endif
+
+  push hl
+
+  ; compute the next position
+  call string_move_until_first_nonspace_char
+  call string_move_until_null_or_space_char
+
+  pop de
+
+  ; copy to remove basic keyword
+  ld bc, 256
+  ldir
+
+  ; inform that nothing has been executed
+  xor a : ld (interpreter.did_nothing), a
   ret
 
 interpreter_command_help

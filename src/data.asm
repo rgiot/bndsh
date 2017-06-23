@@ -79,6 +79,9 @@ line_editor
 .current_width db 0
 .text_buffer defs .max_width + 2
  endif
+ if BNDSH_ROM
+.text_buffer_ptr dw 0
+ endif
 
 
 interpreter
