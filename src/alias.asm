@@ -22,8 +22,10 @@ original dw 0 ; Pointer to the original name
 alias_word_is_alias
 
   ex de, hl
-  ld hl, alias_table
+  ld hl, alias_table - 2
 .loop
+
+  inc hl : inc hl
 
   ; HL= table of alias
   ; DE= pointer to the string to test
