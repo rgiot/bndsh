@@ -89,7 +89,7 @@ alias_treat_command_name
 
 
 alias_table
-  alias alias_strings.mv, alias_strings.era
+  alias alias_strings.rm, alias_strings.era
   alias alias_strings.h, alias_strings.help
   alias alias_strings.b, alias_strings.basic
   alias alias_strings.off, alias_strings.m4romoff
@@ -99,7 +99,7 @@ alias_table
 
 alias_strings
 .era string "ERA"
-.mv string "MV"
+.rm string "RM"
 
 .h string "H"
 .help string "HELP"
