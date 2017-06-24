@@ -14,6 +14,7 @@ autocomplete_search_completions
     call autocomplete_search_completion_on_filenames
     call autocomplete_search_completions_on_commands
     call autocomplete_search_completions_on_rsx
+    call autocomplete_search_completions_on_aliases
     ret
 
 autocomplete_search_completion_on_filenames
@@ -96,6 +97,43 @@ autocomplete_search_completions_on_commands
 
 
 
+autocomplete_search_completions_on_aliases
+
+  BREAKPOINT_WINAPE
+  dec hl
+  ex de, hl
+  ld hl, alias_table
+.loop
+
+  ; HL = pointr in the table of aliases
+  ; DE = pointer on the buffer to feed
+
+  ld c, (hl) : inc hl
+  ld b, (hl) : inc hl
+  inc hl : inc hl
+  ld a, b: cp c : jr z, autocomplete_search_completions_on_rsx.buffer_filled ; XXX the code would be the same, so better to not lost space
+
+  ; BC = address of the string to test
+  push hl : push de : push bc
+    ld h, b : ld l, c
+    call string_is_prefix
+  pop bc : pop de : pop hl
+
+  jr nz, .loop ; current string is not a prefix
+
+.is_prefix
+    ; Add the string
+    ex de, hl
+        ld (hl), c
+        inc hl
+        ld (hl), b
+        inc hl
+    ex de, hl
+        
+    ld a, (autocomplete.nb_commands) : inc a : ld (autocomplete.nb_commands),a 
+    jr .loop
+  ret
+
 
 
 
@@ -107,7 +145,7 @@ autocomplete_search_completions_on_rsx
     ld hl, rsx_names
 .loop
     ; HL = pointer on the rsx names
-    ; DE = pointer on the buffer to feel
+    ; DE = pointer on the buffer to feed
     
     ; Stop search if we are reading the latest string
     ld a, (hl) : or a : jr z, .buffer_filled
@@ -145,6 +183,7 @@ autocomplete_search_completions_on_rsx
     inc de
     ld (de), a
 
+    ex de, hl
     ret
 
 
