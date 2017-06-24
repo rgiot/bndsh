@@ -454,7 +454,7 @@ interpreter_command_help
 
     ld hl, rsx_names
 .loop_rsx
-    ld a, (hl) : or a : ret z
+    ld a, (hl) : or a : jr z, .display_aliases
 
     ld a,' ' : call display_print_char
     call display_print_string
@@ -464,6 +464,34 @@ interpreter_command_help
 
 
 
+.display_aliases
+    call display_crlf
+    ld hl, interpreter_messages.aliases: call display_print_string
+
+    
+    ld hl, alias_table
+.loop_aliases
+
+    ld e, (hl) : inc hl
+    ld d, (hl) : inc hl
+
+    ld a, e : or d : ret z
+
+    ld a, " " : call display_print_char
+
+    ex de, hl : call display_print_string : ex de, hl
+
+    ld a, "/" : call display_print_char
+
+
+    ld e, (hl) : inc hl
+    ld d, (hl) : inc hl
+
+
+    ex de, hl : call display_print_string : ex de, hl
+
+    jr .loop_aliases
+  ret
 
 
 
@@ -712,3 +740,5 @@ interpreter_messages
     string "Internal commands: "
 .rsx
     string "RSX:"
+.aliases
+    string "ALIASES:"
