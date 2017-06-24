@@ -943,8 +943,9 @@ input_txt_tab
     dec de : dec hl
 .autocomplete_insert_completion_skip_loop
     inc de: inc hl
-    ld a, (de)
-    cp (hl)
+    ld a, (de) : call string_char_to_upper : ld c, a
+    ld a, (hl): call string_char_to_upper
+    cp c ; make a comparison on the upper case chars
     jr z, .autocomplete_insert_completion_skip_loop ; XXX I'm sure it can bug as we do not test position in buffer
 
 

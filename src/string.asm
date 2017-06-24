@@ -176,6 +176,7 @@ string_go_to_beginning_of_current_word
     inc hl
     ret
 ;;
+; Case INSENSITIVE string comparison
 ; Input
 ;  - HL:  string 1
 ;  - DE: stirng 2
@@ -184,13 +185,13 @@ string_go_to_beginning_of_current_word
 string_compare
 .loop
 
-    ld a, (hl)
+    ld a, (hl) : call string_char_to_upper
     call string_char_is_eof
     jr z, .str1_empty
 
 .str1_not_empty
     ld c, a
-    ld a, (de) : call string_char_is_eof : jr z, .not_equal
+    ld a, (de) : call string_char_to_upper :  call string_char_is_eof : jr z, .not_equal
 .str1_not_empty_and_str2_not_empty
     cp c : jr nz, .not_equal
 
@@ -198,7 +199,7 @@ string_compare
     jr .loop
 
 .str1_empty
-    ld a, (de) : call string_char_is_eof : jr z, .equal
+    ld a, (de) : call string_char_to_upper : call string_char_is_eof : jr z, .equal
     jr .not_equal
 
 .equal
@@ -222,6 +223,7 @@ string_compare
 
 
 ;;
+; Case insensitive
 ; Input:
 ; - HL: complete string
 ; - DE: smallest string
@@ -231,13 +233,13 @@ string_compare
 string_is_prefix
 .loop
 
-    ld a, (hl)
+    ld a, (hl) : call string_char_to_upper
     call string_char_is_eof
     jr z, .complete_empty
 
 .complete_not_empty
     ld c, a
-    ld a, (de) : call string_char_is_eof : jr z, .is_prefix
+    ld a, (de) : call string_char_to_upper : call string_char_is_eof : jr z, .is_prefix
 .complete_not_empty_and_prefix_not_empty
     cp c : jr nz, .is_not_prefix
 
