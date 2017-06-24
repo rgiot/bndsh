@@ -443,13 +443,16 @@ interpreter_command_help
 
 .display_rsx
 
+   call display_crlf
    ld hl, interpreter_messages.rsx: call display_print_string
 
     ld hl, rsx_names
 .loop_rsx
     ld a, (hl) : or a : ret z
 
+    ld a,' ' : call display_print_char
     call display_print_string
+    inc hl
 
     jr .loop_rsx
 
@@ -702,4 +705,4 @@ interpreter_messages
 .internal_commands
     string "Internal commands: "
 .rsx
-    string "RSX: "
+    string "RSX:"
