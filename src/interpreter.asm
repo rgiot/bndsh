@@ -287,7 +287,7 @@ interpreter_command_not_found
 
 interpreter_command_list
     command interpreter_command_basic.name, interpreter_command_basic.help, interpreter_command_basic.routine
-    command interpreter_command_cat.name, interpreter_command_cat.help, interpreter_command_cat.routine
+;    command interpreter_command_cat.name, interpreter_command_cat.help, interpreter_command_cat.routine  ; XXX No need to create a CAT command, we have the BASIC one 
     command interpreter_command_clear.name, interpreter_command_clear.help, interpreter_command_clear.routine
 ;    command interpreter_command_cd.name, interpreter_command_cd.name
     command interpreter_command_crtc.name, interpreter_command_crtc.help, interpreter_command_crtc.routine
@@ -512,6 +512,7 @@ interpreter_rsx_not_found
     ret
 
 
+  if 0
 interpreter_command_cat
 .nbArgs equ 0
 .name  string "CAT"
@@ -529,6 +530,8 @@ interpreter_command_cat
     jr nc, interpreter_rsx_not_found ; Should never append
     call FIRMWARE.KL_FAR_PCHL
     ret
+
+ endif
 
 interpreter_command_ls
 
