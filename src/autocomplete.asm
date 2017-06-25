@@ -15,6 +15,11 @@ autocomplete_search_completions
     call autocomplete_search_completions_on_commands
     call autocomplete_search_completions_on_rsx
     call autocomplete_search_completions_on_aliases
+
+
+    ld hl, autocomplete.commands_ptr_buffer 
+    call gnome_sort
+
     ret
 
 autocomplete_search_completion_on_filenames

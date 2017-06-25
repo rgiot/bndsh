@@ -257,3 +257,103 @@ string_is_prefix
 .is_not_prefix
     or 1; Z=0
     ret
+
+
+;;
+; check if first string is before the second
+; INPUT:
+;  - HL: string 1
+;  - DE: string 2
+string_compare_signed
+.loop
+
+    ld a, (hl) : call string_char_to_upper
+    call string_char_is_eof
+    jr z, .str1_empty
+
+.str1_not_empty
+    ld c, a
+    ld a, (de) : call string_char_to_upper :  call string_char_is_eof : jr nz, .str1_not_empty_and_str2_not_empty
+.str1_not_empty_str2_empty
+    or 1 : scf :  ccf ; A > B Z=0 C=0
+    ret 
+
+.str1_not_empty_and_str2_not_empty
+    cp c 
+    ret nz; Z=0 C depends on the comparison
+
+    inc de : inc hl ; go for a next loop
+    jr .loop
+
+.str1_empty
+    ld c, a
+    ld a, (de) : call string_char_to_upper :  call string_char_is_eof : ret z ; A = B Z=1 C=? XXX ensure C=0
+
+
+    ; by definition string 1 is smaller than string 2
+    or 1 : scf ; A<B Z=0, C=1
+    ret
+
+;;
+; Sort a buffer of pointer of strings based on the value of this string
+; Input:
+;  HL= buffer of pointer of strings (ends with nullptr)
+gnome_sort
+  ld e, (hl) : inc hl : ld d, (hl) : dec hl
+  ld a, e : or d : ret z ; The buffer is empty
+
+  jr .increment_pos
+.loop
+  push hl
+    ; HL = pos
+    dec hl : dec hl
+    ; HL = pos-1
+    ld c, (hl) : inc hl : ld b, (hl) : inc hl
+    ld e, (hl) : inc hl : ld d, (hl)
+    ld h, b: ld l, c
+    ; HL = pos -1
+    ; DE = pos
+
+    call string_compare_signed
+  pop hl
+  
+  jr z, .increment_pos
+  jr c, .swap
+
+.increment_pos
+  ; We are at next position
+  inc hl : inc hl
+  ld e, (hl) : inc hl : ld d, (hl) : dec hl ; read position to be sure we are not out
+  ld a, e : or d : ret z ; This is the end of the buffer
+  jr .loop
+
+.swap
+  BREAKPOINT_WINAPE
+  ld d, h : ld e, l
+  dec hl : dec hl
+
+
+  ; DE = low pos
+  ; HL = low pos-1
+
+  ; swap low byte address
+  ld a, (de) : ld c, a
+  ld b, (hl)
+  ld (hl), c
+  ld a, b : ld (de), a
+
+  ; swap high byte address
+  inc hl : inc de
+  ld a, (de) : ld c, a
+  ld b, (hl)
+  ld (hl), c
+  ld a, b : ld (de), a
+  
+  ; DE = high pos
+  ; HL = high pos-1
+
+  dec hl
+
+  ; HL = low pos-1
+  jr .loop
+  ret
