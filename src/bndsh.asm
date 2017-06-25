@@ -19,10 +19,6 @@ config_enable_sound equ 1
 
 
 bndsh_startup
-    ld a, screen.cpc_mode
-    call FIRMWARE.SCR_SET_MODE
-
-
     ld hl, startup_data.text : call display_print_string
     
     call m4_available : jr nz, .no_m4
@@ -40,7 +36,7 @@ bndsh_startup
 
 
 startup_data
-.text    string  "Benediction Shell v0.1a      (june 2017)"
+.text    string  "Benediction Shell v0.1b      (june 2017)"
 .m4      string  "                            M4 detected."
 .pdos    string  " (do not still work)   Parados detected."
 

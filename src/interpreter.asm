@@ -584,9 +584,7 @@ interpreter_command_clear
 .name string "CLEAR"
 .help string "Clear the screen."
 .routine
-    ;call FIRMWARE.SCR_CLEAR
-    ld a, screen.cpc_mode
-    call FIRMWARE.SCR_SET_MODE
+    call FIRMWARE.TXT_CLEAR_WINDOW
     jp line_editor_init ; XXX Optimize
 
 

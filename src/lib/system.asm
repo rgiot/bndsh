@@ -32,6 +32,7 @@ FIRMWARE
 .TXT_VALIDATE        equ 0xBB87
 .TXT_GET_WINDOW     equ 0xbb69
 .TXT_RD_CHAR        equ 0xBB60
+.TXT_CLEAR_WINDOW   equ &BB6C
 
 
 .TEXT_INPUT          equ &BD5E 
