@@ -418,7 +418,9 @@ interpreter_command_help
 
 .display_full_list
 
+    call FIRMWARE.TXT_INVERSE
     ld hl, interpreter_messages.internal_commands : call display_print_string
+    call FIRMWARE.TXT_INVERSE
 
     ld hl, interpreter_command_list
 .loop_full
@@ -450,7 +452,9 @@ interpreter_command_help
 .display_rsx
 
    call display_crlf
+   call FIRMWARE.TXT_INVERSE
    ld hl, interpreter_messages.rsx: call display_print_string
+   call FIRMWARE.TXT_INVERSE
 
     ld hl, rsx_names
 .loop_rsx
@@ -466,7 +470,9 @@ interpreter_command_help
 
 .display_aliases
     call display_crlf
+    call FIRMWARE.TXT_INVERSE
     ld hl, interpreter_messages.aliases: call display_print_string
+    call FIRMWARE.TXT_INVERSE
 
     
     ld hl, alias_table

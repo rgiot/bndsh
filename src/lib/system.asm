@@ -10,6 +10,8 @@ FIRMWARE
 .SCR_SET_FLASHING   equ 0xbc3e
 .SCR_CLEAR          equ 0xbc14
 
+.SCR_CHAR_INVERT    equ 0xBC4A
+
 .SCR_GET_MODE       equ 0xBC11
 .SCR_GET_INK        equ 0xBC35
 .SCR_GET_BORDER     equ 0xBC3B
