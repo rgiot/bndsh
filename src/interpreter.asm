@@ -152,8 +152,15 @@ interpreter_command_not_found
   push bc : push hl
   ; Retreive the arguments
 
+  if BNDSH_ROM
+   ld hl, (line_editor.text_buffer_ptr)
+  else
+    ld hl, line_editor.text_buffer
+  endif
 
-  ld hl, (interpreter.next_token_ptr)
+  call string_move_until_null_or_space_char
+  call string_move_until_first_nonspace_char
+  ld (interpreter.next_token_ptr), hl
   ld a, (hl) : call string_char_is_eof : jr z, .end_of_arguments
 
 ; Attention, here we assume the variables are all strings
@@ -169,19 +176,52 @@ interpreter_command_not_found
 ;; in the buffer, first parameter is last in the buffer)
  ld ix, interpreter.parameter_buffer
 
-.arg1
+  BREAKPOINT_WINAPE
+.has_one_arg
 
  ; Build the string parameter
  ld hl, (interpreter.next_token_ptr) : call string_word_size : ld (interpreter.param_string1), a
  ld hl, (interpreter.next_token_ptr) : ld (interpreter.param_string1+1), hl
 
- ld hl, interpreter.param_string1
+  call string_move_until_null_or_space_char
+  call string_move_until_first_nonspace_char
+  ld (interpreter.next_token_ptr), hl
 
+ ld a, (hl) : or a
+ ld a, 1
+ jr z, .set_one_arg
+
+.has_two_args
+
+
+
+ ld hl, (interpreter.next_token_ptr) : call string_word_size : ld (interpreter.param_string2), a
+ ld hl, (interpreter.next_token_ptr) : ld (interpreter.param_string2+1), hl
+
+ ld a, (hl) : or a
+ ld a, 2
+ jr z, .set_two_args
+ 
+
+ jp $ ; XXX Code 3 args
+
+.set_two_args
+ ld hl, interpreter.param_string2
+ ld (ix+0), l
+ ld (ix+1), h
+ ld hl, interpreter.param_string1
+ ld (ix+2), l
+ ld (ix+3), h
+ jr .end_of_arguments
+
+
+
+.set_one_arg
+ ld hl, interpreter.param_string1
  ; Store the string bloc address
  ld (ix+0), l
  ld (ix+1), h
 
- ld a, 1
 
 .end_of_arguments
   pop hl: pop bc

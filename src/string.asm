@@ -182,6 +182,7 @@ string_go_to_beginning_of_current_word
 ;  - DE: stirng 2
 ; Output
 ;  - Zero flag set when equal
+; TODO See if this function is superseded by the signed version. Remov it if necessary
 string_compare
 .loop
 
@@ -294,6 +295,35 @@ string_compare_signed
     or 1 : scf : ccf ; A<B Z=0, C=1
     ret
 
+
+;;
+; Compute the prefix between two strings. The second one is updated by the result
+; HL: first string
+; DE: second string that is also updated by the process
+string_update_longest_common_prefix
+.loop
+
+    ld a, (hl) : call string_char_to_upper
+    call string_char_is_eof
+    jr z, .not_equal
+
+.str1_not_empty
+    ld c, a
+    ld a, (de) : call string_char_to_upper :  call string_char_is_eof : jr z, .not_equal
+.str1_not_empty_and_str2_not_empty
+    cp c : jr nz, .not_equal
+
+    inc de : inc hl
+    jr .loop
+
+.not_equal
+  xor a
+  ld (de), a
+  ret
+
+
+
+
 ;;
 ; Sort a buffer of pointer of strings based on the value of this string
 ; Input:
@@ -328,7 +358,6 @@ gnome_sort
   jr .loop
 
 .swap
-  BREAKPOINT_WINAPE
   ld d, h : ld e, l
   dec hl : dec hl
 

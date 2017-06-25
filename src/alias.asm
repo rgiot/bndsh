@@ -92,7 +92,9 @@ alias_table
   alias alias_strings.rm, alias_strings.era
   alias alias_strings.h, alias_strings.help
   alias alias_strings.b, alias_strings.basic
+  alias alias_strings.cp, alias_strings.copyf
   alias alias_strings.off, alias_strings.m4romoff
+  alias 0, 0
   alias 0, 0
 
 
@@ -109,3 +111,7 @@ alias_strings
 
 .off string "OFF"
 .m4romoff string "M4ROMOFF"
+
+
+.cp string "CP"
+.copyf string "COPYF"

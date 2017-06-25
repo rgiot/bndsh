@@ -905,7 +905,19 @@ input_txt_tab
     or a : jr z, .autocomplete_no_completion
     cp 1 : jr z, .autocomplete_insert_completion
 
-.autocomplete_print_completion
+
+; if we have several completions, see if we can extract a common prefix
+    call autocomplete_get_longest_common_string
+    ld a, (autocomplete.longest_common_string)
+    or a
+    jr z, .autocomplete_print_completions
+
+  ; TODO Add additional tests to filter failure cases
+
+    ld hl, autocomplete.longest_common_string
+    jr .autocomplete_insert_completion_continue
+
+.autocomplete_print_completions
     call FIRMWARE.TXT_GET_CURSOR
     push hl
         ; TODO Save scroll number to properly treat completions atthe end of the screen
@@ -932,6 +944,7 @@ input_txt_tab
 
 
     call autocomplete_get_unique_completion
+.autocomplete_insert_completion_continue
     ex de, hl
     pop hl  ; we lost it and replace by the computed stuff
 

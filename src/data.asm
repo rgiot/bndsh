@@ -129,6 +129,7 @@ roms_name
 autocomplete
 .nb_commands db 0
 .commands_ptr_buffer defs 256 ; XXX cmpute its size based on the number of available commands
+.longest_common_string defs 256
 
 rsx_names
     defs 512

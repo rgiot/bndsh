@@ -14,7 +14,7 @@ autocomplete_search_completions
     call autocomplete_search_completion_on_filenames
     call autocomplete_search_completions_on_commands
     call autocomplete_search_completions_on_rsx
-    call autocomplete_search_completions_on_aliases
+  ;  call autocomplete_search_completions_on_aliases ; XXX Deactivated because currently buggy :(
 
 
     ld hl, autocomplete.commands_ptr_buffer 
@@ -104,7 +104,6 @@ autocomplete_search_completions_on_commands
 
 autocomplete_search_completions_on_aliases
 
-  BREAKPOINT_WINAPE
   dec hl
   ex de, hl
   ld hl, alias_table
@@ -137,10 +136,6 @@ autocomplete_search_completions_on_aliases
         
     ld a, (autocomplete.nb_commands) : inc a : ld (autocomplete.nb_commands),a 
     jr .loop
-  ret
-
-
-
 
 ; XXX Attention, here I assume the routine is called JUST AFTER autocomplete_search_completions_on_commands and HL is around the end of the buffer
 ; XXX Speed up procedure by using trees are something like that
@@ -243,3 +238,64 @@ autocomplete_get_unique_completion
     ; XXX take into account the other types of completions
     ld hl, (autocomplete.commands_ptr_buffer)
     ret
+
+
+;;
+; Compute the longest common string in order to automatically insert it
+autocomplete_get_longest_common_string
+  xor a : ld (autocomplete.longest_common_string), a
+
+  BREAKPOINT_WINAPE
+
+  ; Leave if there is no completion
+  ld a, (autocomplete.nb_commands) : or a : ret  z
+  push af
+
+    ; Copy the very first string to the appropriate buffer
+    ld hl, autocomplete.commands_ptr_buffer
+    ld e, (hl) : inc hl
+    ld d, (hl) 
+    ex de, hl
+    ld de, autocomplete.longest_common_string
+    call string_copy_word
+
+
+    ; Go at the second position in the buffer of autocompletion proposals
+    ld hl, autocomplete.commands_ptr_buffer
+    inc hl : inc hl
+
+  pop af
+  dec a
+  ret: or a : ret z
+
+   ;A = number of remaining strings
+.loop
+    push af
+
+      ; Get the pointer of the current string
+      ld c, (hl) : inc hl
+      ld b, (hl) : inc hl
+
+      ; Update the longest common substring
+      push hl
+        ld l, c : ld h, b
+        ld de, autocomplete.longest_common_string
+        call string_update_longest_common_prefix
+      pop hl
+
+      ; No need to lost more time if the string is empty
+      ld de, autocomplete.longest_common_string
+      ld a, (de)
+      or a : jr z, .leave
+      
+    pop af
+    dec a 
+    or a : jr nz, .loop
+    ret
+
+
+.leave
+  pop af
+
+  ret
+
