@@ -28,7 +28,9 @@ interpreter_manage_input
 
 
     ; Leave if we have nothing more to do
-    ld a, (hl) : call string_char_is_eof : ret z
+    ld a, (hl) : call string_char_is_eof : ret z ; nothing types
+    cp '|' : ret z  ; user wants an RSX
+
     ld a, 1: ld (interpreter.did_nothing), a
 
 
@@ -228,7 +230,7 @@ interpreter_command_not_found
         ld hl, 0x170 ; get name from basic buffer
         ld de, 0xc000
         call FIRMWARE.CAS_IN_OPEN
-        jr nc, .really_display_message ; Jump if file note opened
+        jr nc, .did_nothing ; Jump if file note opened
 
 
 
@@ -267,7 +269,7 @@ interpreter_command_not_found
             call bndsh_select_extra_memory
         endif
 
-.really_display_message
+.did_nothing
 
         xor a : ld (interpreter.did_nothing), a
         ld a, 0xcf: ld (0xbb5a), a ; enable print
