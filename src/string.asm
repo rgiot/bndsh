@@ -275,7 +275,7 @@ string_compare_signed
     ld c, a
     ld a, (de) : call string_char_to_upper :  call string_char_is_eof : jr nz, .str1_not_empty_and_str2_not_empty
 .str1_not_empty_str2_empty
-    or 1 : scf :  ccf ; A > B Z=0 C=0
+    or 1 : scf    ; A > B Z=0 C=0
     ret 
 
 .str1_not_empty_and_str2_not_empty
@@ -291,7 +291,7 @@ string_compare_signed
 
 
     ; by definition string 1 is smaller than string 2
-    or 1 : scf ; A<B Z=0, C=1
+    or 1 : scf : ccf ; A<B Z=0, C=1
     ret
 
 ;;
