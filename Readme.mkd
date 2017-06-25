@@ -26,7 +26,6 @@ The line edition is similar to the one provided by the BASIC and can be used in 
  The current `internal command`s are:
 
   - `basic` to inform that the remaining part of the line concerns a BASIC instruction (only useful when a commad/executable/RSX has the same name than a BASIC instruction and would be automatically selected instead)
-  - `basic` to display the catalog of the current directory or disc (M4 required)
   - `clear` to clear the screen (as `cls`).
   - `crtc` to display crtc number.
   - `exit` to jump to BASIC interpreter

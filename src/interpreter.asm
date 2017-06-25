@@ -533,20 +533,6 @@ interpreter_command_cat
 
  endif
 
-interpreter_command_ls
-
-.nbArgs equ 0
-.name  string "LS"
-.help string "Display catalog (though |ls)."
-.routine
-    call m4_available : jp nz, interpreter_command_unaivailable
-    ld hl, rsx_name.ls
-    call FIRMWARE.KL_FIND_COMMAND
-    jr nc, interpreter_rsx_not_found ; Should never append
-    call FIRMWARE.KL_FAR_PCHL
-    ret
-
-
 
 interpreter_command_mv
 .name string 'MV'
@@ -751,3 +737,6 @@ interpreter_messages
     string "RSX:"
 .aliases
     string "ALIASES:"
+
+
+  include src/command_ls.asm
