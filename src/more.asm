@@ -42,6 +42,12 @@ more_view_file
       jr nc, .eof
 
 .not_eof
+      cp 10
+      jr nz, .output
+      ld a, 13 : call FIRMWARE.TXT_OUTPUT
+      ld a, 10
+
+.output
       call FIRMWARE.TXT_OUTPUT
 
       call FIRMWARE.KM_READ_CHAR
