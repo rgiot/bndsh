@@ -15,7 +15,6 @@ input_txt_copy_cursor_y_ptr equ line_editor.copy_cursor_ypos
 
 new_line_editor
 
-  BREAKPOINT_WINAPE
 
   if BNDSH_ROM
     ex de, hl
@@ -235,7 +234,6 @@ input_txt_2cea
 ;; display 0 terminated string
 input_txt_key_return
 
-  BREAKPOINT_WINAPE
     push de : push bc
 input_txt_2cf2  push af
 input_txt_2cf3  ld      a,(hl)           ; get character
@@ -285,13 +283,11 @@ input_txt_2cf9  jr      nz,input_txt_2cf3         ; loop for next character
 .interpreter_did_nothing
 input_txt_2cfb  pop     af : pop bc: pop de
     scf
-    BREAKPOINT_WINAPE
               ret
 
 input_txt_break
 input_txt_2cfc  scf   ;  No idea why I removed it => it is probably an error
                 pop bc : pop de
-    BREAKPOINT_WINAPE
 input_txt_2cfd  ret     
 
 ;;===========================================================================
@@ -905,6 +901,7 @@ input_txt_tab
     or a : jr z, .autocomplete_no_completion
     cp 1 : jr z, .autocomplete_insert_completion
 
+ if 0 ; XXX deactivate for the moment as it does not really work
 
 ; if we have several completions, see if we can extract a common prefix
     call autocomplete_get_longest_common_string
@@ -916,6 +913,7 @@ input_txt_tab
 
     ld hl, autocomplete.longest_common_string
     jr .autocomplete_insert_completion_continue
+ endif
 
 .autocomplete_print_completions
     call FIRMWARE.TXT_GET_CURSOR

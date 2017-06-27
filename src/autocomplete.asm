@@ -245,7 +245,6 @@ autocomplete_get_unique_completion
 autocomplete_get_longest_common_string
   xor a : ld (autocomplete.longest_common_string), a
 
-  BREAKPOINT_WINAPE
 
   ; Leave if there is no completion
   ld a, (autocomplete.nb_commands) : or a : ret  z

@@ -68,7 +68,6 @@ alias_word_is_alias
 ; - HL: pointer to the word of interest
 
 alias_treat_command_name
-  BREAKPOINT_WINAPE
 
   ; Leave if the string is empty
   ld a, (hl): or a : ret z

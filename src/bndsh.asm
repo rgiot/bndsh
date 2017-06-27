@@ -52,6 +52,7 @@ startup_data
     include "autocomplete.asm"
     include "more.asm"
     include "alias.asm"
+    include "cpcget.asm"
 
 
     if BNDSH_EXEC

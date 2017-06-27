@@ -176,7 +176,6 @@ interpreter_command_not_found
 ;; in the buffer, first parameter is last in the buffer)
  ld ix, interpreter.parameter_buffer
 
-  BREAKPOINT_WINAPE
 .has_one_arg
 
  ; Build the string parameter
@@ -579,7 +578,6 @@ interpreter_command_mv
 .help string 'Rename a file. Attention parameter order is the opposite of |REN: MV SOURCE DESTINATION instead of |REN,"DESTINATION","SOURCE"'
 .routine
 
-  BREAKPOINT_WINAPE
 
   ld hl, rsx_name.ren
   call FIRMWARE.KL_FIND_COMMAND

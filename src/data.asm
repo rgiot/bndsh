@@ -32,7 +32,8 @@ rsx_name
 .getpath db "GETPAT", "H"+0x80
 .era db "ER", "A"+0x80
 .ren db "RE", "N"+0x80
-
+.httpmem db "HTTPME", "M"+0x80
+.httpget db "HTTPGE", "T"+0x80
 
 
 system
@@ -92,7 +93,12 @@ interpreter
 .next_token_buffer defs .max_command_name
 .param_string1 defs 3
 .param_string2 defs 3
-.parameter_buffer defs 2*2
+.param_string3 defs 3
+.parameter_buffer defs 2*3 ; 3 paramters max
+
+
+cpcget
+.query_buffer equ interpreter.command_name_buffer
 
 history
 .size equ 8 ; XXX ATTENTION must be a power of two

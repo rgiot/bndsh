@@ -15,11 +15,13 @@ ROM
 .command_table_ptr  dw bndsh_rom_command_table
 .execution_table  
     jp bndsh_init_rom
-    jp bndsh_select_memory
+    jp cpcget_search_rsx
+    jp cpcget_download_dsk
 
 bndsh_rom_command_table
     defb 'BNDSH RO', 0x80+'M'
-    defb 'BNDSHME', 0x80+'M'
+    defb 'DSKSEARC', 0x80+'H'
+    defb 'DSKGE', 0x80+'T'
     defb 0
 
 

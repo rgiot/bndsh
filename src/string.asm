@@ -81,6 +81,22 @@ string_copy_word
     ret
 
 
+
+;;
+; copy a firmware string as a null terminated string
+; - HL: firmware source string
+; - DE: null terminated destination
+string_copy_firmware_string
+  ld c, (hl) : inc hl
+  ld b, (hl) : inc hl
+  ld h, (hl) : ld l, b : ld b, 0
+  ldir
+
+  xor a
+  ld (de), a
+  ret
+
+
 string_move_until_first_nonspace_char
 .loop
     ld a, (hl)
