@@ -17,7 +17,7 @@ However, fell free to test and provide patches as there are tons of bugs.
 The line edition is similar to the one provided by the BASIC and can be used in the following way: `COMMAND [ARGUMENT...]`.
 
  - If command is an `internal command` the internal command is executed.
- - If command is an `RSX`, the RSX is executed with the following string arguments (currently only 1 argument is possible).
+ - If command is an `RSX`, the RSX is executed with the following string arguments (currently only up to 2 arguments are possible).
  - If command is a `folder` then it becomes the working directory.
  - If command is a `file` then the firmware tries to load and launch it. If it succeed you have no more access to bndsh. (highly limited has bndsh is still not in ROM)
  - Otherwise the system displays an error message.
@@ -55,9 +55,13 @@ The line edition is similar to the one provided by the BASIC and can be used in 
 
 The additional shortcuts are:
 
-  - TAB: control autocompletion on filenames, RSX, internal commands
+  - TAB: control autocompletion on filenames, RSX, internal commands. **Note that there are still bugs there**
   - ENTER: before the BASIC interpreter manages the line, the shell execute its own instructions
 
+The additional `RSX` commands are:
+
+ - `|DSKSEARCH,"KEY"` makes a search on CPCRULEZ and print on screen pairs of code and filename (M4 ROM needed)
+- `|DSKGET,"CODE"` download the 1st DSK file from the archive identified by the code (given by DSKSEARCH). **A current limitation of the `|HTTPGET` RSX imposes to manually rename the downloaded file: `MV BRIDGE.PHP MYDSK.DSK`.**
 
 
 ## Additional features I plan to code
