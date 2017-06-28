@@ -66,11 +66,9 @@ The additional `RSX` commands are:
 
 ## Additional features I plan to code
 
- - Faster display of the line to edit (even with the firmware as it is totally dumb now)
- - Better integration of RSX (currently only one argument is used ...)
+ - Better integration of RSX (currently only 2 string arguments are possible ...)
  - More internal commands if needed
  - Ability to bypass internal commands or rsx
- - Alias to have several commands with the same name (mv with ren)
  - Better RAM management (use the latest page of the latest bank available on the machine in order to work on CPC6128 without extra RAM)
 
 ## Construction
