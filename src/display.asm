@@ -46,6 +46,18 @@ display_print_string_256
 
 
 
+display_print_firmware_string
+  ld b, (hl) : inc hl
+.loop
+  push bc
+    ld a, (hl) : inc hl
+    push hl
+      call FIRMWARE.TXT_OUTPUT
+    pop hl
+  pop bc
+  djnz .loop
+  ret
+
 
 display_print_string2
 .loop

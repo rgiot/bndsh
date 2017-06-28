@@ -45,6 +45,16 @@ cpcget_search_rsx
 
 
 .display_list
+  ld hl, .location
+  ld b, (hl) : inc l
+.loop
+  push bc
+    call display_print_firmware_string
+    ld a, ' ' : call display_print_char
+    call display_print_firmware_string
+    call display_crlf
+  pop bc
+  djnz .loop
   ret
 
 
