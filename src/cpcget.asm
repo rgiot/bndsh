@@ -10,7 +10,6 @@
 ; 4. C contient le numéro de la ROM (0..7)
 
 cpcget_search_rsx
-  BREAKPOINT_WINAPE
   cp 1 : ret nz ; Leave if not right amount of paramters TODO really display an error
 
   ld hl, rsx_name.httpmem
@@ -30,16 +29,19 @@ cpcget_search_rsx
 
     ld ix, interpreter.parameter_buffer
     ld (ix+0), .max_size%256
-    ld (ix+1), .max_size/256
+ ;   ld (ix+1), .max_size/256 ; XXX vasm bug
+    ld (ix+1), .max_size >> 8
     ld (ix+2), .location%256
-    ld (ix+3), .location/256
+ ;   ld (ix+3), .location/256 ; XXX vasm bug
+    ld (ix+3), .location >> 8
     ld (ix+4), interpreter.param_string1%256
-    ld (ix+5), interpreter.param_string1/256
+  ;  ld (ix+5), interpreter.param_string1/256 ; XXX vasm bug
+    ld (ix+5), interpreter.param_string1 >> 8
 
   pop bc: pop hl
 
   ld a, 3
-  call FIRMWARE.KL_FAR_PCHL
+  call FIRMWARE.KL_FAR_PCHL; infinite loop :(
 
 
 .display_list
@@ -51,7 +53,7 @@ cpcget_download_dsk
 
   ld hl, rsx_name.httpget
   call FIRMWARE.KL_FIND_COMMAND
-  ret nc 
+ ; ret nc 
 
 .get_list
   push hl : push bc
@@ -61,25 +63,31 @@ cpcget_download_dsk
     ld hl, cpcget_rom_data.download_query
     call cpcget_build_url
 
-
-.location equ 0x7000
-.max_size equ 0x1000
-
     ld ix, interpreter.parameter_buffer
     ld (ix+0), interpreter.param_string1%256
-    ld (ix+1), interpreter.param_string1/256
+   ; ld (ix+1), interpreter.param_string1/256 ; XXX Does not assemble properly due to a vasm bug
+    ld (ix+1), interpreter.param_string1 >> 8
 
   pop bc: pop hl
 
   ld a, 1
-  call FIRMWARE.KL_FAR_PCHL
+  call FIRMWARE.KL_FAR_PCHL ; infinite loop :(
+
+
+    ; Never arrive there :(
+    ; Display the string for checkup purposes
+    ld hl, cpcget.query_buffer 
+    call display_print_string
+    ld a, "#" : call 0xbb5a
+
 
 
 .display_list
   ret
 
 
-
+;;
+; This function must be bug free (verified on emulator and screen)
 cpcget_build_url
     ld de, cpcget.query_buffer
     call string_copy_word
@@ -89,13 +97,16 @@ cpcget_build_url
     call string_copy_firmware_string
 
 
+    ; Display the string for checkup purposes
     ld hl, cpcget.query_buffer 
     call display_print_string
+    ld a, "#" : call 0xbb5a
 
 
     ld hl, cpcget.query_buffer  
     ld (interpreter.param_string1+1), hl
-    call string_word_size
+  BREAKPOINT_WINAPE
+    call string_size
     ld (interpreter.param_string1+0), a
 
 
