@@ -130,7 +130,8 @@ m4_set_dir_filter_from_token
         ld hl, m4_buffer
         ld (hl), a : inc hl                 ; Set size of the parameters                 
         ld (hl), C_DIRSETARGS%256 : inc hl  ; Set low address of routine
-        ld (hl), C_DIRSETARGS/256 : inc hl  ; Set high address of routine
+     ;   ld (hl), C_DIRSETARGS/256 : inc hl  ; Set high address of routine
+        ld (hl), C_DIRSETARGS >> 8 : inc hl  ; Set high address of routine
      ;   ld (hl), 0x25 : inc hl
      ;   ld (hl), 0x43 : inc hl
 

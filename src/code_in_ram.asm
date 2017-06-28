@@ -21,7 +21,8 @@ ram_cd_from_interpreter
         ld hl, m4_buffer
         ld (hl), a : inc hl                 ; Set size of the parameters                 
         ld (hl), C_DIRSETARGS%256 : inc hl  ; Set low address of routine
-        ld (hl), C_DIRSETARGS/256 : inc hl  ; Set high address of routine
+        ;ld (hl), C_DIRSETARGS/256 : inc hl  ; Set high address of routine  XXX may be badly assembled by vasm
+        ld (hl), C_DIRSETARGS >> 8 : inc hl  ; Set high address of routine
         ex de, hl
             ld hl, interpreter.command_name_buffer
             call string_copy_word_ram
@@ -34,7 +35,8 @@ ram_cd_from_interpreter
         ld hl, m4_buffer
         ld (hl), 2 : inc hl
         ld (hl), C_READDIR%256 : inc hl
-        ld (hl), C_READDIR/256 : inc hl
+        ;ld (hl), C_READDIR/256 : inc hl ; may be badly assembled by vasm
+        ld (hl), C_READDIR >> 8 : inc hl
         ld hl, m4_buffer 
         call m4_send_command
 
