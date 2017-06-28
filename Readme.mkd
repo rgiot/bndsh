@@ -71,6 +71,13 @@ The additional `RSX` commands are:
  - Ability to bypass internal commands or rsx
  - Better RAM management (use the latest page of the latest bank available on the machine in order to work on CPC6128 without extra RAM)
 
+
+## Known bugs
+
+ - Autocompletion is a bit capricious (files search fails elswhere than in the root folder, completion sometimes fail)
+ - The ROM must be deactivate to launch some program (ESC at startup) with RUN"XXX; no idea why
+ - The auto run features considers that the file is a binary one (so expect a nice reboot for basic ones)
+
 ## Construction
 
 ~~~bash
