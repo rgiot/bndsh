@@ -894,6 +894,8 @@ input_txt_tab
     ldir
     xor a : ld (de), a
 
+    ; A priori this is really the subpart until the carret that is copied
+
     call autocomplete_reset_buffers 
     call autocomplete_search_completions
 
@@ -972,7 +974,6 @@ input_txt_tab
         push af
         dec hl
         ld a, (hl)
-        BREAKPOINT_WINAPE
         inc hl
         call string_char_is_lower
         jr z, .autocomplete_insert_in_lower
