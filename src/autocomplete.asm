@@ -192,9 +192,14 @@ autocomplete_search_completions_on_rsx
 
 
 autocomplete_print_completions
+    ; XXX Check if it is really needed (or add the number of line to manage the 256 chars)
     ld a, 10 : call 0xbb5a
     ld a, 13 : call 0xbb5a
  ;   ld a, ' ' : call 0xbb5a
+
+    call FIRMWARE.TXT_GET_CURSOR
+    ld (line_editor.autocomplete_before_cursor_pos), hl
+    ld (line_editor.autocomplete_before_roll_count), a
 
     ld hl,  autocomplete.commands_ptr_buffer
 .loop
@@ -224,9 +229,52 @@ autocomplete_print_completions
     sub l
     ret c
 
-    call display_line_fill_blank
+  ;  call display_line_fill_blank; XXX really needed ?
+
+
+    call FIRMWARE.TXT_GET_CURSOR
+    ld (line_editor.autocomplete_after_cursor_pos), hl
+    ld (line_editor.autocomplete_after_roll_count), a
 
     ret
+
+;;
+; Assume the complete as already be done on time
+; XXX Need to work properly when completion has never been used
+; TODO Manage the case where a scroll occured
+autocomplete_erase_completion
+    call FIRMWARE.TXT_GET_CURSOR
+    push hl : push af
+
+; screen MUST NOT ROLL I doubt the current implementation guarantes that
+
+    BREAKPOINT_WINAPE
+.set_cursor_at_beginning
+        ld hl, (line_editor.autocomplete_before_cursor_pos)
+        push hl : call FIRMWARE.TXT_SET_CURSOR : pop hl
+
+
+.clear_loop
+        ld a, ' ' : call FIRMWARE.TXT_OUTPUT
+        call FIRMWARE.TXT_GET_CURSOR
+        inc h
+        call FIRMWARE.TXT_VALIDATE
+
+        push hl
+            ld de, (line_editor.autocomplete_after_cursor_pos)
+            or a
+            sbc hl, de
+            ex de ,hl
+        pop hl
+
+        ld a, d
+        or e
+        jr nz, .clear_loop
+        
+
+    pop af : pop hl
+    call FIRMWARE.TXT_SET_CURSOR
+
 
 autocomplete_get_number_of_completions
     ; XXX add the count of the other types

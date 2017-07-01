@@ -70,6 +70,13 @@ line_editor
 .insert_mode db 0 ; XXX Use 0xb1114 ?
 
 
+; Manage the cleaning of the cursor
+.autocomplete_before_cursor_pos dw 0
+.autocomplete_before_roll_count db 0
+.autocomplete_after_cursor_pos dw 0
+.autocomplete_after_roll_count db 0
+
+
 .check_cursor db 1
 .autocomplete_start dw 0    ; Start address (in text buffer) of the word for the autocompletion
 .autocomplete_stop dw 0    ;  Stop address (in text buffer) of the word for the autocompletion

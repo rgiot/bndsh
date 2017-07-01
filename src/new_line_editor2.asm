@@ -254,6 +254,7 @@ input_txt_2cf9  jr      nz,input_txt_2cf3         ; loop for next character
 
     push hl
       call history_save_current_context
+      call autocomplete_erase_completion
     pop hl
 
     push hl
