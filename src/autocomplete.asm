@@ -243,12 +243,21 @@ autocomplete_print_completions
 ; XXX Need to work properly when completion has never been used
 ; TODO Manage the case where a scroll occured
 autocomplete_erase_completion
+
+    BREAKPOINT_WINAPE
+
+    ; Erase nothing if completion has not been done
+    ld hl, (line_editor.autocomplete_start )
+    ld a, h
+    or l
+    ret z
+
+
     call FIRMWARE.TXT_GET_CURSOR
     push hl : push af
 
 ; screen MUST NOT ROLL I doubt the current implementation guarantes that
 
-    BREAKPOINT_WINAPE
 .set_cursor_at_beginning
         ld hl, (line_editor.autocomplete_before_cursor_pos)
         push hl : call FIRMWARE.TXT_SET_CURSOR : pop hl
@@ -271,6 +280,10 @@ autocomplete_erase_completion
         or e
         jr nz, .clear_loop
         
+
+
+    ld hl, 0
+    ld (line_editor.autocomplete_start ), hl
 
     pop af : pop hl
     call FIRMWARE.TXT_SET_CURSOR

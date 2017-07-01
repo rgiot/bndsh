@@ -1028,6 +1028,9 @@ line_editor_clear_buffers
 
     xor a
     ld (line_editor.cursor_xpos), a
+
+    ld de, 0
+    ld (line_editor.autocomplete_start ), de
     ret
 
 
