@@ -927,17 +927,11 @@ input_txt_tab
     pop hl
     call FIRMWARE.TXT_SET_CURSOR
 
+    jr .exit
+
 
 .autocomplete_no_completion
-    call FIRMWARE.TXT_GET_CURSOR
-    push hl
-
-    ld b, 40; XXX erase the right amount of completion (depend on the previous completion)
-.autocomplete_no_completion_line_loop
-        push bc : ld a, ' ' : call FIRMWARE.TXT_WR_CHAR : pop bc
-        djnz .autocomplete_no_completion_line_loop
-    pop hl
-    call FIRMWARE.TXT_SET_CURSOR
+    call autocomplete_erase_completion
     jr .exit
 
 .autocomplete_insert_completion

@@ -276,7 +276,7 @@ autocomplete_erase_completion
 
 
 .clear_loop
-        ld a, ' ' : call FIRMWARE.TXT_OUTPUT
+        ld a, 'X' : call FIRMWARE.TXT_OUTPUT
         call FIRMWARE.TXT_GET_CURSOR
         inc h
         call FIRMWARE.TXT_VALIDATE
