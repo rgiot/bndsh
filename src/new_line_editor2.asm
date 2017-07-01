@@ -927,6 +927,19 @@ input_txt_tab
     pop hl
     call FIRMWARE.TXT_SET_CURSOR
 
+    ; if completion made scroll then screen, we have to manage that
+    ld a, (line_editor.autocomplete_before_roll_count) : ld b, a
+    ld a, (line_editor.autocomplete_after_roll_count)
+    sub b
+    jr z, .exit
+    
+    push af
+    call FIRMWARE.TXT_GET_CURSOR
+    pop af
+    add l
+    dec a : dec a ; XXX I guess I have a bug
+    ld l, a
+    call FIRMWARE.TXT_SET_CURSOR
     jr .exit
 
 
