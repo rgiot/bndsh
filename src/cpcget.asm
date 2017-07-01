@@ -123,5 +123,5 @@ cpcget_build_url
   ret
 
 cpcget_rom_data
-.search_query string "benediction.cpcscene.net/brige.php?q="
-.download_query string "benediction.cpcscene.net/brige.php?d="
+.search_query string "benediction.cpcscene.net/bridge.php?q="
+.download_query string "benediction.cpcscene.net/bridge.php?d="

@@ -938,10 +938,8 @@ input_txt_tab
     jr .exit
 
 .autocomplete_insert_completion
-
-
-
     call autocomplete_get_unique_completion
+
 .autocomplete_insert_completion_continue
     ex de, hl
     pop hl  ; we lost it and replace by the computed stuff
@@ -970,6 +968,22 @@ input_txt_tab
     or a
     jr z, .autocomplete_insert_completion_end_loop
     push de
+
+        push af
+        dec hl
+        ld a, (hl)
+        BREAKPOINT_WINAPE
+        inc hl
+        call string_char_is_lower
+        jr z, .autocomplete_insert_in_lower
+.autocomplete_insert_in_upper
+        pop af
+        call string_char_to_upper
+        jr .autocomplete_insert_really
+.autocomplete_insert_in_lower
+        pop af
+        call string_char_to_lower
+.autocomplete_insert_really
         call input_txt_insert_char
     pop de
     jr .autocomplete_insert_completion_loop

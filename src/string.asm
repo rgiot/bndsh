@@ -15,13 +15,39 @@
 ; Output
 ; A: the char in uppercase
 string_char_to_upper
-  ;cp 'A' : ret c ; not needed
   cp 'a'-1 : ret c
   cp 'z'+1 : ret nc
 
   add -( 'a' - 'A')
 
   ret
+
+
+
+string_char_to_lower
+  cp 'A'-1 : ret c
+  cp 'Z'+1 : ret nc
+
+  add  'a' - 'A'
+
+  ret
+
+
+
+
+string_char_is_lower
+  cp 'a'-1 : jr c, .is_upper
+  cp 'z'+1 : jr nc, .is_upper
+
+.is_lower
+    cp a
+    ret
+
+.is_upper
+    or 1
+    ret
+
+    
 
 
 ;;
