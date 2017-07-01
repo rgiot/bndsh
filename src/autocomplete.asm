@@ -197,9 +197,19 @@ autocomplete_print_completions
     ld a, 13 : call 0xbb5a
  ;   ld a, ' ' : call 0xbb5a
 
+
+
+    ; Erase previous completion if any
+    ld a, (line_editor.autocomplete_done)
+    or a
+    call nz, autocomplete_erase_completion
+
     call FIRMWARE.TXT_GET_CURSOR
     ld (line_editor.autocomplete_before_cursor_pos), hl
     ld (line_editor.autocomplete_before_roll_count), a
+
+
+
 
     ld hl,  autocomplete.commands_ptr_buffer
 .loop
@@ -236,6 +246,8 @@ autocomplete_print_completions
     ld (line_editor.autocomplete_after_cursor_pos), hl
     ld (line_editor.autocomplete_after_roll_count), a
 
+    ld a, 1
+    ld (line_editor.autocomplete_done), a
     ret
 
 ;;
@@ -282,8 +294,8 @@ autocomplete_erase_completion
         
 
 
-    ld hl, 0
-    ld (line_editor.autocomplete_start ), hl
+    ld a, 1
+    ld (line_editor.autocomplete_done), a
 
     pop af : pop hl
     call FIRMWARE.TXT_SET_CURSOR

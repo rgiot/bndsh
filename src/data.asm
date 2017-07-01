@@ -71,6 +71,7 @@ line_editor
 
 
 ; Manage the cleaning of the cursor
+.autocomplete_done db 0
 .autocomplete_before_cursor_pos dw 0
 .autocomplete_before_roll_count db 0
 .autocomplete_after_cursor_pos dw 0
