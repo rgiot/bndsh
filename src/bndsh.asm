@@ -53,7 +53,7 @@ startup_data
     include "more.asm"
     include "alias.asm"
     include "cpcget.asm"
-
+    include "error.asm"
 
     if BNDSH_EXEC
         include "m4.asm"

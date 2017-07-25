@@ -268,6 +268,8 @@ autocomplete_erase_completion
     call FIRMWARE.TXT_GET_CURSOR
     push hl : push af
 
+
+
 ; screen MUST NOT ROLL I doubt the current implementation guarantes that
 
 .set_cursor_at_beginning

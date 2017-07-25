@@ -10,7 +10,8 @@
 ; 4. C contient le numéro de la ROM (0..7)
 
 cpcget_search_rsx
-  cp 1 : ret nz ; Leave if not right amount of paramters TODO really display an error
+  ;cp 1 : ret nz ; Leave if not right amount of paramters TODO really display an error
+  cp 1 : jp nz, wrong_number_of_arguments
 
   ld hl, rsx_name.httpmem
   call FIRMWARE.KL_FIND_COMMAND

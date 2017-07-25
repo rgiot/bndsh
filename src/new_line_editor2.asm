@@ -998,7 +998,9 @@ input_txt_tab
     jr .autocomplete_insert_completion_loop
 .autocomplete_insert_completion_end_loop
     
-    
+    ; extra step to no clear autocompletion stuff before launching command
+    ld de, 0 : ld (line_editor.autocomplete_start), de
+
     pop af : pop de
     or a
     ret

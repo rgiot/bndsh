@@ -43,7 +43,7 @@ launch: BUILD_DSK
 	xdg-open $(DSK_FNAME)
 
 
-CPCWIFI= 192.168.1.26
+CPCWIFI?= 192.168.1.26
 
 test_rom:
 	./bootstrap.sh make && ../cpcxfer/xfer -f $(CPCWIFI) ./BNDSH.ROM 1 BNDSH && ../cpcxfer/xfer -r $(CPCWIFI)
