@@ -270,25 +270,41 @@ bndsh_get_rom_number
 ; TODO this is a very sill way to retreive RSX names. I'm sure there are somewhere in memory !
 bndsh_get_rsx_names
 
-    ; Save current state of the ROM
-    xor a
-    call FIRMWARE.KL_CURR_SELECTION 
-    ld c, a :  push bc
-
     xor a
     ld de, rsx_names
 .loop_over_rom
     push af
 
         ; Select the ROM of interest
-        ld c, a
         push de
+
+            ld c, a ; backup of a in c (not modified after)
+            call FIRMWARE.KL_CURR_SELECTION 
+            push af
+                
+
+                ; select memory of interest
+                call FIRMWARE.KL_ROM_SELECT
+
+                ; copy rsx names in workng memory
+                ld  hl, (0xC004)
+                ld de, temp.rsx_names
+                ld bc, 256
+                ldir
+
+            pop af
+            ld c, a
             call FIRMWARE.KL_ROM_SELECT
+
+            ld hl, temp.rsx_names
         pop de
 
 
         ; Get rom name
-        ld  hl, (0xC004)
+
+        
+
+
         ld a, (hl) : or a : jp z, .test_next_rom
         ld a, (hl) : cp 'A' : jp c, .test_next_rom
 
@@ -305,27 +321,16 @@ bndsh_get_rsx_names
             bit 7, a : jr nz, .loop_over_rsx_forget     ; Unprintable string
             cp 'A' : jr c, .test_next_rom               ; Memory error ?
 
+
+
+
                 push hl
-
-                    ; manage the symbol
-                    push hl
-                      ld a, l
-                      ld hl, .anim
-                      ld b, 0
-                      and 3
-                      ld c, a
-                      add hl, bc
-                      ld a, (hl)
-                      call FIRMWARE.TXT_OUTPUT
-                      ld a, 8
-                      call FIRMWARE.TXT_OUTPUT
-                    pop hl
-
 
                     ; XXX this is far too slow here
                     push de 
                         ld de, interpreter.command_name_buffer
                         call  .copy_name_in_buffer
+                        ld de, interpreter.command_name_buffer
                         call bndsh_rsx_exists
                         call nz, bndsh_command_exists 
                      pop de
@@ -352,8 +357,6 @@ bndsh_get_rsx_names
 .end_loop_over_rom
 
     
-    ; Restore the previous state of the ROM
-    pop bc : push de : call FIRMWARE.KL_ROM_SELECT : pop de
     xor a
     ld (de), a
     inc de
@@ -426,18 +429,19 @@ bndsh_rsx_exists
 ;;
 ; Check if, for this RSX, there is already an internal command with the same name
 ; INPUT:
-; - HL = string to compare to
+; - de = string to compare to
 ; OUTPUT:
 ; - HL is inchanged
 ; - Z if command present
 bndsh_command_exists
 
+    BREAKPOINT_WINAPE
 
-    ld de, interpreter.command_name_buffer
     ld hl, interpreter_command_list
 .loop_full
+        ld de, interpreter.command_name_buffer
         ; Read the ptr name
-        ld c, (hl) : inc hl : ld b, (hl)
+        ld c, (hl) : inc hl : ld b, (hl) 
 
 
         ; Quit if this is the end
@@ -446,19 +450,28 @@ bndsh_command_exists
         jr z, .end_of_loop_no_match
 
 
+    if 0
+        ld a, (bc)
+        ex de, hl :  cp (hl) : ex de, hl
+
+        jr z, .need_to_test
+        jr .no_need_to_test
+    endif
+
+.need_to_test
 ;        ; HL: list of commands
 ;        ; DE: string to compare to
 ;        ; BC: current string
 ;
-        push hl : push de
+        push hl 
             ld h, b : ld l, c
             call string_compare_ram
-        pop de : pop hl
+        pop hl
         jr z, .end_of_loop_match
 
-        ld de, command - 1
+.no_need_to_test
+        ld de, command - 1 ; alrady moved of one byte
         add hl, de
-        ld de, interpreter.command_name_buffer
 
     jr .loop_full
 
@@ -484,13 +497,15 @@ bndsh_command_exists
 string_compare_ram
 .loop
 
-    ld a, (hl)
+    ld a, (hl) : ;call string_char_to_upper
     call string_char_is_eof_ram
     jr z, .str1_empty
 
 .str1_not_empty
     ld c, a
-    ld a, (de) : call string_char_is_eof_ram : jr z, .not_equal
+    ld a, (de)
+    ;: call string_char_to_upper :  
+    call string_char_is_eof_ram : jr z, .not_equal
 .str1_not_empty_and_str2_not_empty
     cp c : jr nz, .not_equal
 
@@ -498,7 +513,10 @@ string_compare_ram
     jr .loop
 
 .str1_empty
-    ld a, (de) : call string_char_is_eof_ram : jr z, .equal
+    ld a, (de) 
+    ;: call string_char_to_upper : 
+    call string_char_is_eof_ram
+    jr z, .equal
     jr .not_equal
 
 .equal
@@ -508,6 +526,11 @@ string_compare_ram
 .not_equal
     or 1; Z=0
     ret
+
+
+
+
+
 
 
 

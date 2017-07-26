@@ -148,4 +148,7 @@ autocomplete
 rsx_names
     defs 512
 
+temp
+.rsx_names equ autocomplete.longest_common_string
+
 file_names

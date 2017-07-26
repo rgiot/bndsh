@@ -324,25 +324,6 @@ interpreter_command_not_found
      ld hl, interpreter_messages.read_error : call display_print_string
     ret
 
-interpreter_command_list
-    command interpreter_command_basic.name, interpreter_command_basic.help, interpreter_command_basic.routine
-;    command interpreter_command_cat.name, interpreter_command_cat.help, interpreter_command_cat.routine  ; XXX No need to create a CAT command, we have the BASIC one 
-    command interpreter_command_clear.name, interpreter_command_clear.help, interpreter_command_clear.routine
-;    command interpreter_command_cd.name, interpreter_command_cd.name
-    command interpreter_command_crtc.name, interpreter_command_crtc.help, interpreter_command_crtc.routine
-    command interpreter_command_exit.name, interpreter_command_exit.help, interpreter_command_exit.routine
-    command interpreter_command_help.name, interpreter_command_help.help, interpreter_command_help.routine
-    command interpreter_command_history.name, interpreter_command_history.help, interpreter_command_history.routine
-    command interpreter_command_keys.name, interpreter_command_keys.help, interpreter_command_keys.routine
-    command interpreter_command_ls.name, interpreter_command_ls.help, interpreter_command_ls.routine
-    command interpreter_command_more.name, interpreter_command_more.help, interpreter_command_more.routine
-    command interpreter_command_mv.name, interpreter_command_mv.help, interpreter_command_mv.routine
-    command interpreter_command_pwd.name, interpreter_command_pwd.help, interpreter_command_pwd.routine
-    command interpreter_command_rom.name, interpreter_command_rom.help, interpreter_command_rom.routine
-    command 0, 0
-
-
-
 
 interpreter_command_more
 .name string "MORE"
@@ -744,18 +725,18 @@ interpreter_command_keys
   ret
 .description
   db 0xf0,": move cursor to the left", 10, 13
-	db 243,": move cursor to the right", 10, 13
-	db "CONTROL+",242,": move cursor to the beginnig of the line", 10, 13
-	db "CONTROL+:",243," move cursor to the end of the line", 10, 13
-	db "CONTROL+",240,": move cursor to the beginnig of the text", 10, 13
-	db "CONTROL+",241,": move cursor to the end of the text", 10, 13
-	db "SHIFT+",242,": move copy cursor to the left", 10, 13
-	db "SHIFT+",243,": move copy cursor to the right", 10, 13
-	db "SHIFT+",240",: move copy cursor to the up", 10, 13
-	db "SHIFT+",241,": move copy cursor to the dowa", 10, 13
-	db "CONTROL+TAB: switch between insert/replace modes", 10, 13
-	db "BREAK: break the input control flow", 10, 13
-	db "ENTER: validate and execute the instruction of the line by the BASIC interpreter", 10, 13
+    db 243,": move cursor to the right", 10, 13
+    db "CONTROL+",242,": move cursor to the beginnig of the line", 10, 13
+    db "CONTROL+:",243," move cursor to the end of the line", 10, 13
+    db "CONTROL+",240,": move cursor to the beginnig of the text", 10, 13
+    db "CONTROL+",241,": move cursor to the end of the text", 10, 13
+    db "SHIFT+",242,": move copy cursor to the left", 10, 13
+    db "SHIFT+",243,": move copy cursor to the right", 10, 13
+    db "SHIFT+",240",: move copy cursor to the up", 10, 13
+    db "SHIFT+",241,": move copy cursor to the dowa", 10, 13
+    db "CONTROL+TAB: switch between insert/replace modes", 10, 13
+    db "BREAK: break the input control flow", 10, 13
+    db "ENTER: validate and execute the instruction of the line by the BASIC interpreter", 10, 13
   db 0
 
 interpreter_messages
@@ -775,6 +756,31 @@ interpreter_messages
     string "RSX:"
 .aliases
     string "ALIASES:"
+
+
+
+
+; this data table is here because of bndsh_get_rsx_names that uses it
+interpreter_command_list
+    command interpreter_command_ls.name, interpreter_command_ls.help, interpreter_command_ls.routine
+    command interpreter_command_basic.name, interpreter_command_basic.help, interpreter_command_basic.routine
+;    command interpreter_command_cat.name, interpreter_command_cat.help, interpreter_command_cat.routine  ; XXX No need to create a CAT command, we have the BASIC one 
+    command interpreter_command_clear.name, interpreter_command_clear.help, interpreter_command_clear.routine
+;    command interpreter_command_cd.name, interpreter_command_cd.name
+    command interpreter_command_crtc.name, interpreter_command_crtc.help, interpreter_command_crtc.routine
+    command interpreter_command_exit.name, interpreter_command_exit.help, interpreter_command_exit.routine
+    command interpreter_command_help.name, interpreter_command_help.help, interpreter_command_help.routine
+    command interpreter_command_history.name, interpreter_command_history.help, interpreter_command_history.routine
+    command interpreter_command_keys.name, interpreter_command_keys.help, interpreter_command_keys.routine
+    command interpreter_command_more.name, interpreter_command_more.help, interpreter_command_more.routine
+    command interpreter_command_mv.name, interpreter_command_mv.help, interpreter_command_mv.routine
+    command interpreter_command_pwd.name, interpreter_command_pwd.help, interpreter_command_pwd.routine
+    command interpreter_command_rom.name, interpreter_command_rom.help, interpreter_command_rom.routine
+    command 0, 0
+
+
+
+
 
 
   include src/command_ls.asm
