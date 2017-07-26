@@ -762,7 +762,7 @@ interpreter_messages
 
 ; this data table is here because of bndsh_get_rsx_names that uses it
 interpreter_command_list
-    command interpreter_command_ls.name, interpreter_command_ls.help, interpreter_command_ls.routine
+    command interpreter_command_autocomplete.name, interpreter_command_autocomplete.help, interpreter_command_autocomplete.routine
     command interpreter_command_basic.name, interpreter_command_basic.help, interpreter_command_basic.routine
 ;    command interpreter_command_cat.name, interpreter_command_cat.help, interpreter_command_cat.routine  ; XXX No need to create a CAT command, we have the BASIC one 
     command interpreter_command_clear.name, interpreter_command_clear.help, interpreter_command_clear.routine
@@ -772,6 +772,7 @@ interpreter_command_list
     command interpreter_command_help.name, interpreter_command_help.help, interpreter_command_help.routine
     command interpreter_command_history.name, interpreter_command_history.help, interpreter_command_history.routine
     command interpreter_command_keys.name, interpreter_command_keys.help, interpreter_command_keys.routine
+    command interpreter_command_ls.name, interpreter_command_ls.help, interpreter_command_ls.routine
     command interpreter_command_more.name, interpreter_command_more.help, interpreter_command_more.routine
     command interpreter_command_mv.name, interpreter_command_mv.help, interpreter_command_mv.routine
     command interpreter_command_pwd.name, interpreter_command_pwd.help, interpreter_command_pwd.routine
@@ -784,3 +785,4 @@ interpreter_command_list
 
 
   include src/command_ls.asm
+  include src/command_autocomplete.asm
