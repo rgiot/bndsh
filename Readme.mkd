@@ -60,8 +60,8 @@ The additional shortcuts are:
 
 The additional `RSX` commands are:
 
- - `|DSKSEARCH,"KEY"` makes a search on CPCRULEZ and print on screen pairs of code and filename (M4 ROM needed)
-- `|DSKGET,"CODE"` download the 1st DSK file from the archive identified by the code (given by DSKSEARCH). **A current limitation of the `|HTTPGET` RSX imposes to manually rename the downloaded file: `MV BRIDGE.PHP MYDSK.DSK`.**
+ - `|DSKSEARCH,"KEY"` or `DSKSEARCH KEY` makes a search on CPCRULEZ and print on screen pairs of code and filename (M4 ROM needed)
+- `|DSKGET,"CODE"` or `DSKGET CODE` download the 1st DSK file from the archive identified by the code (given by DSKSEARCH). **A current limitation of the `|HTTPGET` RSX imposes to manually rename the downloaded file: `MV BRIDGE.PHP MYDSK.DSK`.**
 
 
 ## Additional features I plan to code
