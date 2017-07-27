@@ -12,6 +12,7 @@ autocomplete_search_completions
     ld (autocomplete.nb_commands), a
 
     call autocomplete_search_completion_on_filenames
+    call autocomplete_search_completion_on_dirnames
     call autocomplete_search_completions_on_commands
     call autocomplete_search_completions_on_rsx
   ;  call autocomplete_search_completions_on_aliases ; XXX Deactivated because currently buggy :(
@@ -35,7 +36,16 @@ autocomplete_search_completion_on_filenames
 
 
     
-
+autocomplete_search_completion_on_dirnames
+    call m4_available
+    jp z, autocomplete_search_completion_on_dirnames_m4 ;; ram
+.no_m4
+    ld hl, autocomplete.commands_ptr_buffer 
+    xor a
+    ld (hl), a
+    inc hl
+    ld (hl), a
+    ret
 
 
 autocomplete_search_completions_on_commands

@@ -116,6 +116,41 @@ sendloop_iy
 
 
 
+
+m4_set_file_filter_from_token
+        ; Compute the size of the command to send
+        ld hl, interpreter.command_name_buffer
+        call string_size_ram
+.min_size equ 2 + 1 + 1 +1 + 1  ; arguments + * + 0 
+        add .min_size
+
+
+        ld hl, m4_buffer
+        ld (hl), a : inc hl                 ; Set size of the parameters                 
+        ld (hl), C_DIRSETARGS%256 : inc hl  ; Set low address of routine
+     ;   ld (hl), C_DIRSETARGS/256 : inc hl  ; Set high address of routine
+        ld (hl), C_DIRSETARGS >> 8 : inc hl  ; Set high address of routine
+     ;   ld (hl), 0x25 : inc hl
+     ;   ld (hl), 0x43 : inc hl
+
+        cp .min_size
+        jp z, .no_proposal
+            ex de, hl
+                ld hl, interpreter.command_name_buffer
+                call string_copy_word_ram
+            ex de,hl
+          ;  dec hl                              ; go one char before the end of string
+.no_proposal
+        ld (hl), '*' : inc hl               ; Set wildcard
+        ld (hl), '.' : inc hl               ; Set wildcard
+        ld (hl), '*' : inc hl               ; Set wildcard
+        ld (hl), 0 : inc hl               ; Set wildcard
+
+        ld hl, m4_buffer: call m4_send_command
+        ret
+
+
+
 m4_set_dir_filter_from_token
     if 1
 

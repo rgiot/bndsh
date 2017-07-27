@@ -95,6 +95,22 @@ ram_cd_from_interpreter
 
 
 
+autocomplete_search_completion_on_dirnames_m4
+    ; Activate M4 ROM
+    
+    ; TODO move this code in normal memory ? (I guess once really in ROM, the selection of another ROM will make crash everything)
+    ld  c, M4_ROM_NB; TODO programmatically select rom number (already found at init of the prog)
+    call FIRMWARE.KL_ROM_SELECT
+    push bc ; Backup rom configuration 
+
+    xor a : ld (autocomplete.nb_commands),a 
+
+.configure_filtering_for_search
+
+        call m4_set_file_filter_from_token ; function in RAM
+        jp autocomplete_search_completion_on_filenames_or_dirnames_m4
+
+
 
 
 autocomplete_search_completion_on_filenames_m4
@@ -111,7 +127,7 @@ autocomplete_search_completion_on_filenames_m4
 
         call m4_set_dir_filter_from_token ; function in RAM
 
-
+autocomplete_search_completion_on_filenames_or_dirnames_m4
 
 
         ld de, file_names ; the buffer that will contains ALL the filenames
@@ -141,10 +157,12 @@ autocomplete_search_completion_on_filenames_m4
         inc hl : dec a : inc hl : dec a
 
         ; Copy string out of ROM to the main memory
-        ld a, (hl) : cp '>' : jr nz, .is_file
+        ld a, (hl) : cp '>' : jr z, .is_dir
+.is_file
+        jr .continue
 .is_dir
         inc hl: dec a ; Remove >
-.is_file
+.continue
 
         pop de : pop bc
         ; DE = autocomplete buffer
@@ -180,7 +198,7 @@ autocomplete_search_completion_on_filenames_m4
             cp ' ' : jr z, .do_no_copy_char
             cp '.' : jr nz, .copy_char
 .is_dot
-            ld b, 3 ; we do not care of file size ! so copy only extension
+            ld b, 4 ; we do not care of file size ! so copy only extension
 .copy_char
             ld (de), a
             inc de
