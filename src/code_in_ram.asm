@@ -103,11 +103,12 @@ autocomplete_search_completion_on_dirnames_m4
     call FIRMWARE.KL_ROM_SELECT
     push bc ; Backup rom configuration 
 
-    xor a : ld (autocomplete.nb_commands),a 
 
 .configure_filtering_for_search
 
-        call m4_set_file_filter_from_token ; function in RAM
+        push hl
+            call m4_set_dir_filter_from_token ; function in RAM
+        pop hl
         jp autocomplete_search_completion_on_filenames_or_dirnames_m4
 
 
@@ -121,17 +122,16 @@ autocomplete_search_completion_on_filenames_m4
     call FIRMWARE.KL_ROM_SELECT
     push bc ; Backup rom configuration 
 
-    xor a : ld (autocomplete.nb_commands),a 
-
 .configure_filtering_for_search
 
-        call m4_set_dir_filter_from_token ; function in RAM
+        push hl
+            call m4_set_file_filter_from_token ; function in RAM
+        pop hl
 
 autocomplete_search_completion_on_filenames_or_dirnames_m4
 
 
-        ld de, file_names ; the buffer that will contains ALL the filenames
-        ld hl, autocomplete.commands_ptr_buffer  ; Buffer to add the pointer of filenames
+        ld de, (autocomplete.next_filename_address)
 .loop
         push de : push hl
         ; HL : autocomplete buffer
@@ -215,6 +215,7 @@ autocomplete_search_completion_on_filenames_or_dirnames_m4
         xor a : ld (de), a : inc de
 
 
+        ld (autocomplete.next_filename_address), de
 
         pop hl
 
