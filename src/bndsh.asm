@@ -28,6 +28,13 @@ bndsh_startup
     call pdos_available : jr nz, .no_pdos
     ld hl, startup_data.pdos : call display_print_string
 .no_pdos
+
+    if BNDSH_ROM
+        ld hl, startup_data.memory_access
+        call display_print_string
+        ld a, BNDSH_EXTRA_BANK_SELECTION
+        call display_hexadecimal_8bits_number
+    endif
     ret
 
 
@@ -173,8 +180,9 @@ bndsh_rsx_exists
 
 startup_data
 .text    string  "Benediction Shell v0.1br3    (July 2017)"
-.m4      string  "                            M4 detected."
-.pdos    string  " (do not still work)   Parados detected."
+.m4      string  "                             M4 detected"
+.pdos    string  " (do not still work)    Parados detected"
+.memory_access string "                       Data in bank 0x"
 
 
     include "lib/system.asm"
