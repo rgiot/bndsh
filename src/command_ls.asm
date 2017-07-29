@@ -1,7 +1,7 @@
 interpreter_command_ls
 
 .nbArgs equ 0
-.name  string "LS" ; XXX LS
+.name  string "LS" ;
 .help string "Display catalog (though |ls)."
 .routine
     ;call m4_available : jp nz, interpreter_command_unaivailable

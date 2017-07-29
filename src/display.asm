@@ -8,6 +8,54 @@
 
 
 
+;;
+; Input
+; DE: 16 bits number
+display_hexadecimal_16bits_number
+    ld a, d
+    push de
+        call display_hexadecimal_8bits_number
+    pop de
+
+    ld a, e
+    push de
+        call display_hexadecimal_8bits_number
+    pop de
+    ret
+
+;;
+; Input
+; - A: 8 bits number to display
+display_hexadecimal_8bits_number
+
+    push af
+        repeat 4
+            sra a
+        endrepeat
+        call .treat_digit
+    pop af
+
+
+    call .treat_digit
+    ret
+
+.treat_digit
+        and %1111
+        cp 10
+        jr nc, .is_letter
+.is_digit
+            add '0'
+            call display_print_char
+            ret
+.is_letter
+            add 'A' - 10
+            call display_print_char
+            ret
+
+
+        
+
+
 display_crlf
     ld a, 10 : call FIRMWARE.TXT_OUTPUT
     ld a, 13 : call FIRMWARE.TXT_OUTPUT

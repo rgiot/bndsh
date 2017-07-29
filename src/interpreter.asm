@@ -769,6 +769,7 @@ interpreter_command_list
 ;    command interpreter_command_cd.name, interpreter_command_cd.name
     command interpreter_command_crtc.name, interpreter_command_crtc.help, interpreter_command_crtc.routine
     command interpreter_command_exit.name, interpreter_command_exit.help, interpreter_command_exit.routine
+    command interpreter_command_header.name, interpreter_command_header.help, interpreter_command_header.routine
     command interpreter_command_help.name, interpreter_command_help.help, interpreter_command_help.routine
     command interpreter_command_history.name, interpreter_command_history.help, interpreter_command_history.routine
     command interpreter_command_keys.name, interpreter_command_keys.help, interpreter_command_keys.routine
@@ -784,5 +785,6 @@ interpreter_command_list
 
 
 
+  include src/command_header.asm
   include src/command_ls.asm
   include src/command_autocomplete.asm

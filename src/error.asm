@@ -7,5 +7,6 @@ wrong_number_of_arguments
 
 
 error_messages
-.wrong_number_of_arguments string "Wrong number of arguments"
+.wrong_number_of_arguments string "Wrong number of arguments."
+.file_does_not_exist string "File does not exist: "
     

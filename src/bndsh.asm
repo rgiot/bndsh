@@ -172,7 +172,7 @@ bndsh_rsx_exists
 
 
 startup_data
-.text    string  "Benediction Shell v0.1br2    (July 2017)"
+.text    string  "Benediction Shell v0.1br3    (July 2017)"
 .m4      string  "                            M4 detected."
 .pdos    string  " (do not still work)   Parados detected."
 
