@@ -36,6 +36,10 @@ rsx_name
 .httpget db "HTTPGE", "T"+0x80
 
 
+    if DEBUG_MODE
+debug_string string "DEBUG: "
+    endif
+
 system
 .m4rom db 0xff
 .pdosrom db 0xff

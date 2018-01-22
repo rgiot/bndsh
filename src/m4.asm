@@ -147,6 +147,12 @@ m4_set_file_filter_from_token
         ld (hl), 0 : inc hl               ; Set wildcard
 
         ld hl, m4_buffer: call m4_send_command
+
+
+        if DEBUG_MODE
+            ld hl, m4_buffer + 3
+            call display_print_string
+        endif
         ret
 
 
@@ -195,4 +201,10 @@ m4_set_dir_filter_from_token
 
 
         ld hl, m4_buffer: call m4_send_command
+
+
+        if DEBUG_MODE
+            ld hl, m4_buffer + 3
+            call display_print_string
+        endif
         ret

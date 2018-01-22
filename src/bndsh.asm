@@ -15,6 +15,7 @@ M4_ROM_NB equ 6 ; TODO remove that for a final version
 config_enable_sound equ 1
 
 
+DEBUG_MODE equ 1
 
 
 

@@ -8,6 +8,19 @@
 
 
 
+    if DEBUG_MODE
+display_print_debug
+
+    push hl
+        ld hl, debug_string
+        call display_print_string
+    pop hl
+    call display_print_string
+    call display_crlf
+    ret
+    endif
+
+
 ;;
 ; Input
 ; DE: 16 bits number
