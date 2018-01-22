@@ -29,6 +29,7 @@ The line edition is similar to the one provided by the BASIC and can be used in 
   - `clear` to clear the screen (as `cls`).
   - `crtc` to display crtc number.
   - `exit` to jump to BASIC interpreter
+  - `header` to display the header of a file
   - `help` to display the list of internal commands
   - `ls` similar to cat (M4 required)
   - `more` print an ASCII file on screen
